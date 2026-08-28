@@ -3,11 +3,10 @@ package ar.com.ramallo.gestionalumnos.service;
 import ar.com.ramallo.gestionalumnos.domain.*;
 import ar.com.ramallo.gestionalumnos.domain.enums.*;
 import ar.com.ramallo.gestionalumnos.exception.EstadoInvalidoException;
+import ar.com.ramallo.gestionalumnos.exception.RecursoNoEncontradoException;
 import ar.com.ramallo.gestionalumnos.exception.RegistroDuplicadoException;
 import ar.com.ramallo.gestionalumnos.exception.RequisitosAcademicosIncompletosException;
-import ar.com.ramallo.gestionalumnos.repository.HistorialGrupoRepository;
-import ar.com.ramallo.gestionalumnos.repository.InscripcionRepository;
-import ar.com.ramallo.gestionalumnos.repository.ModuloRepository;
+import ar.com.ramallo.gestionalumnos.repository.*;
 import ar.com.ramallo.gestionalumnos.service.evaluacion.EstrategiaEvaluacionService;
 import ar.com.ramallo.gestionalumnos.service.evaluacion.EvaluacionServiceFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +33,11 @@ class InscripcionServiceTest {
     @Mock private ModuloRepository moduloRepository;
     @Mock private EvaluacionServiceFactory evaluacionServiceFactory;
     @Mock private EstrategiaEvaluacionService estrategiaEvaluacionService;
+    // Mocks nuevos, junto a los que ya tenías
+    @Mock private PersonaRepository personaRepository;
+    @Mock private ProgramaRepository programaRepository;
+    @Mock private PlanRepository planRepository;
+    @Mock private GrupoRepository grupoRepository;
 
     private InscripcionService inscripcionService;
 
@@ -43,8 +47,10 @@ class InscripcionServiceTest {
 
     @BeforeEach
     void setUp() {
+// setUp() actualizado
         inscripcionService = new InscripcionService(
-                inscripcionRepository, historialGrupoRepository, moduloRepository, evaluacionServiceFactory);
+                inscripcionRepository, historialGrupoRepository, moduloRepository, evaluacionServiceFactory,
+                personaRepository, programaRepository, planRepository, grupoRepository);
 
         persona = Persona.builder().nombre("Test Persona").build();
         programaEscolar = Programa.builder().id(1L).nombre("Ingles Base").categoria(CategoriaPrograma.ESCOLAR)
@@ -179,14 +185,14 @@ class InscripcionServiceTest {
         assertThat(nuevoRegistro.getFechaHasta()).isNull();
     }
 
+    // El test existente cambia de excepción esperada
     @Test
     void lanzaExcepcionSiLaInscripcionNoExiste() {
         when(inscripcionRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> inscripcionService.pausar(99L))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(RecursoNoEncontradoException.class);
     }
-
     // --- Tests nuevos: validacion academica al finalizar ---
 
     @Test
@@ -277,6 +283,55 @@ class InscripcionServiceTest {
         return Inscripcion.builder()
                 .persona(persona).programa(programaEscolar).fechaInicio(LocalDate.now().minusMonths(1))
                 .estado(estado).build();
+    }
+
+    // Tests nuevos para la sobrecarga que resuelve ids
+    @Test
+    void crearInscripcionPorIdsResuelveLasCuatroRelaciones() {
+        Programa programa = Programa.builder().id(1L).nombre("Ingles Sede").categoria(CategoriaPrograma.ESCOLAR)
+                .estrategiaEvaluacion(EstrategiaEvaluacion.CENMA_SEDE).build();
+        Plan plan = Plan.builder().id(1L).codigo("A").moduloInicio(1).programa(programa).build();
+        Grupo grupo = Grupo.builder().id(1L).dia("Miercoles").horario("18:00-19:30").programa(programa).build();
+
+        when(personaRepository.findById(1L)).thenReturn(Optional.of(persona));
+        when(programaRepository.findById(1L)).thenReturn(Optional.of(programa));
+        when(planRepository.findById(1L)).thenReturn(Optional.of(plan));
+        when(grupoRepository.findById(1L)).thenReturn(Optional.of(grupo));
+        when(inscripcionRepository.existsByPersonaIdAndPrograma_CategoriaAndEstadoIn(any(), any(), anyList()))
+                .thenReturn(false);
+
+        Inscripcion resultado = inscripcionService.crearInscripcion(1L, 1L, 1L, 1L, LocalDate.now());
+
+        assertThat(resultado.getPlan()).isEqualTo(plan);
+        assertThat(resultado.getGrupo()).isEqualTo(grupo);
+    }
+
+    @Test
+    void crearInscripcionPorIdsFallaSiLaPersonaNoExiste() {
+        when(personaRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> inscripcionService.crearInscripcion(99L, 1L, null, null, LocalDate.now()))
+                .isInstanceOf(RecursoNoEncontradoException.class);
+    }
+
+    @Test
+    void crearInscripcionPorIdsFallaSiElProgramaNoExiste() {
+        when(personaRepository.findById(1L)).thenReturn(Optional.of(persona));
+        when(programaRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> inscripcionService.crearInscripcion(1L, 99L, null, null, LocalDate.now()))
+                .isInstanceOf(RecursoNoEncontradoException.class);
+    }
+
+    @Test
+    void crearInscripcionPorIdsNoResuelvePlanNiGrupoSiVienenNulos() {
+        when(personaRepository.findById(1L)).thenReturn(Optional.of(persona));
+        when(programaRepository.findById(1L)).thenReturn(Optional.of(programaParticular));
+
+        inscripcionService.crearInscripcion(1L, 1L, null, null, LocalDate.now());
+
+        verify(planRepository, never()).findById(any());
+        verify(grupoRepository, never()).findById(any());
     }
 
     private static List<EstadoInscripcion> anyList() {

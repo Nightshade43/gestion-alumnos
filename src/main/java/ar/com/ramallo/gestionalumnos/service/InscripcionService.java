@@ -4,14 +4,14 @@ import ar.com.ramallo.gestionalumnos.domain.*;
 import ar.com.ramallo.gestionalumnos.domain.enums.CategoriaPrograma;
 import ar.com.ramallo.gestionalumnos.domain.enums.EstadoInscripcion;
 import ar.com.ramallo.gestionalumnos.exception.EstadoInvalidoException;
+import ar.com.ramallo.gestionalumnos.exception.RecursoNoEncontradoException;
 import ar.com.ramallo.gestionalumnos.exception.RegistroDuplicadoException;
 import ar.com.ramallo.gestionalumnos.exception.RequisitosAcademicosIncompletosException;
-import ar.com.ramallo.gestionalumnos.repository.HistorialGrupoRepository;
-import ar.com.ramallo.gestionalumnos.repository.InscripcionRepository;
-import ar.com.ramallo.gestionalumnos.repository.ModuloRepository;
+import ar.com.ramallo.gestionalumnos.repository.*;
 import ar.com.ramallo.gestionalumnos.service.evaluacion.EstrategiaEvaluacionService;
 import ar.com.ramallo.gestionalumnos.service.evaluacion.EvaluacionServiceFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +26,10 @@ public class InscripcionService {
     private final HistorialGrupoRepository historialGrupoRepository;
     private final ModuloRepository moduloRepository;
     private final EvaluacionServiceFactory evaluacionServiceFactory;
+    private final PersonaRepository personaRepository;
+    private final ProgramaRepository programaRepository;
+    private final PlanRepository planRepository;
+    private final GrupoRepository grupoRepository;
 
     @Transactional
     public Inscripcion crearInscripcion(Persona persona, Programa programa, Plan plan, Grupo grupo, LocalDate fechaInicio) {
@@ -50,6 +54,24 @@ public class InscripcionService {
         }
 
         return inscripcion;
+    }
+
+    @Transactional
+    public Inscripcion crearInscripcion(Long personaId, Long programaId, Long planId, Long grupoId, LocalDate fechaInicio) {
+        Persona persona = personaRepository.findById(personaId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Persona no encontrada: " + personaId));
+        Programa programa = programaRepository.findById(programaId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Programa no encontrado: " + programaId));
+        Plan plan = planId != null
+                ? planRepository.findById(planId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Plan no encontrado: " + planId))
+                : null;
+        Grupo grupo = grupoId != null
+                ? grupoRepository.findById(grupoId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Grupo no encontrado: " + grupoId))
+                : null;
+
+        return crearInscripcion(persona, programa, plan, grupo, fechaInicio);
     }
 
     @Transactional
@@ -114,7 +136,7 @@ public class InscripcionService {
 
     private Inscripcion obtener(Long inscripcionId) {
         return inscripcionRepository.findById(inscripcionId)
-                .orElseThrow(() -> new IllegalArgumentException("Inscripcion no encontrada: " + inscripcionId));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Inscripcion no encontrada: " + inscripcionId));
     }
 
     private void validarTransicion(EstadoInscripcion actual, EstadoInscripcion destino) {
