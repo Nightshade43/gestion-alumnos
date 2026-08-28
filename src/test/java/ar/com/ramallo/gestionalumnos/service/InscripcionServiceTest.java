@@ -4,8 +4,12 @@ import ar.com.ramallo.gestionalumnos.domain.*;
 import ar.com.ramallo.gestionalumnos.domain.enums.*;
 import ar.com.ramallo.gestionalumnos.exception.EstadoInvalidoException;
 import ar.com.ramallo.gestionalumnos.exception.RegistroDuplicadoException;
+import ar.com.ramallo.gestionalumnos.exception.RequisitosAcademicosIncompletosException;
 import ar.com.ramallo.gestionalumnos.repository.HistorialGrupoRepository;
 import ar.com.ramallo.gestionalumnos.repository.InscripcionRepository;
+import ar.com.ramallo.gestionalumnos.repository.ModuloRepository;
+import ar.com.ramallo.gestionalumnos.service.evaluacion.EstrategiaEvaluacionService;
+import ar.com.ramallo.gestionalumnos.service.evaluacion.EvaluacionServiceFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,8 +23,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,6 +31,9 @@ class InscripcionServiceTest {
 
     @Mock private InscripcionRepository inscripcionRepository;
     @Mock private HistorialGrupoRepository historialGrupoRepository;
+    @Mock private ModuloRepository moduloRepository;
+    @Mock private EvaluacionServiceFactory evaluacionServiceFactory;
+    @Mock private EstrategiaEvaluacionService estrategiaEvaluacionService;
 
     private InscripcionService inscripcionService;
 
@@ -37,12 +43,13 @@ class InscripcionServiceTest {
 
     @BeforeEach
     void setUp() {
-        inscripcionService = new InscripcionService(inscripcionRepository, historialGrupoRepository);
+        inscripcionService = new InscripcionService(
+                inscripcionRepository, historialGrupoRepository, moduloRepository, evaluacionServiceFactory);
 
         persona = Persona.builder().nombre("Test Persona").build();
-        programaEscolar = Programa.builder().nombre("Ingles Base").categoria(CategoriaPrograma.ESCOLAR)
+        programaEscolar = Programa.builder().id(1L).nombre("Ingles Base").categoria(CategoriaPrograma.ESCOLAR)
                 .estrategiaEvaluacion(EstrategiaEvaluacion.CENMA_BASE).build();
-        programaParticular = Programa.builder().nombre("Ingles IT").categoria(CategoriaPrograma.PARTICULAR)
+        programaParticular = Programa.builder().id(2L).nombre("Ingles IT").categoria(CategoriaPrograma.PARTICULAR)
                 .estrategiaEvaluacion(EstrategiaEvaluacion.SEGUIMIENTO_LIBRE).build();
 
         lenient().when(inscripcionRepository.save(any(Inscripcion.class)))
@@ -119,17 +126,6 @@ class InscripcionServiceTest {
     }
 
     @Test
-    void finalizarSeteaFechaFin() {
-        Inscripcion inscripcionActiva = inscripcionConEstado(EstadoInscripcion.ACTIVA);
-        when(inscripcionRepository.findById(1L)).thenReturn(Optional.of(inscripcionActiva));
-
-        Inscripcion resultado = inscripcionService.finalizar(1L);
-
-        assertThat(resultado.getEstado()).isEqualTo(EstadoInscripcion.FINALIZADA);
-        assertThat(resultado.getFechaFin()).isEqualTo(LocalDate.now());
-    }
-
-    @Test
     void cancelarDesdePausadaSeteaFechaFin() {
         Inscripcion inscripcionPausada = inscripcionConEstado(EstadoInscripcion.PAUSADA);
         when(inscripcionRepository.findById(1L)).thenReturn(Optional.of(inscripcionPausada));
@@ -189,6 +185,92 @@ class InscripcionServiceTest {
 
         assertThatThrownBy(() -> inscripcionService.pausar(99L))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    // --- Tests nuevos: validacion academica al finalizar ---
+
+    @Test
+    void bloqueaFinalizacionSiNoTodosLosModulosEscolaresEstanAprobados() {
+        Modulo modulo1 = Modulo.builder().id(10L).orden(1).esSecuencial(false).programa(programaEscolar).build();
+        Modulo modulo2 = Modulo.builder().id(11L).orden(2).esSecuencial(false).programa(programaEscolar).build();
+        Inscripcion inscripcion = inscripcionConEstado(EstadoInscripcion.ACTIVA);
+        when(inscripcionRepository.findById(1L)).thenReturn(Optional.of(inscripcion));
+        when(moduloRepository.findByProgramaIdOrderByOrden(any())).thenReturn(List.of(modulo1, modulo2));
+        when(evaluacionServiceFactory.resolver(programaEscolar)).thenReturn(estrategiaEvaluacionService);
+        when(estrategiaEvaluacionService.moduloAprobado(inscripcion, modulo1)).thenReturn(true);
+        when(estrategiaEvaluacionService.moduloAprobado(inscripcion, modulo2)).thenReturn(false);
+
+        assertThatThrownBy(() -> inscripcionService.finalizar(1L))
+                .isInstanceOf(RequisitosAcademicosIncompletosException.class);
+
+        verify(inscripcionRepository, never()).save(argThat(i -> i.getEstado() == EstadoInscripcion.FINALIZADA));
+    }
+
+    @Test
+    void permiteFinalizarCuandoTodosLosModulosEscolaresEstanAprobados() {
+        Modulo modulo1 = Modulo.builder().id(20L).orden(1).esSecuencial(false).programa(programaEscolar).build();
+        Modulo modulo2 = Modulo.builder().id(21L).orden(2).esSecuencial(false).programa(programaEscolar).build();
+        Inscripcion inscripcion = inscripcionConEstado(EstadoInscripcion.ACTIVA);
+        when(inscripcionRepository.findById(1L)).thenReturn(Optional.of(inscripcion));
+        when(moduloRepository.findByProgramaIdOrderByOrden(any())).thenReturn(List.of(modulo1, modulo2));
+        when(evaluacionServiceFactory.resolver(programaEscolar)).thenReturn(estrategiaEvaluacionService);
+        when(estrategiaEvaluacionService.moduloAprobado(eq(inscripcion), any(Modulo.class))).thenReturn(true);
+
+        Inscripcion resultado = inscripcionService.finalizar(1L);
+
+        assertThat(resultado.getEstado()).isEqualTo(EstadoInscripcion.FINALIZADA);
+        assertThat(resultado.getFechaFin()).isEqualTo(LocalDate.now());
+    }
+
+    @Test
+    void finalizarParticularNoValidaModulos() {
+        Inscripcion inscripcion = Inscripcion.builder()
+                .persona(persona).programa(programaParticular)
+                .fechaInicio(LocalDate.now().minusMonths(1)).estado(EstadoInscripcion.ACTIVA).build();
+        when(inscripcionRepository.findById(1L)).thenReturn(Optional.of(inscripcion));
+
+        Inscripcion resultado = inscripcionService.finalizar(1L);
+
+        assertThat(resultado.getEstado()).isEqualTo(EstadoInscripcion.FINALIZADA);
+        verify(moduloRepository, never()).findByProgramaIdOrderByOrden(any());
+        verify(evaluacionServiceFactory, never()).resolver(any());
+    }
+
+    @Test
+    void filtraModulosEximidosSegunPlanAlValidarFinalizacion() {
+        Plan planB = Plan.builder().codigo("B").moduloInicio(4).programa(programaEscolar).build();
+        List<Modulo> todosLosModulos = List.of(
+                Modulo.builder().id(30L).orden(1).esSecuencial(true).programa(programaEscolar).build(),
+                Modulo.builder().id(31L).orden(2).esSecuencial(true).programa(programaEscolar).build(),
+                Modulo.builder().id(32L).orden(3).esSecuencial(true).programa(programaEscolar).build(),
+                Modulo.builder().id(33L).orden(4).esSecuencial(true).programa(programaEscolar).build(),
+                Modulo.builder().id(34L).orden(5).esSecuencial(true).programa(programaEscolar).build(),
+                Modulo.builder().id(35L).orden(6).esSecuencial(true).programa(programaEscolar).build(),
+                Modulo.builder().id(36L).orden(7).esSecuencial(true).programa(programaEscolar).build());
+        Inscripcion inscripcion = Inscripcion.builder()
+                .persona(persona).programa(programaEscolar).plan(planB)
+                .fechaInicio(LocalDate.now().minusMonths(1)).estado(EstadoInscripcion.ACTIVA).build();
+
+        when(inscripcionRepository.findById(1L)).thenReturn(Optional.of(inscripcion));
+        when(moduloRepository.findByProgramaIdOrderByOrden(any())).thenReturn(todosLosModulos);
+        when(evaluacionServiceFactory.resolver(programaEscolar)).thenReturn(estrategiaEvaluacionService);
+        when(estrategiaEvaluacionService.moduloAprobado(eq(inscripcion), any(Modulo.class))).thenReturn(true);
+
+        inscripcionService.finalizar(1L);
+
+        // Plan B exime modulos 1-3: solo deben consultarse los modulos 4 a 7 (4 en total)
+        verify(estrategiaEvaluacionService, times(4)).moduloAprobado(eq(inscripcion), any(Modulo.class));
+    }
+
+    @Test
+    void bloqueaFinalizacionSiElProgramaNoTieneModulosConfigurados() {
+        Inscripcion inscripcion = inscripcionConEstado(EstadoInscripcion.ACTIVA);
+        when(inscripcionRepository.findById(1L)).thenReturn(Optional.of(inscripcion));
+        when(moduloRepository.findByProgramaIdOrderByOrden(any())).thenReturn(List.of());
+        when(evaluacionServiceFactory.resolver(programaEscolar)).thenReturn(estrategiaEvaluacionService);
+
+        assertThatThrownBy(() -> inscripcionService.finalizar(1L))
+                .isInstanceOf(RequisitosAcademicosIncompletosException.class);
     }
 
     private Inscripcion inscripcionConEstado(EstadoInscripcion estado) {

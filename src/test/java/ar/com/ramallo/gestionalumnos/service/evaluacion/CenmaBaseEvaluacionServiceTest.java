@@ -70,10 +70,10 @@ class CenmaBaseEvaluacionServiceTest {
 
     @Test
     void laNotaOriginalRecuperadaNoCuentaParaElPromedio() {
-        InstanciaEvaluativa original = nota("4.00");
-        InstanciaEvaluativa recuperatorio = nota("8.00");
+        InstanciaEvaluativa original = nota("4.00", 100L);
+        InstanciaEvaluativa recuperatorio = nota("8.00", 101L);
         recuperatorio.setRecuperaA(original);
-        mockearInstancias(original, recuperatorio, nota("7.00"), nota("6.00"));
+        mockearInstancias(original, recuperatorio, nota("7.00", 102L), nota("6.00", 103L));
 
         // promedio esperado: (8.00 + 7.00 + 6.00) / 3 = 7.00, la original de 4.00 queda afuera
         assertThat(service.notaModulo(inscripcion, modulo)).contains(new BigDecimal("7.00"));
@@ -95,20 +95,24 @@ class CenmaBaseEvaluacionServiceTest {
 
     @Test
     void detalleNotasIncluyeTodasLasInstanciasYElPromedioVigente() {
-        InstanciaEvaluativa original = nota("4.00");
-        InstanciaEvaluativa recuperatorio = nota("9.00");
+        InstanciaEvaluativa original = nota("4.00", 200L);
+        InstanciaEvaluativa recuperatorio = nota("9.00", 201L);
         recuperatorio.setRecuperaA(original);
-        mockearInstancias(original, recuperatorio, nota("7.00"), nota("8.00"));
+        mockearInstancias(original, recuperatorio, nota("7.00", 202L), nota("8.00", 203L));
 
         CenmaBaseEvaluacionService.DetalleNotasModulo detalle = service.detalleNotas(inscripcion, modulo);
 
         assertThat(detalle.notas()).hasSize(4);
-        // promedio: (9.00 + 7.00 + 8.00) / 3 = 8.00, la original de 4.00 sigue afuera del promedio
         assertThat(detalle.promedio()).contains(new BigDecimal("8.00"));
     }
 
     private InstanciaEvaluativa nota(String valor) {
+        return nota(valor, null);
+    }
+
+    private InstanciaEvaluativa nota(String valor, Long id) {
         return InstanciaEvaluativa.builder()
+                .id(id)
                 .inscripcion(inscripcion).modulo(modulo)
                 .tipo(TipoInstanciaEvaluativa.NOTA)
                 .nota(new BigDecimal(valor))

@@ -5,8 +5,12 @@ import ar.com.ramallo.gestionalumnos.domain.enums.CategoriaPrograma;
 import ar.com.ramallo.gestionalumnos.domain.enums.EstadoInscripcion;
 import ar.com.ramallo.gestionalumnos.exception.EstadoInvalidoException;
 import ar.com.ramallo.gestionalumnos.exception.RegistroDuplicadoException;
+import ar.com.ramallo.gestionalumnos.exception.RequisitosAcademicosIncompletosException;
 import ar.com.ramallo.gestionalumnos.repository.HistorialGrupoRepository;
 import ar.com.ramallo.gestionalumnos.repository.InscripcionRepository;
+import ar.com.ramallo.gestionalumnos.repository.ModuloRepository;
+import ar.com.ramallo.gestionalumnos.service.evaluacion.EstrategiaEvaluacionService;
+import ar.com.ramallo.gestionalumnos.service.evaluacion.EvaluacionServiceFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +24,8 @@ public class InscripcionService {
 
     private final InscripcionRepository inscripcionRepository;
     private final HistorialGrupoRepository historialGrupoRepository;
+    private final ModuloRepository moduloRepository;
+    private final EvaluacionServiceFactory evaluacionServiceFactory;
 
     @Transactional
     public Inscripcion crearInscripcion(Persona persona, Programa programa, Plan plan, Grupo grupo, LocalDate fechaInicio) {
@@ -58,7 +64,16 @@ public class InscripcionService {
 
     @Transactional
     public Inscripcion finalizar(Long inscripcionId) {
-        Inscripcion inscripcion = cambiarEstado(inscripcionId, EstadoInscripcion.FINALIZADA);
+        Inscripcion inscripcion = obtener(inscripcionId);
+        validarTransicion(inscripcion.getEstado(), EstadoInscripcion.FINALIZADA);
+
+        if (inscripcion.getPrograma().getCategoria() == CategoriaPrograma.ESCOLAR
+                && !cicloEscolarCompleto(inscripcion)) {
+            throw new RequisitosAcademicosIncompletosException(
+                    "No se puede finalizar: no todos los modulos requeridos estan aprobados");
+        }
+
+        inscripcion.setEstado(EstadoInscripcion.FINALIZADA);
         inscripcion.setFechaFin(LocalDate.now());
         return inscripcionRepository.save(inscripcion);
     }
@@ -114,5 +129,19 @@ public class InscripcionService {
         if (!esValida) {
             throw new EstadoInvalidoException("Transicion invalida: " + actual + " -> " + destino);
         }
+    }
+
+    private boolean cicloEscolarCompleto(Inscripcion inscripcion) {
+        EstrategiaEvaluacionService estrategia = evaluacionServiceFactory.resolver(inscripcion.getPrograma());
+        List<Modulo> modulos = moduloRepository.findByProgramaIdOrderByOrden(inscripcion.getPrograma().getId());
+
+        Integer moduloInicio = inscripcion.getPlan() != null ? inscripcion.getPlan().getModuloInicio() : null;
+
+        List<Modulo> modulosRequeridos = modulos.stream()
+                .filter(modulo -> moduloInicio == null || modulo.getOrden() >= moduloInicio)
+                .toList();
+
+        return !modulosRequeridos.isEmpty()
+                && modulosRequeridos.stream().allMatch(modulo -> estrategia.moduloAprobado(inscripcion, modulo));
     }
 }
