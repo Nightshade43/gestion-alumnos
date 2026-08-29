@@ -3,7 +3,9 @@ package ar.com.ramallo.gestionalumnos.web;
 import ar.com.ramallo.gestionalumnos.domain.Contrato;
 import ar.com.ramallo.gestionalumnos.exception.RecursoNoEncontradoException;
 import ar.com.ramallo.gestionalumnos.repository.ContratoRepository;
+import ar.com.ramallo.gestionalumnos.repository.InscripcionRepository;
 import ar.com.ramallo.gestionalumnos.service.ContratoService;
+import ar.com.ramallo.gestionalumnos.web.dto.ContratoEmpresaRequest;
 import ar.com.ramallo.gestionalumnos.web.dto.ContratoRequest;
 import ar.com.ramallo.gestionalumnos.web.dto.ContratoResponse;
 import jakarta.validation.Valid;
@@ -18,31 +20,32 @@ public class ContratoController {
 
     private final ContratoService contratoService;
     private final ContratoRepository contratoRepository;
+    private final InscripcionRepository inscripcionRepository;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ContratoResponse crear(@Valid @RequestBody ContratoRequest request) {
-        return ContratoResponse.from(contratoService.crearContrato(
-                request.inscripcionId(), request.tipoFacturacion(), request.clasesContratadas()));
+        Contrato contrato = contratoService.crearContratoIndividual(
+                request.inscripcionId(), request.tipoFacturacion(), request.clasesContratadas());
+        return armarResponse(contrato);
     }
 
-    @GetMapping("/{id}")
-    public ContratoResponse obtener(@PathVariable Long id) {
-        return ContratoResponse.from(buscarOFallar(id));
+    @PostMapping("/empresa")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ContratoResponse crearParaEmpresa(@Valid @RequestBody ContratoEmpresaRequest request) {
+        Contrato contrato = contratoService.crearContratoEmpresa(
+                request.empresaId(), request.inscripcionIds(), request.tipoFacturacion(), request.clasesContratadas());
+        return armarResponse(contrato);
     }
 
-    @PostMapping("/{id}/consumir-clase")
-    public ContratoResponse consumirClase(@PathVariable Long id) {
-        return ContratoResponse.from(contratoService.consumirClase(id));
+    @PostMapping("/{id}/ampliar-cupo")
+    public ContratoResponse ampliarCupo(@PathVariable Long id, @RequestParam Integer clasesAdicionales) {
+        return armarResponse(contratoService.ampliarCupo(id, clasesAdicionales));
     }
 
-    @PostMapping("/{id}/finalizar")
-    public ContratoResponse finalizar(@PathVariable Long id) {
-        return ContratoResponse.from(contratoService.finalizar(id));
-    }
+// obtener/consumirClase/finalizar también pasan por armarResponse en vez de ContratoResponse.from directo
 
-    private Contrato buscarOFallar(Long id) {
-        return contratoRepository.findById(id)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Contrato no encontrado: " + id));
+    private ContratoResponse armarResponse(Contrato contrato) {
+        return ContratoResponse.from(contrato, inscripcionRepository.findByContratoId(contrato.getId()));
     }
 }

@@ -1,9 +1,6 @@
 package ar.com.ramallo.gestionalumnos.repository;
 
-import ar.com.ramallo.gestionalumnos.domain.Institucion;
-import ar.com.ramallo.gestionalumnos.domain.Modulo;
-import ar.com.ramallo.gestionalumnos.domain.Plan;
-import ar.com.ramallo.gestionalumnos.domain.Programa;
+import ar.com.ramallo.gestionalumnos.domain.*;
 import ar.com.ramallo.gestionalumnos.domain.enums.CategoriaPrograma;
 import ar.com.ramallo.gestionalumnos.domain.enums.EstrategiaEvaluacion;
 import jakarta.persistence.EntityManager;
@@ -25,6 +22,7 @@ class ProgramaModuloPlanRepositoryTest {
     @Autowired private ModuloRepository moduloRepository;
     @Autowired private PlanRepository planRepository;
     @Autowired private EntityManager entityManager;
+    @Autowired private GrupoRepository grupoRepository;
 
     @Test
     void encuentraProgramasPorInstitucion() {
@@ -99,5 +97,15 @@ class ProgramaModuloPlanRepositoryTest {
 
         assertThat(planRepository.findByProgramaIdAndCodigo(programa.getId(), "B")).contains(planB);
         assertThat(planRepository.findByProgramaId(programa.getId())).containsExactly(planB);
+    }
+
+    @Test
+    void encuentraGruposPorPrograma() {
+        Programa programa = programaRepository.save(Programa.builder()
+                .nombre("Ingles Base - test grupos").categoria(CategoriaPrograma.ESCOLAR)
+                .estrategiaEvaluacion(EstrategiaEvaluacion.CENMA_BASE).build());
+        Grupo grupo = grupoRepository.save(Grupo.builder().dia("Lunes").horario("19:00-21:00").programa(programa).build());
+
+        assertThat(grupoRepository.findByProgramaId(programa.getId())).containsExactly(grupo);
     }
 }

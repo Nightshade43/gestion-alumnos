@@ -41,16 +41,6 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, detalle);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
-        return build(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor");
-    }
-
-    private ResponseEntity<ErrorResponse> build(HttpStatus status, String mensaje) {
-        return ResponseEntity.status(status)
-                .body(new ErrorResponse(Instant.now(), status.value(), status.getReasonPhrase(), mensaje));
-    }
-
     @ExceptionHandler(CategoriaInvalidaException.class)
     public ResponseEntity<ErrorResponse> handleCategoriaInvalida(CategoriaInvalidaException ex) {
         return build(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
@@ -64,5 +54,20 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAutenticacion(org.springframework.security.core.AuthenticationException ex) {
         return build(HttpStatus.UNAUTHORIZED, "Usuario o contraseña incorrectos");
+    }
+
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleIntegridadDatos(org.springframework.dao.DataIntegrityViolationException ex) {
+        return build(HttpStatus.CONFLICT, "El recurso viola una restricción de integridad (posible duplicado)");
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor");
+    }
+
+    private ResponseEntity<ErrorResponse> build(HttpStatus status, String mensaje) {
+        return ResponseEntity.status(status)
+                .body(new ErrorResponse(Instant.now(), status.value(), status.getReasonPhrase(), mensaje));
     }
 }

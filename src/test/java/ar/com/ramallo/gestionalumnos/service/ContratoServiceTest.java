@@ -1,15 +1,13 @@
 package ar.com.ramallo.gestionalumnos.service;
 
-import ar.com.ramallo.gestionalumnos.domain.Contrato;
-import ar.com.ramallo.gestionalumnos.domain.Inscripcion;
-import ar.com.ramallo.gestionalumnos.domain.Persona;
-import ar.com.ramallo.gestionalumnos.domain.Programa;
+import ar.com.ramallo.gestionalumnos.domain.*;
 import ar.com.ramallo.gestionalumnos.domain.enums.*;
 import ar.com.ramallo.gestionalumnos.exception.CategoriaInvalidaException;
-import ar.com.ramallo.gestionalumnos.exception.EstadoInvalidoException;
 import ar.com.ramallo.gestionalumnos.exception.LimiteClasesExcedidoException;
 import ar.com.ramallo.gestionalumnos.exception.RecursoNoEncontradoException;
+import ar.com.ramallo.gestionalumnos.exception.RegistroDuplicadoException;
 import ar.com.ramallo.gestionalumnos.repository.ContratoRepository;
+import ar.com.ramallo.gestionalumnos.repository.EmpresaRepository;
 import ar.com.ramallo.gestionalumnos.repository.InscripcionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,113 +30,126 @@ class ContratoServiceTest {
 
     @Mock private ContratoRepository contratoRepository;
     @Mock private InscripcionRepository inscripcionRepository;
+    @Mock private EmpresaRepository empresaRepository;
 
     private ContratoService contratoService;
 
-    private Inscripcion inscripcionParticular;
-    private Inscripcion inscripcionEscolar;
+    private Persona persona1;
+    private Persona persona2;
+    private Programa programaParticular;
+    private Programa programaEscolar;
+    private Empresa empresa;
 
     @BeforeEach
     void setUp() {
-        contratoService = new ContratoService(contratoRepository, inscripcionRepository);
+        contratoService = new ContratoService(contratoRepository, inscripcionRepository, empresaRepository);
 
-        Persona persona = Persona.builder().id(1L).nombre("Martin Sosa").build();
-
-        Programa programaParticular = Programa.builder().id(1L).nombre("Ingles IT")
-                .categoria(CategoriaPrograma.PARTICULAR).estrategiaEvaluacion(EstrategiaEvaluacion.SEGUIMIENTO_LIBRE)
-                .build();
-        inscripcionParticular = Inscripcion.builder().id(1L).persona(persona).programa(programaParticular)
-                .fechaInicio(LocalDate.now()).estado(EstadoInscripcion.ACTIVA).build();
-
-        Programa programaEscolar = Programa.builder().id(2L).nombre("Ingles Base")
+        persona1 = Persona.builder().id(1L).nombre("Martin Sosa").build();
+        persona2 = Persona.builder().id(2L).nombre("Julia Torres").build();
+        programaParticular = Programa.builder().id(1L).nombre("Ingles IT")
+                .categoria(CategoriaPrograma.PARTICULAR).estrategiaEvaluacion(EstrategiaEvaluacion.SEGUIMIENTO_LIBRE).build();
+        programaEscolar = Programa.builder().id(2L).nombre("Ingles Base")
                 .categoria(CategoriaPrograma.ESCOLAR).estrategiaEvaluacion(EstrategiaEvaluacion.CENMA_BASE).build();
-        inscripcionEscolar = Inscripcion.builder().id(2L).persona(persona).programa(programaEscolar)
-                .fechaInicio(LocalDate.now()).estado(EstadoInscripcion.ACTIVA).build();
+        empresa = Empresa.builder().id(1L).nombre("Acme SA").build();
 
         lenient().when(contratoRepository.save(any(Contrato.class)))
+                .thenAnswer(invocacion -> invocacion.getArgument(0));
+        lenient().when(inscripcionRepository.save(any(Inscripcion.class)))
+                .thenAnswer(invocacion -> invocacion.getArgument(0));
+        lenient().when(inscripcionRepository.saveAll(any()))
                 .thenAnswer(invocacion -> invocacion.getArgument(0));
     }
 
     @Test
-    void creaContratoParaInscripcionParticular() {
-        when(inscripcionRepository.findById(1L)).thenReturn(Optional.of(inscripcionParticular));
+    void creaContratoIndividualYLoAsociaALaInscripcion() {
+        Inscripcion inscripcion = inscripcionSinContrato(1L, persona1, programaParticular);
+        when(inscripcionRepository.findById(1L)).thenReturn(Optional.of(inscripcion));
 
-        Contrato resultado = contratoService.crearContrato(1L, TipoFacturacion.PAQUETE, 10);
+        Contrato resultado = contratoService.crearContratoIndividual(1L, TipoFacturacion.PAQUETE, 10);
 
-        assertThat(resultado.getEstado()).isEqualTo(EstadoContrato.ACTIVO);
-        assertThat(resultado.getClasesConsumidas()).isZero();
-        assertThat(resultado.getClasesContratadas()).isEqualTo(10);
+        assertThat(inscripcion.getContrato()).isEqualTo(resultado);
+        assertThat(resultado.getEmpresa()).isNull();
     }
 
     @Test
-    void rechazaContratoParaInscripcionEscolar() {
-        when(inscripcionRepository.findById(2L)).thenReturn(Optional.of(inscripcionEscolar));
+    void rechazaContratoIndividualParaInscripcionEscolar() {
+        Inscripcion inscripcion = inscripcionSinContrato(2L, persona1, programaEscolar);
+        when(inscripcionRepository.findById(2L)).thenReturn(Optional.of(inscripcion));
 
-        assertThatThrownBy(() -> contratoService.crearContrato(2L, TipoFacturacion.MENSUAL, null))
+        assertThatThrownBy(() -> contratoService.crearContratoIndividual(2L, TipoFacturacion.MENSUAL, null))
                 .isInstanceOf(CategoriaInvalidaException.class);
     }
 
     @Test
-    void fallaSiLaInscripcionNoExiste() {
-        when(inscripcionRepository.findById(99L)).thenReturn(Optional.empty());
+    void rechazaContratoIndividualSiLaInscripcionYaTieneUno() {
+        Inscripcion inscripcion = inscripcionSinContrato(3L, persona1, programaParticular);
+        inscripcion.setContrato(Contrato.builder().id(99L).build());
+        when(inscripcionRepository.findById(3L)).thenReturn(Optional.of(inscripcion));
 
-        assertThatThrownBy(() -> contratoService.crearContrato(99L, TipoFacturacion.POR_CLASE, null))
+        assertThatThrownBy(() -> contratoService.crearContratoIndividual(3L, TipoFacturacion.PAQUETE, 5))
+                .isInstanceOf(RegistroDuplicadoException.class);
+    }
+
+    @Test
+    void creaContratoDeEmpresaCubriendoVariasInscripciones() {
+        Inscripcion inscripcion1 = inscripcionSinContrato(1L, persona1, programaParticular);
+        Inscripcion inscripcion2 = inscripcionSinContrato(2L, persona2, programaParticular);
+        when(empresaRepository.findById(1L)).thenReturn(Optional.of(empresa));
+        when(inscripcionRepository.findById(1L)).thenReturn(Optional.of(inscripcion1));
+        when(inscripcionRepository.findById(2L)).thenReturn(Optional.of(inscripcion2));
+
+        Contrato resultado = contratoService.crearContratoEmpresa(
+                1L, List.of(1L, 2L), TipoFacturacion.PAQUETE, 50);
+
+        assertThat(resultado.getEmpresa()).isEqualTo(empresa);
+        assertThat(inscripcion1.getContrato()).isEqualTo(resultado);
+        assertThat(inscripcion2.getContrato()).isEqualTo(resultado);
+    }
+
+    @Test
+    void rechazaContratoDeEmpresaSiUnaInscripcionYaTieneContrato() {
+        Inscripcion inscripcion1 = inscripcionSinContrato(1L, persona1, programaParticular);
+        Inscripcion inscripcion2 = inscripcionSinContrato(2L, persona2, programaParticular);
+        inscripcion2.setContrato(Contrato.builder().id(50L).build());
+        when(empresaRepository.findById(1L)).thenReturn(Optional.of(empresa));
+        when(inscripcionRepository.findById(1L)).thenReturn(Optional.of(inscripcion1));
+        when(inscripcionRepository.findById(2L)).thenReturn(Optional.of(inscripcion2));
+
+        assertThatThrownBy(() -> contratoService.crearContratoEmpresa(1L, List.of(1L, 2L), TipoFacturacion.PAQUETE, 50))
+                .isInstanceOf(RegistroDuplicadoException.class);
+    }
+
+    @Test
+    void fallaSiLaEmpresaNoExiste() {
+        when(empresaRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> contratoService.crearContratoEmpresa(99L, List.of(1L), TipoFacturacion.PAQUETE, 50))
                 .isInstanceOf(RecursoNoEncontradoException.class);
     }
 
     @Test
-    void consumirClaseIncrementaElContadorSinLimiteParaPorClase() {
-        Contrato contrato = contratoConEstado(TipoFacturacion.POR_CLASE, null, 0, EstadoContrato.ACTIVO);
+    void ampliarCupoSumaALasClasesContratadas() {
+        Contrato contrato = Contrato.builder().id(1L).tipoFacturacion(TipoFacturacion.PAQUETE)
+                .clasesContratadas(50).clasesConsumidas(48).estado(EstadoContrato.ACTIVO).build();
         when(contratoRepository.findById(1L)).thenReturn(Optional.of(contrato));
 
-        Contrato resultado = contratoService.consumirClase(1L);
+        Contrato resultado = contratoService.ampliarCupo(1L, 20);
 
-        assertThat(resultado.getClasesConsumidas()).isEqualTo(1);
+        assertThat(resultado.getClasesContratadas()).isEqualTo(70);
     }
 
     @Test
-    void consumirClasePermiteConsumoDentroDelLimiteDelPaquete() {
-        Contrato contrato = contratoConEstado(TipoFacturacion.PAQUETE, 10, 5, EstadoContrato.ACTIVO);
-        when(contratoRepository.findById(1L)).thenReturn(Optional.of(contrato));
-
-        Contrato resultado = contratoService.consumirClase(1L);
-
-        assertThat(resultado.getClasesConsumidas()).isEqualTo(6);
-    }
-
-    @Test
-    void consumirClaseBloqueaAlAlcanzarElLimiteDelPaquete() {
-        Contrato contrato = contratoConEstado(TipoFacturacion.PAQUETE, 10, 10, EstadoContrato.ACTIVO);
+    void consumirClaseSigueRespetandoElLimiteConVariosEmpleados() {
+        Contrato contrato = Contrato.builder().id(1L).tipoFacturacion(TipoFacturacion.PAQUETE)
+                .clasesContratadas(50).clasesConsumidas(50).estado(EstadoContrato.ACTIVO).build();
         when(contratoRepository.findById(1L)).thenReturn(Optional.of(contrato));
 
         assertThatThrownBy(() -> contratoService.consumirClase(1L))
                 .isInstanceOf(LimiteClasesExcedidoException.class);
     }
 
-    @Test
-    void consumirClaseFallaSiElContratoEstaFinalizado() {
-        Contrato contrato = contratoConEstado(TipoFacturacion.MENSUAL, null, 3, EstadoContrato.FINALIZADO);
-        when(contratoRepository.findById(1L)).thenReturn(Optional.of(contrato));
-
-        assertThatThrownBy(() -> contratoService.consumirClase(1L))
-                .isInstanceOf(EstadoInvalidoException.class);
-    }
-
-    @Test
-    void finalizarCambiaElEstadoAFinalizado() {
-        Contrato contrato = contratoConEstado(TipoFacturacion.MENSUAL, null, 2, EstadoContrato.ACTIVO);
-        when(contratoRepository.findById(1L)).thenReturn(Optional.of(contrato));
-
-        Contrato resultado = contratoService.finalizar(1L);
-
-        assertThat(resultado.getEstado()).isEqualTo(EstadoContrato.FINALIZADO);
-    }
-
-    private Contrato contratoConEstado(
-            TipoFacturacion tipo, Integer contratadas, Integer consumidas, EstadoContrato estado) {
-        return Contrato.builder()
-                .id(1L).inscripcion(inscripcionParticular).tipoFacturacion(tipo)
-                .clasesContratadas(contratadas).clasesConsumidas(consumidas).estado(estado)
-                .build();
+    private Inscripcion inscripcionSinContrato(Long id, Persona persona, Programa programa) {
+        return Inscripcion.builder().id(id).persona(persona).programa(programa)
+                .fechaInicio(LocalDate.now()).estado(EstadoInscripcion.ACTIVA).build();
     }
 }

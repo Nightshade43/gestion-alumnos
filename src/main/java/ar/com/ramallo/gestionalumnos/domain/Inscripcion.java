@@ -49,6 +49,10 @@ public class Inscripcion {
     @Builder.Default
     private EstadoInscripcion estado = EstadoInscripcion.ACTIVA;
 
+    @ManyToOne
+    @JoinColumn(name = "contrato_id")
+    private Contrato contrato;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

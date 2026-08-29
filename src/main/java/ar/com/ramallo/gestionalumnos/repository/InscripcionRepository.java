@@ -13,4 +13,6 @@ public interface InscripcionRepository extends JpaRepository<Inscripcion, Long> 
 
     boolean existsByPersonaIdAndPrograma_CategoriaAndEstadoIn(
             Long personaId, CategoriaPrograma categoria, List<EstadoInscripcion> estados);
+
+    List<Inscripcion> findByContratoId(Long contratoId);
 }

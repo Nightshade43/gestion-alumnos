@@ -22,9 +22,9 @@ public class Contrato {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "inscripcion_id", nullable = false, unique = true)
-    private Inscripcion inscripcion;
+    @ManyToOne
+    @JoinColumn(name = "empresa_id")
+    private Empresa empresa;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

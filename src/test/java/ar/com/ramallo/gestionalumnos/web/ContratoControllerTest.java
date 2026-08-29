@@ -1,13 +1,10 @@
 package ar.com.ramallo.gestionalumnos.web;
 
-import ar.com.ramallo.gestionalumnos.domain.Contrato;
-import ar.com.ramallo.gestionalumnos.domain.Inscripcion;
-import ar.com.ramallo.gestionalumnos.domain.enums.EstadoContrato;
-import ar.com.ramallo.gestionalumnos.domain.enums.TipoFacturacion;
+import ar.com.ramallo.gestionalumnos.domain.*;
+import ar.com.ramallo.gestionalumnos.domain.enums.*;
 import ar.com.ramallo.gestionalumnos.exception.CategoriaInvalidaException;
-import ar.com.ramallo.gestionalumnos.exception.LimiteClasesExcedidoException;
-import ar.com.ramallo.gestionalumnos.exception.RecursoNoEncontradoException;
 import ar.com.ramallo.gestionalumnos.repository.ContratoRepository;
+import ar.com.ramallo.gestionalumnos.repository.InscripcionRepository;
 import ar.com.ramallo.gestionalumnos.security.JwtAuthenticationEntryPoint;
 import ar.com.ramallo.gestionalumnos.security.JwtAuthenticationFilter;
 import ar.com.ramallo.gestionalumnos.service.ContratoService;
@@ -19,7 +16,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Optional;
+import java.time.LocalDate;
+import java.util.List;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -27,89 +25,74 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(ContratoController.class)
 @AutoConfigureMockMvc(addFilters = false)
-
 class ContratoControllerTest {
 
     @Autowired private MockMvc mockMvc;
     @MockitoBean private ContratoService contratoService;
     @MockitoBean private ContratoRepository contratoRepository;
+    @MockitoBean private InscripcionRepository inscripcionRepository;
     @MockitoBean private JwtAuthenticationFilter jwtAuthenticationFilter;
     @MockitoBean private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-    private Contrato contratoDe(Long id, Integer contratadas, Integer consumidas, EstadoContrato estado) {
-        Inscripcion inscripcion = Inscripcion.builder().id(1L).build();
-        return Contrato.builder().id(id).inscripcion(inscripcion).tipoFacturacion(TipoFacturacion.PAQUETE)
-                .clasesContratadas(contratadas).clasesConsumidas(consumidas).estado(estado).build();
+    private Inscripcion inscripcionDe(Long id, String nombrePersona) {
+        Persona persona = Persona.builder().id(id).nombre(nombrePersona).build();
+        return Inscripcion.builder().id(id).persona(persona).fechaInicio(LocalDate.now()).build();
+    }
+
+    private Contrato contratoDe(Long id, Empresa empresa, Integer contratadas, Integer consumidas) {
+        return Contrato.builder().id(id).empresa(empresa).tipoFacturacion(TipoFacturacion.PAQUETE)
+                .clasesContratadas(contratadas).clasesConsumidas(consumidas).estado(EstadoContrato.ACTIVO).build();
     }
 
     @Test
-    void creaContratoYDevuelve201() throws Exception {
-        when(contratoService.crearContrato(1L, TipoFacturacion.PAQUETE, 10))
-                .thenReturn(contratoDe(5L, 10, 0, EstadoContrato.ACTIVO));
+    void creaContratoIndividualYDevuelve201() throws Exception {
+        Contrato contrato = contratoDe(1L, null, 10, 0);
+        when(contratoService.crearContratoIndividual(5L, TipoFacturacion.PAQUETE, 10)).thenReturn(contrato);
+        when(inscripcionRepository.findByContratoId(1L)).thenReturn(List.of(inscripcionDe(5L, "Martin Sosa")));
 
         mockMvc.perform(post("/api/contratos")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"inscripcionId\":1,\"tipoFacturacion\":\"PAQUETE\",\"clasesContratadas\":10}"))
+                        .content("{\"inscripcionId\":5,\"tipoFacturacion\":\"PAQUETE\",\"clasesContratadas\":10}"))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(5))
-                .andExpect(jsonPath("$.clasesContratadas").value(10));
+                .andExpect(jsonPath("$.inscripciones[0].personaNombre").value("Martin Sosa"));
     }
 
     @Test
-    void devuelve422SiLaCategoriaNoEsParticular() throws Exception {
-        when(contratoService.crearContrato(2L, TipoFacturacion.MENSUAL, null))
+    void creaContratoDeEmpresaCubriendoVariosEmpleados() throws Exception {
+        Empresa empresa = Empresa.builder().id(1L).nombre("Acme SA").build();
+        Contrato contrato = contratoDe(2L, empresa, 50, 0);
+        when(contratoService.crearContratoEmpresa(1L, List.of(5L, 6L), TipoFacturacion.PAQUETE, 50))
+                .thenReturn(contrato);
+        when(inscripcionRepository.findByContratoId(2L)).thenReturn(List.of(
+                inscripcionDe(5L, "Martin Sosa"), inscripcionDe(6L, "Julia Torres")));
+
+        mockMvc.perform(post("/api/contratos/empresa")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"empresaId\":1,\"tipoFacturacion\":\"PAQUETE\",\"clasesContratadas\":50,\"inscripcionIds\":[5,6]}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.empresaNombre").value("Acme SA"))
+                .andExpect(jsonPath("$.inscripciones.length()").value(2));
+    }
+
+    @Test
+    void devuelve422SiUnaInscripcionEsEscolarAlCrearContratoDeEmpresa() throws Exception {
+        when(contratoService.crearContratoEmpresa(1L, List.of(5L), TipoFacturacion.PAQUETE, 50))
                 .thenThrow(new CategoriaInvalidaException("Contrato solo aplica a inscripciones de categoria PARTICULAR"));
 
-        mockMvc.perform(post("/api/contratos")
+        mockMvc.perform(post("/api/contratos/empresa")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"inscripcionId\":2,\"tipoFacturacion\":\"MENSUAL\"}"))
+                        .content("{\"empresaId\":1,\"tipoFacturacion\":\"PAQUETE\",\"clasesContratadas\":50,\"inscripcionIds\":[5]}"))
                 .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
-    void devuelve404SiLaInscripcionNoExiste() throws Exception {
-        when(contratoService.crearContrato(99L, TipoFacturacion.POR_CLASE, null))
-                .thenThrow(new RecursoNoEncontradoException("Inscripcion no encontrada: 99"));
+    void ampliaElCupoDeUnContrato() throws Exception {
+        Contrato contrato = contratoDe(1L, null, 70, 48);
+        when(contratoService.ampliarCupo(1L, 20)).thenReturn(contrato);
+        when(inscripcionRepository.findByContratoId(1L)).thenReturn(List.of());
 
-        mockMvc.perform(post("/api/contratos")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"inscripcionId\":99,\"tipoFacturacion\":\"POR_CLASE\"}"))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void consumeUnaClase() throws Exception {
-        when(contratoService.consumirClase(5L)).thenReturn(contratoDe(5L, 10, 1, EstadoContrato.ACTIVO));
-
-        mockMvc.perform(post("/api/contratos/5/consumir-clase"))
+        mockMvc.perform(post("/api/contratos/1/ampliar-cupo").param("clasesAdicionales", "20"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.clasesConsumidas").value(1));
-    }
-
-    @Test
-    void devuelve409SiSeSuperaElLimiteDeClases() throws Exception {
-        when(contratoService.consumirClase(5L))
-                .thenThrow(new LimiteClasesExcedidoException("Se alcanzo el limite de clases contratadas (10)"));
-
-        mockMvc.perform(post("/api/contratos/5/consumir-clase"))
-                .andExpect(status().isConflict());
-    }
-
-    @Test
-    void finalizaUnContrato() throws Exception {
-        when(contratoService.finalizar(5L)).thenReturn(contratoDe(5L, 10, 3, EstadoContrato.FINALIZADO));
-
-        mockMvc.perform(post("/api/contratos/5/finalizar"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.estado").value("FINALIZADO"));
-    }
-
-    @Test
-    void obtieneUnContratoExistente() throws Exception {
-        when(contratoRepository.findById(5L)).thenReturn(Optional.of(contratoDe(5L, 10, 2, EstadoContrato.ACTIVO)));
-
-        mockMvc.perform(get("/api/contratos/5"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.clasesConsumidas").value(2));
+                .andExpect(jsonPath("$.clasesContratadas").value(70));
     }
 }

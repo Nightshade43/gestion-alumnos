@@ -106,39 +106,17 @@ class EvaluacionYContratoRepositoryTest {
         entityManager.persist(inscripcion);
 
         Contrato contrato = Contrato.builder()
-                .inscripcion(inscripcion)
                 .tipoFacturacion(TipoFacturacion.PAQUETE)
                 .clasesContratadas(10)
                 .build();
         entityManager.persist(contrato);
+
+        inscripcion.setContrato(contrato);
+        entityManager.persist(inscripcion);
         entityManager.flush();
 
         assertThat(contrato.getEstado()).isEqualTo(EstadoContrato.ACTIVO);
         assertThat(contrato.getClasesConsumidas()).isZero();
-    }
-
-    @Test
-    void noPermiteDosContratosParaLaMismaInscripcion() {
-        Programa programaParticular = Programa.builder()
-                .nombre("Ingles gastronomia")
-                .categoria(CategoriaPrograma.PARTICULAR)
-                .estrategiaEvaluacion(EstrategiaEvaluacion.SEGUIMIENTO_LIBRE)
-                .build();
-        entityManager.persist(programaParticular);
-        Persona persona = Persona.builder().nombre("Julia Torres").build();
-        entityManager.persist(persona);
-        Inscripcion inscripcion = Inscripcion.builder()
-                .persona(persona).programa(programaParticular).fechaInicio(LocalDate.now()).build();
-        entityManager.persist(inscripcion);
-
-        entityManager.persist(Contrato.builder()
-                .inscripcion(inscripcion).tipoFacturacion(TipoFacturacion.MENSUAL).build());
-        entityManager.flush();
-
-        Contrato segundoContrato = Contrato.builder()
-                .inscripcion(inscripcion).tipoFacturacion(TipoFacturacion.POR_CLASE).build();
-
-        assertThrows(ConstraintViolationException.class, () -> entityManager.persist(segundoContrato));
     }
 
     @Test

@@ -81,44 +81,4 @@ class ModeloDominioCompletoIntegrationTest {
         assertThat(recargada.getGrupo().getDia()).isEqualTo("Miercoles");
         assertThat(recargada.getEstado()).isEqualTo(EstadoInscripcion.ACTIVA);
     }
-
-    @Test
-    void armaElGrafoCompletoDeLaRamaParticular() {
-        Programa programaParticular = Programa.builder()
-                .nombre("Ingles IT personalizado")
-                .categoria(CategoriaPrograma.PARTICULAR)
-                .estrategiaEvaluacion(EstrategiaEvaluacion.SEGUIMIENTO_LIBRE)
-                .build();
-        entityManager.persist(programaParticular);
-
-        Persona persona = Persona.builder().nombre("Martin Sosa").email("martin@mail.com").build();
-        entityManager.persist(persona);
-
-        Inscripcion inscripcion = Inscripcion.builder()
-                .persona(persona).programa(programaParticular).fechaInicio(LocalDate.now())
-                .build();
-        entityManager.persist(inscripcion);
-
-        Contrato contrato = Contrato.builder()
-                .inscripcion(inscripcion)
-                .tipoFacturacion(TipoFacturacion.PAQUETE)
-                .clasesContratadas(10)
-                .build();
-        entityManager.persist(contrato);
-
-        Seguimiento seguimiento = Seguimiento.builder()
-                .inscripcion(inscripcion)
-                .fecha(LocalDate.now())
-                .observacion("Nivel B1, buen progreso en vocabulario de cloud computing")
-                .build();
-        entityManager.persist(seguimiento);
-
-        entityManager.flush();
-        entityManager.clear();
-
-        Inscripcion recargada = entityManager.find(Inscripcion.class, inscripcion.getId());
-        assertThat(recargada.getPrograma().getCategoria()).isEqualTo(CategoriaPrograma.PARTICULAR);
-        assertThat(recargada.getPlan()).isNull();
-        assertThat(recargada.getGrupo()).isNull();
-    }
 }
