@@ -2,8 +2,11 @@ package ar.com.ramallo.gestionalumnos.web;
 
 import ar.com.ramallo.gestionalumnos.domain.Persona;
 import ar.com.ramallo.gestionalumnos.repository.PersonaRepository;
+import ar.com.ramallo.gestionalumnos.security.JwtAuthenticationEntryPoint;
+import ar.com.ramallo.gestionalumnos.security.JwtAuthenticationFilter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -19,10 +22,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(PersonaController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class PersonaControllerTest {
 
     @Autowired private MockMvc mockMvc;
     @MockitoBean private PersonaRepository personaRepository;
+    @MockitoBean private JwtAuthenticationFilter jwtAuthenticationFilter;
+    @MockitoBean private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Test
     void creaUnaPersonaYDevuelve201() throws Exception {

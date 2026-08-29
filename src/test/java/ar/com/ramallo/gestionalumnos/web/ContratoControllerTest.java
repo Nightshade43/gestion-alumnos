@@ -8,9 +8,12 @@ import ar.com.ramallo.gestionalumnos.exception.CategoriaInvalidaException;
 import ar.com.ramallo.gestionalumnos.exception.LimiteClasesExcedidoException;
 import ar.com.ramallo.gestionalumnos.exception.RecursoNoEncontradoException;
 import ar.com.ramallo.gestionalumnos.repository.ContratoRepository;
+import ar.com.ramallo.gestionalumnos.security.JwtAuthenticationEntryPoint;
+import ar.com.ramallo.gestionalumnos.security.JwtAuthenticationFilter;
 import ar.com.ramallo.gestionalumnos.service.ContratoService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -23,11 +26,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ContratoController.class)
+@AutoConfigureMockMvc(addFilters = false)
+
 class ContratoControllerTest {
 
     @Autowired private MockMvc mockMvc;
     @MockitoBean private ContratoService contratoService;
     @MockitoBean private ContratoRepository contratoRepository;
+    @MockitoBean private JwtAuthenticationFilter jwtAuthenticationFilter;
+    @MockitoBean private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     private Contrato contratoDe(Long id, Integer contratadas, Integer consumidas, EstadoContrato estado) {
         Inscripcion inscripcion = Inscripcion.builder().id(1L).build();

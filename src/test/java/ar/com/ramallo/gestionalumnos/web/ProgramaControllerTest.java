@@ -6,8 +6,11 @@ import ar.com.ramallo.gestionalumnos.domain.enums.CategoriaPrograma;
 import ar.com.ramallo.gestionalumnos.domain.enums.EstrategiaEvaluacion;
 import ar.com.ramallo.gestionalumnos.repository.InstitucionRepository;
 import ar.com.ramallo.gestionalumnos.repository.ProgramaRepository;
+import ar.com.ramallo.gestionalumnos.security.JwtAuthenticationEntryPoint;
+import ar.com.ramallo.gestionalumnos.security.JwtAuthenticationFilter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -23,11 +26,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ProgramaController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class ProgramaControllerTest {
 
     @Autowired private MockMvc mockMvc;
     @MockitoBean private ProgramaRepository programaRepository;
     @MockitoBean private InstitucionRepository institucionRepository;
+    @MockitoBean private JwtAuthenticationFilter jwtAuthenticationFilter;
+    @MockitoBean private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Test
     void creaUnProgramaConInstitucion() throws Exception {

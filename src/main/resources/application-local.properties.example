@@ -1,3 +1,7 @@
 spring.datasource.url=jdbc:postgresql://localhost:5432/gestion_alumnos
 spring.datasource.username=postgres
 spring.datasource.password=postgres
+
+jwt.secret=CAMBIAME_por_un_secreto_de_al_menos_32_caracteres_random
+admin.username=lucas
+admin.password=monse1143

@@ -5,9 +5,12 @@ import ar.com.ramallo.gestionalumnos.domain.enums.*;
 import ar.com.ramallo.gestionalumnos.exception.*;
 import ar.com.ramallo.gestionalumnos.repository.GrupoRepository;
 import ar.com.ramallo.gestionalumnos.repository.InscripcionRepository;
+import ar.com.ramallo.gestionalumnos.security.JwtAuthenticationEntryPoint;
+import ar.com.ramallo.gestionalumnos.security.JwtAuthenticationFilter;
 import ar.com.ramallo.gestionalumnos.service.InscripcionService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -23,12 +26,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(InscripcionController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class InscripcionControllerTest {
 
     @Autowired private MockMvc mockMvc;
     @MockitoBean private InscripcionService inscripcionService;
     @MockitoBean private InscripcionRepository inscripcionRepository;
     @MockitoBean private GrupoRepository grupoRepository;
+    @MockitoBean private JwtAuthenticationFilter jwtAuthenticationFilter;
+    @MockitoBean private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     private Inscripcion inscripcionDe(Long id, EstadoInscripcion estado) {
         Persona persona = Persona.builder().id(1L).nombre("Ana Gomez").build();

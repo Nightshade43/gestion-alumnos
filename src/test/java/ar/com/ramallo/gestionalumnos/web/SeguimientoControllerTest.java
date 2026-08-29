@@ -4,9 +4,12 @@ import ar.com.ramallo.gestionalumnos.domain.Inscripcion;
 import ar.com.ramallo.gestionalumnos.domain.Seguimiento;
 import ar.com.ramallo.gestionalumnos.exception.CategoriaInvalidaException;
 import ar.com.ramallo.gestionalumnos.repository.SeguimientoRepository;
+import ar.com.ramallo.gestionalumnos.security.JwtAuthenticationEntryPoint;
+import ar.com.ramallo.gestionalumnos.security.JwtAuthenticationFilter;
 import ar.com.ramallo.gestionalumnos.service.SeguimientoService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -20,11 +23,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(SeguimientoController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class SeguimientoControllerTest {
 
     @Autowired private MockMvc mockMvc;
     @MockitoBean private SeguimientoService seguimientoService;
     @MockitoBean private SeguimientoRepository seguimientoRepository;
+    @MockitoBean private JwtAuthenticationFilter jwtAuthenticationFilter;
+    @MockitoBean private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Test
     void creaSeguimientoYDevuelve201() throws Exception {

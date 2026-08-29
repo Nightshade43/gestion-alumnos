@@ -60,4 +60,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleLimiteExcedido(LimiteClasesExcedidoException ex) {
         return build(HttpStatus.CONFLICT, ex.getMessage());
     }
+
+    @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAutenticacion(org.springframework.security.core.AuthenticationException ex) {
+        return build(HttpStatus.UNAUTHORIZED, "Usuario o contraseña incorrectos");
+    }
 }
