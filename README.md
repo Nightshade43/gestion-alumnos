@@ -1,5 +1,11 @@
 # Sistema de Gestión de Alumnos
 
+![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.1-6DB33F?logo=springboot&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-121%20passing-brightgreen)
+![Status](https://img.shields.io/badge/status-V0.75%20backend%20complete-blue)
+![License](https://img.shields.io/badge/license-Apache%202.0-blue)
+
 **Proyecto personal de aprendizaje y portfolio.** Backend de un CRM para gestionar tanto alumnos de instituciones educativas para adultos (CENMA Bº SMATA — Base y Sede) como clientes de cursos particulares (inglés para IT, turismo, gastronomía, consultoría en IA educativa).
 
 Desarrollado como ejercicio de diseño de dominio y arquitectura backend con Java y Spring Boot, priorizando reglas de negocio reales (dos programas educativos con lógicas de evaluación distintas, facturación variable, contratos corporativos con pool de clases compartido) por sobre un CRUD genérico.
@@ -97,3 +103,7 @@ src/main/java/ar/com/ramallo/gestionalumnos/
 
 - [`CRM_Arquitectura_README.md`](./CRM_Arquitectura_README.md) — modelo de dominio, reglas de negocio por línea de producto, máquina de estados, decisiones de diseño
 - [`API_REFERENCE.md`](./API_REFERENCE.md) — contrato completo de la API (endpoints, DTOs, códigos de error) para consumo desde un frontend
+
+## Licencia
+
+Este proyecto está bajo la [Apache License 2.0](./LICENSE).
