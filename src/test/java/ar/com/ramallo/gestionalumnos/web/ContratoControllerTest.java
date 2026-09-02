@@ -95,4 +95,15 @@ class ContratoControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.clasesContratadas").value(70));
     }
+
+    // ContratoControllerTest
+    @Test
+    void listaTodosLosContratos() throws Exception {
+        when(contratoRepository.findAll()).thenReturn(List.of(contratoDe(1L, null, 10, 2)));
+        when(inscripcionRepository.findByContratoId(1L)).thenReturn(List.of(inscripcionDe(5L, "Martin Sosa")));
+
+        mockMvc.perform(get("/api/contratos"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1));
+    }
 }

@@ -5,7 +5,7 @@ target/
 !**/src/test/**/target/
 
 ### Credenciales locales ###
-src/main/resources/application-local.properties
+application-local.properties
 Thumbs.db
 
 ### STS ###

@@ -2,6 +2,7 @@ package ar.com.ramallo.gestionalumnos.web;
 
 import ar.com.ramallo.gestionalumnos.domain.Grupo;
 import ar.com.ramallo.gestionalumnos.domain.Inscripcion;
+import ar.com.ramallo.gestionalumnos.domain.enums.CategoriaPrograma;
 import ar.com.ramallo.gestionalumnos.exception.RecursoNoEncontradoException;
 import ar.com.ramallo.gestionalumnos.repository.GrupoRepository;
 import ar.com.ramallo.gestionalumnos.repository.InscripcionRepository;
@@ -42,6 +43,23 @@ public class InscripcionController {
     public List<InscripcionResponse> listarPorPersona(@RequestParam Long personaId) {
         return inscripcionRepository.findByPersonaId(personaId).stream()
                 .map(InscripcionResponse::from).toList();
+    }
+
+    @GetMapping
+    public List<InscripcionResponse> listar(
+            @RequestParam(required = false) Long personaId,
+            @RequestParam(required = false) CategoriaPrograma categoria) {
+        List<Inscripcion> inscripciones = personaId != null
+                ? inscripcionRepository.findByPersonaId(personaId)
+                : inscripcionRepository.findAll();
+
+        if (categoria != null) {
+            inscripciones = inscripciones.stream()
+                    .filter(i -> i.getPrograma().getCategoria() == categoria)
+                    .toList();
+        }
+
+        return inscripciones.stream().map(InscripcionResponse::from).toList();
     }
 
     @PostMapping("/{id}/pausar")

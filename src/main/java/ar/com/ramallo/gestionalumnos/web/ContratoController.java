@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/contratos")
 @RequiredArgsConstructor
@@ -43,7 +45,12 @@ public class ContratoController {
         return armarResponse(contratoService.ampliarCupo(id, clasesAdicionales));
     }
 
-// obtener/consumirClase/finalizar también pasan por armarResponse en vez de ContratoResponse.from directo
+    @GetMapping
+    public List<ContratoResponse> listar() {
+        return contratoRepository.findAll().stream()
+                .map(this::armarResponse)
+                .toList();
+    }
 
     private ContratoResponse armarResponse(Contrato contrato) {
         return ContratoResponse.from(contrato, inscripcionRepository.findByContratoId(contrato.getId()));

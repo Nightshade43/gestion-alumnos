@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -144,5 +144,27 @@ class InscripcionControllerTest {
         mockMvc.perform(get("/api/inscripciones").param("personaId", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1));
+    }
+
+    @Test
+    void listaTodasLasInscripcionesSinFiltro() throws Exception {
+        when(inscripcionRepository.findAll())
+                .thenReturn(List.of(inscripcionDe(10L, EstadoInscripcion.ACTIVA)));
+
+        mockMvc.perform(get("/api/inscripciones"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1));
+
+        verify(inscripcionRepository, never()).findByPersonaId(any());
+    }
+
+    @Test
+    void filtraInscripcionesPorCategoria() throws Exception {
+        when(inscripcionRepository.findAll())
+                .thenReturn(List.of(inscripcionDe(10L, EstadoInscripcion.ACTIVA)));
+
+        mockMvc.perform(get("/api/inscripciones").param("categoria", "PARTICULAR"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0)); // inscripcionDe() usa programa ESCOLAR
     }
 }
