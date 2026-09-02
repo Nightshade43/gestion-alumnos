@@ -1,18 +1,43 @@
 # Sistema de Gestión de Alumnos
 
-Sistema unificado para gestionar alumnos de instituciones educativas (CENMA Bº SMATA — Base y Sede) y clientes de cursos particulares (inglés IT, turismo, gastronomía, consultoría en IA educativa).
+![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.1-6DB33F?logo=springboot&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-121%20passing-brightgreen)
+![Status](https://img.shields.io/badge/status-V0.75%20backend%20complete-blue)
+![License](https://img.shields.io/badge/license-Apache%202.0-blue)
 
-Backend en Java / Spring Boot, desarrollado como proyecto personal. Etapa actual: aplicación local, con arquitectura preparada para exponerse como aplicación web más adelante.
+**Proyecto personal de aprendizaje y portfolio.** Backend de un CRM para gestionar tanto alumnos de instituciones educativas para adultos (CENMA Bº SMATA — Base y Sede) como clientes de cursos particulares (inglés para IT, turismo, gastronomía, consultoría en IA educativa).
 
-Para el detalle completo de arquitectura, modelo de dominio, reglas de negocio y roadmap, ver [`CRM_Arquitectura_README.md`](./CRM_Arquitectura_README.md).
+Desarrollado como ejercicio de diseño de dominio y arquitectura backend con Java y Spring Boot, priorizando reglas de negocio reales (dos programas educativos con lógicas de evaluación distintas, facturación variable, contratos corporativos con pool de clases compartido) por sobre un CRUD genérico.
 
-## Stack
+> Documentación técnica completa: arquitectura y modelo de dominio en [`CRM_Arquitectura_README.md`](./CRM_Arquitectura_README.md), contrato de la API en [`API_REFERENCE.md`](./API_REFERENCE.md).
+
+---
+
+## Estado del proyecto — V0.75
+
+Backend prácticamente completo: **121/121 tests pasando**.
+
+- ✅ Dominio (13 entidades) con tests de integración `@DataJpaTest` contra PostgreSQL real
+- ✅ Capa de repositorios (Spring Data JPA)
+- ✅ Capa de servicios — máquina de estados de Inscripción, Strategy pattern para las dos lógicas de evaluación (CENMA Base / CENMA Sede), gestión de Contratos (individuales y de Empresa con pool compartido)
+- ✅ 12 controllers REST + manejo de errores centralizado
+- ✅ Autenticación JWT stateless, con test de integración end-to-end
+
+Pendiente (no bloqueante, ver sección 6 de `CRM_Arquitectura_README.md`): nivel MCER en Seguimiento, registro de sesión individual, pagos reales, roles/multi-usuario, CORS, logging estructurado.
+
+**Próximo hito:** interfaz web de frontend, consumiendo esta API tal como está documentada en `API_REFERENCE.md`.
+
+---
+
+## Stack técnico
 
 - Java 21
 - Spring Boot 4.1.1 (Maven)
-- Spring Data JPA + Hibernate
+- Spring Data JPA / Hibernate
 - PostgreSQL
 - Lombok
+- JWT (jjwt) para autenticación stateless
 - JUnit 5 + AssertJ
 
 ## Requisitos
@@ -24,43 +49,61 @@ Para el detalle completo de arquitectura, modelo de dominio, reglas de negocio y
 ## Configuración local
 
 1. Crear la base de datos:
+
    ```sql
    CREATE DATABASE gestion_alumnos;
    ```
-2. Copiar `src/main/resources/application-local.properties.example` a `src/main/resources/application-local.properties.example` y completar con tus credenciales reales:
+
+2. Copiar `src/main/resources/application-local.properties.example` a `src/main/resources/application-local.properties` y completar con tus credenciales reales:
+
    ```properties
    spring.datasource.url=jdbc:postgresql://localhost:5432/gestion_alumnos
    spring.datasource.username=postgres
    spring.datasource.password=postgres
+
+   jwt.secret=<una clave de al menos 32 caracteres>
+   admin.username=<usuario admin>
+   admin.password=<password admin>
    ```
+
    Este archivo está en `.gitignore` — nunca se versiona, cada quien tiene el suyo con sus propias credenciales locales.
+
 3. Ejecutar la aplicación desde IntelliJ (clase `GestionAlumnosApplication`) o por línea de comandos:
-   ```
+
+   ```bash
    ./mvnw spring-boot:run
    ```
 
-`application.properties` activa el profile `local` (`spring.profiles.active=local`), que hace que Spring Boot cargue automáticamente `application-local.properties.example` además del archivo base. Con `spring.jpa.hibernate.ddl-auto=update`, el esquema se genera y actualiza automáticamente a partir de las entidades — no requiere migraciones manuales en esta etapa.
+`application.properties` activa el profile `local` (`spring.profiles.active=local`), que hace que Spring Boot cargue automáticamente `application-local.properties`. Con `spring.jpa.hibernate.ddl-auto=update`, el esquema se genera y actualiza automáticamente a partir de las entidades — no requiere migraciones manuales en esta etapa.
+
+Una vez levantado el backend, la API queda disponible en `http://localhost:8080`. El usuario admin se siembra automáticamente al arrancar (`AdminUserSeeder`) — no hay endpoint de registro. Login vía `POST /api/auth/login`; el resto de la API requiere el header `Authorization: Bearer <token>`.
 
 ## Tests
 
-```
+```bash
 ./mvnw test
 ```
 
-Los tests de persistencia usan `@DataJpaTest` con `@AutoConfigureTestDatabase(replace = Replace.NONE)`, es decir, corren contra la PostgreSQL real configurada en `application.properties`, no contra una base embebida.
+Los tests de persistencia usan `@DataJpaTest` con `@AutoConfigureTestDatabase(replace = Replace.NONE)`, es decir, corren contra la PostgreSQL real configurada en `application-local.properties`, no contra una base embebida.
 
 ## Estructura del proyecto
 
 ```
 src/main/java/ar/com/ramallo/gestionalumnos/
-├── domain/          Entidades JPA y enums
-├── repository/       (pendiente)
-├── service/          (pendiente)
-├── controller/        (pendiente)
-├── exception/        (pendiente)
-└── config/            (pendiente)
+├── domain/          Entidades JPA y enums (13 entidades)
+├── repository/      Interfaces JpaRepository
+├── service/         Lógica de negocio + Strategy pattern de evaluación
+├── security/        Autenticación JWT
+├── web/             Controllers REST + manejo de errores + DTOs
+├── exception/       Excepciones de negocio mapeadas a HTTP
+└── config/          AdminUserSeeder
 ```
 
-## Estado
+## Documentación
 
-Modelo de dominio completo (11 entidades) y validado con tests de integración. Próximo paso: capa de repositorios y servicios (ver estado detallado en `CRM_Arquitectura_README.md`, sección 8).
+- [`CRM_Arquitectura_README.md`](./CRM_Arquitectura_README.md) — modelo de dominio, reglas de negocio por línea de producto, máquina de estados, decisiones de diseño
+- [`API_REFERENCE.md`](./API_REFERENCE.md) — contrato completo de la API (endpoints, DTOs, códigos de error) para consumo desde un frontend
+
+## Licencia
+
+Este proyecto está bajo la [Apache License 2.0](./LICENSE).
