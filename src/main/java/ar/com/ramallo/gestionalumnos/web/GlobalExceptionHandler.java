@@ -9,9 +9,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(RecursoNoEncontradoException.class)
     public ResponseEntity<ErrorResponse> handleNoEncontrado(RecursoNoEncontradoException ex) {
@@ -61,13 +65,17 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.CONFLICT, "El recurso viola una restricción de integridad (posible duplicado)");
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
-        return build(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor");
-    }
-
     private ResponseEntity<ErrorResponse> build(HttpStatus status, String mensaje) {
         return ResponseEntity.status(status)
                 .body(new ErrorResponse(Instant.now(), status.value(), status.getReasonPhrase(), mensaje));
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
+        log.error("Error no manejado", ex);
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor");
+    }
+
+
+
 }

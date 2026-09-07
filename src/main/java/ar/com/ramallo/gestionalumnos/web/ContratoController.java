@@ -40,9 +40,9 @@ public class ContratoController {
         return armarResponse(contrato);
     }
 
-    @PostMapping("/{id}/ampliar-cupo")
-    public ContratoResponse ampliarCupo(@PathVariable Long id, @RequestParam Integer clasesAdicionales) {
-        return armarResponse(contratoService.ampliarCupo(id, clasesAdicionales));
+    @GetMapping("/{id}")
+    public ContratoResponse obtener(@PathVariable Long id) {
+        return armarResponse(buscarOFallar(id));
     }
 
     @GetMapping
@@ -50,6 +50,26 @@ public class ContratoController {
         return contratoRepository.findAll().stream()
                 .map(this::armarResponse)
                 .toList();
+    }
+
+    @PostMapping("/{id}/consumir-clase")
+    public ContratoResponse consumirClase(@PathVariable Long id) {
+        return armarResponse(contratoService.consumirClase(id));
+    }
+
+    @PostMapping("/{id}/ampliar-cupo")
+    public ContratoResponse ampliarCupo(@PathVariable Long id, @RequestParam Integer clasesAdicionales) {
+        return armarResponse(contratoService.ampliarCupo(id, clasesAdicionales));
+    }
+
+    @PostMapping("/{id}/finalizar")
+    public ContratoResponse finalizar(@PathVariable Long id) {
+        return armarResponse(contratoService.finalizar(id));
+    }
+
+    private Contrato buscarOFallar(Long id) {
+        return contratoRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Contrato no encontrado: " + id));
     }
 
     private ContratoResponse armarResponse(Contrato contrato) {

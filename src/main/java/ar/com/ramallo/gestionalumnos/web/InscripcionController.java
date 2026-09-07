@@ -40,12 +40,6 @@ public class InscripcionController {
     }
 
     @GetMapping
-    public List<InscripcionResponse> listarPorPersona(@RequestParam Long personaId) {
-        return inscripcionRepository.findByPersonaId(personaId).stream()
-                .map(InscripcionResponse::from).toList();
-    }
-
-    @GetMapping
     public List<InscripcionResponse> listar(
             @RequestParam(required = false) Long personaId,
             @RequestParam(required = false) CategoriaPrograma categoria) {
