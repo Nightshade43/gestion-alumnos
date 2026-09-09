@@ -35,3 +35,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Scripts ###
+seed-data.sh

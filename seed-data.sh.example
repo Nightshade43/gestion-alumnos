@@ -1,0 +1,123 @@
+#!/bin/bash
+# Carga datos de prueba para las 3 lineas de negocio: CENMA Base, CENMA Sede, Particulares (individual + empresa).
+# Correr con Git Bash: bash seed-data.sh
+# Requiere el backend corriendo en localhost:8080.
+
+set -e
+
+BASE_URL="http://localhost:8080"
+ADMIN_USER="TU_USUARIO_ADMIN"      # el que sembro AdminUserSeeder, de tu application-local.properties
+ADMIN_PASS="TU_PASSWORD_ADMIN"
+
+extract_id() { grep -o '"id":[0-9]*' | head -1 | cut -d: -f2; }
+extract_token() { grep -o '"token":"[^"]*"' | cut -d: -f2 | tr -d '"'; }
+
+echo "== Login =="
+TOKEN=$(curl -s -X POST "$BASE_URL/api/auth/login" -H "Content-Type: application/json" \
+  -d "{\"username\":\"$ADMIN_USER\",\"password\":\"$ADMIN_PASS\"}" | extract_token)
+
+if [ -z "$TOKEN" ]; then
+  echo "No se pudo obtener el token. Revisa ADMIN_USER/ADMIN_PASS y que el backend este corriendo."
+  exit 1
+fi
+
+AUTH="Authorization: Bearer $TOKEN"
+
+echo "== CENMA Base =="
+INSTITUCION_ID=$(curl -s -X POST "$BASE_URL/api/instituciones" -H "$AUTH" -H "Content-Type: application/json" \
+  -d '{"nombre":"CENMA Bo SMATA"}' | extract_id)
+
+PROGRAMA_BASE_ID=$(curl -s -X POST "$BASE_URL/api/programas" -H "$AUTH" -H "Content-Type: application/json" \
+  -d "{\"nombre\":\"Ingles - CENMA Base 1er anio\",\"categoria\":\"ESCOLAR\",\"estrategiaEvaluacion\":\"CENMA_BASE\",\"institucionId\":$INSTITUCION_ID}" | extract_id)
+
+MODULO_BASE_1=$(curl -s -X POST "$BASE_URL/api/modulos" -H "$AUTH" -H "Content-Type: application/json" \
+  -d "{\"programaId\":$PROGRAMA_BASE_ID,\"orden\":1,\"esSecuencial\":false}" | extract_id)
+MODULO_BASE_2=$(curl -s -X POST "$BASE_URL/api/modulos" -H "$AUTH" -H "Content-Type: application/json" \
+  -d "{\"programaId\":$PROGRAMA_BASE_ID,\"orden\":2,\"esSecuencial\":false}" | extract_id)
+
+GRUPO_BASE_ID=$(curl -s -X POST "$BASE_URL/api/grupos" -H "$AUTH" -H "Content-Type: application/json" \
+  -d "{\"programaId\":$PROGRAMA_BASE_ID,\"dia\":\"Lunes\",\"horario\":\"19:00-21:00\"}" | extract_id)
+
+PERSONA_BASE_ID=$(curl -s -X POST "$BASE_URL/api/personas" -H "$AUTH" -H "Content-Type: application/json" \
+  -d '{"nombre":"Ana Gomez","email":"ana.gomez@mail.com"}' | extract_id)
+
+INSCRIPCION_BASE_ID=$(curl -s -X POST "$BASE_URL/api/inscripciones" -H "$AUTH" -H "Content-Type: application/json" \
+  -d "{\"personaId\":$PERSONA_BASE_ID,\"programaId\":$PROGRAMA_BASE_ID,\"grupoId\":$GRUPO_BASE_ID,\"fechaInicio\":\"2026-03-01\"}" | extract_id)
+
+# 3 notas del modulo 1, para poder ver el promedio calculado en pantalla
+curl -s -X POST "$BASE_URL/api/instancias-evaluativas" -H "$AUTH" -H "Content-Type: application/json" \
+  -d "{\"inscripcionId\":$INSCRIPCION_BASE_ID,\"moduloId\":$MODULO_BASE_1,\"tipo\":\"NOTA\",\"nota\":7.00,\"fecha\":\"2026-04-01\"}" > /dev/null
+curl -s -X POST "$BASE_URL/api/instancias-evaluativas" -H "$AUTH" -H "Content-Type: application/json" \
+  -d "{\"inscripcionId\":$INSCRIPCION_BASE_ID,\"moduloId\":$MODULO_BASE_1,\"tipo\":\"NOTA\",\"nota\":8.00,\"fecha\":\"2026-04-15\"}" > /dev/null
+curl -s -X POST "$BASE_URL/api/instancias-evaluativas" -H "$AUTH" -H "Content-Type: application/json" \
+  -d "{\"inscripcionId\":$INSCRIPCION_BASE_ID,\"moduloId\":$MODULO_BASE_1,\"tipo\":\"NOTA\",\"nota\":6.50,\"fecha\":\"2026-05-01\"}" > /dev/null
+
+echo "  Institucion: $INSTITUCION_ID | Programa Base: $PROGRAMA_BASE_ID | Persona: $PERSONA_BASE_ID | Inscripcion: $INSCRIPCION_BASE_ID"
+
+echo "== CENMA Sede =="
+PROGRAMA_SEDE_ID=$(curl -s -X POST "$BASE_URL/api/programas" -H "$AUTH" -H "Content-Type: application/json" \
+  -d "{\"nombre\":\"Ingles - CENMA Sede\",\"categoria\":\"ESCOLAR\",\"estrategiaEvaluacion\":\"CENMA_SEDE\",\"institucionId\":$INSTITUCION_ID}" | extract_id)
+
+MODULO_SEDE_1=$(curl -s -X POST "$BASE_URL/api/modulos" -H "$AUTH" -H "Content-Type: application/json" \
+  -d "{\"programaId\":$PROGRAMA_SEDE_ID,\"orden\":1,\"esSecuencial\":true}" | extract_id)
+MODULO_SEDE_2=$(curl -s -X POST "$BASE_URL/api/modulos" -H "$AUTH" -H "Content-Type: application/json" \
+  -d "{\"programaId\":$PROGRAMA_SEDE_ID,\"orden\":2,\"esSecuencial\":true}" | extract_id)
+
+PLAN_A_ID=$(curl -s -X POST "$BASE_URL/api/planes" -H "$AUTH" -H "Content-Type: application/json" \
+  -d "{\"programaId\":$PROGRAMA_SEDE_ID,\"codigo\":\"A\",\"moduloInicio\":1}" | extract_id)
+
+GRUPO_SEDE_ID=$(curl -s -X POST "$BASE_URL/api/grupos" -H "$AUTH" -H "Content-Type: application/json" \
+  -d "{\"programaId\":$PROGRAMA_SEDE_ID,\"dia\":\"Miercoles\",\"horario\":\"18:00-19:30\"}" | extract_id)
+
+PERSONA_SEDE_ID=$(curl -s -X POST "$BASE_URL/api/personas" -H "$AUTH" -H "Content-Type: application/json" \
+  -d '{"nombre":"Bruno Diaz","email":"bruno.diaz@mail.com"}' | extract_id)
+
+INSCRIPCION_SEDE_ID=$(curl -s -X POST "$BASE_URL/api/inscripciones" -H "$AUTH" -H "Content-Type: application/json" \
+  -d "{\"personaId\":$PERSONA_SEDE_ID,\"programaId\":$PROGRAMA_SEDE_ID,\"planId\":$PLAN_A_ID,\"grupoId\":$GRUPO_SEDE_ID,\"fechaInicio\":\"2026-03-01\"}" | extract_id)
+
+# TP aprobado + Evaluacion Final del modulo 1, para ver un modulo completo
+curl -s -X POST "$BASE_URL/api/instancias-evaluativas" -H "$AUTH" -H "Content-Type: application/json" \
+  -d "{\"inscripcionId\":$INSCRIPCION_SEDE_ID,\"moduloId\":$MODULO_SEDE_1,\"tipo\":\"TP_INTEGRADOR\",\"nota\":7.00,\"fecha\":\"2026-04-01\",\"cuentaParaPromedio\":false}" > /dev/null
+curl -s -X POST "$BASE_URL/api/instancias-evaluativas" -H "$AUTH" -H "Content-Type: application/json" \
+  -d "{\"inscripcionId\":$INSCRIPCION_SEDE_ID,\"moduloId\":$MODULO_SEDE_1,\"tipo\":\"EVALUACION_FINAL\",\"nota\":8.00,\"fecha\":\"2026-04-15\"}" > /dev/null
+
+echo "  Programa Sede: $PROGRAMA_SEDE_ID | Plan A: $PLAN_A_ID | Persona: $PERSONA_SEDE_ID | Inscripcion: $INSCRIPCION_SEDE_ID"
+
+echo "== Particular individual =="
+PROGRAMA_PART_ID=$(curl -s -X POST "$BASE_URL/api/programas" -H "$AUTH" -H "Content-Type: application/json" \
+  -d '{"nombre":"Ingles IT personalizado","categoria":"PARTICULAR","estrategiaEvaluacion":"SEGUIMIENTO_LIBRE"}' | extract_id)
+
+PERSONA_PART_ID=$(curl -s -X POST "$BASE_URL/api/personas" -H "$AUTH" -H "Content-Type: application/json" \
+  -d '{"nombre":"Carla Torres","email":"carla.torres@mail.com"}' | extract_id)
+
+INSCRIPCION_PART_ID=$(curl -s -X POST "$BASE_URL/api/inscripciones" -H "$AUTH" -H "Content-Type: application/json" \
+  -d "{\"personaId\":$PERSONA_PART_ID,\"programaId\":$PROGRAMA_PART_ID,\"fechaInicio\":\"2026-03-01\"}" | extract_id)
+
+curl -s -X POST "$BASE_URL/api/contratos" -H "$AUTH" -H "Content-Type: application/json" \
+  -d "{\"inscripcionId\":$INSCRIPCION_PART_ID,\"tipoFacturacion\":\"PAQUETE\",\"clasesContratadas\":10}" > /dev/null
+
+curl -s -X POST "$BASE_URL/api/seguimientos" -H "$AUTH" -H "Content-Type: application/json" \
+  -d "{\"inscripcionId\":$INSCRIPCION_PART_ID,\"fecha\":\"2026-04-01\",\"observacion\":\"Buen manejo de vocabulario tecnico, falta fluidez oral\"}" > /dev/null
+
+echo "  Programa Particular: $PROGRAMA_PART_ID | Persona: $PERSONA_PART_ID | Inscripcion: $INSCRIPCION_PART_ID"
+
+echo "== Particular empresa =="
+EMPRESA_ID=$(curl -s -X POST "$BASE_URL/api/empresas" -H "$AUTH" -H "Content-Type: application/json" \
+  -d '{"nombre":"Acme SA","contacto":"rrhh@acme.com"}' | extract_id)
+
+PERSONA_EMP1_ID=$(curl -s -X POST "$BASE_URL/api/personas" -H "$AUTH" -H "Content-Type: application/json" \
+  -d '{"nombre":"Diego Alvarez","email":"diego.alvarez@acme.com"}' | extract_id)
+PERSONA_EMP2_ID=$(curl -s -X POST "$BASE_URL/api/personas" -H "$AUTH" -H "Content-Type: application/json" \
+  -d '{"nombre":"Elena Ruiz","email":"elena.ruiz@acme.com"}' | extract_id)
+
+INSCRIPCION_EMP1_ID=$(curl -s -X POST "$BASE_URL/api/inscripciones" -H "$AUTH" -H "Content-Type: application/json" \
+  -d "{\"personaId\":$PERSONA_EMP1_ID,\"programaId\":$PROGRAMA_PART_ID,\"fechaInicio\":\"2026-03-01\"}" | extract_id)
+INSCRIPCION_EMP2_ID=$(curl -s -X POST "$BASE_URL/api/inscripciones" -H "$AUTH" -H "Content-Type: application/json" \
+  -d "{\"personaId\":$PERSONA_EMP2_ID,\"programaId\":$PROGRAMA_PART_ID,\"fechaInicio\":\"2026-03-01\"}" | extract_id)
+
+curl -s -X POST "$BASE_URL/api/contratos/empresa" -H "$AUTH" -H "Content-Type: application/json" \
+  -d "{\"empresaId\":$EMPRESA_ID,\"tipoFacturacion\":\"PAQUETE\",\"clasesContratadas\":50,\"inscripcionIds\":[$INSCRIPCION_EMP1_ID,$INSCRIPCION_EMP2_ID]}" > /dev/null
+
+echo "  Empresa: $EMPRESA_ID | Inscripciones cubiertas: $INSCRIPCION_EMP1_ID, $INSCRIPCION_EMP2_ID"
+
+echo "== Listo =="
