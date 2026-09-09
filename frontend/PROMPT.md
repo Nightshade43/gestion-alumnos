@@ -10,6 +10,8 @@ Vas a implementar el frontend de este proyecto en `/frontend` (Vite + React + Ty
 API REST con JWT en `http://localhost:8080`.
 
 Leé primero `design_handoff_gestion_alumnos/README.md` y `SCREENS.md` completos.
+`BACKEND.md` lista 8 pendientes de backend: **ninguno bloquea el frontend**, no los
+implementes desde el cliente ni inventes campos que todavía no existen.
 Los archivos `design/*.dc.html` son **referencias visuales en HTML**, no código a copiar:
 recreá esos diseños en React usando los tokens y primitivas del paquete.
 
@@ -26,13 +28,30 @@ Reglas:
 6. Sin responsive: es una app de escritorio. No agregues media queries.
 
 Orden de trabajo sugerido:
-1. Scaffold de `/frontend` + `tokens.css` + `ToastProvider` + `AppShell` + Login.
-2. Personas (listado + ficha) — `PersonasScreen.tsx` ya está hecha como referencia.
-3. Inscripciones (listados por rama + detalle con transiciones).
-4. Evaluaciones por módulo (con la advertencia ámbar de secuencia) y Seguimiento.
-5. Programas con pestañas, Instituciones, Contratos, Empresas.
-6. Inicio (KPIs) al final, porque depende de todo lo anterior.
+1. Scaffold de `/frontend` (Vite + React + TS + TanStack Query) y copiar `tokens/` y `src/`
+   tal cual: son código real, no pseudocódigo.
+2. Levantar `ToastProvider` + `AppShell` + Login y verificar el guard de 401 contra el backend.
+3. Verificar pantalla por pantalla contra `design/App.dc.html`, en el orden del sidebar.
+4. Recién después, refactors propios del proyecto (routing con URL real, tests, code splitting).
 
-Antes de empezar, decime cuál de los tres gaps del README querés que resuelva agregando
-endpoints al backend (listado global de inscripciones, listado de contratos, `categoria` +
-`contratoId` en `InscripcionResponse`) y cuál dejo con el workaround client-side.
+Los tres gaps originales ya están resueltos en el backend (`GET /api/inscripciones` con
+`personaId`/`categoria` opcionales, `GET /api/contratos`, y `categoria` + `contratoId` en
+`InscripcionResponse`), así que no queda ningún fan-out y la rama se lee del campo `categoria`.
+
+**Las 11 pantallas vienen escritas y ruteadas** en `src/App.tsx`: Login, Inicio, Personas,
+Persona (ficha), Inscripciones escolares, Inscripciones particulares, Inscripción (detalle),
+Programas, Programa (pestañas), Instituciones, Contratos y Empresas — con sus modales de
+alta, las confirmaciones irreversibles, los estados vacíos y el error de red.
+El trabajo es **portarlas al scaffold y verificarlas contra el backend corriendo**, no
+escribirlas de nuevo. Si algo no coincide con `design/App.dc.html`, gana el mockup.
+
+Heurísticas de cliente marcadas en el código, por si el backend cambia (las tres están
+justificadas en `BACKEND.md`):
+- el tope del pool solo aplica con `PAQUETE`;
+- "módulo aprobado" lo calcula el front (`evaluarModulo` en `InscripcionScreen.tsx`);
+- el gate de Sede se guarda como `nota` 10/0 porque no existe un campo `aprobado`;
+- "Últimas observaciones" de Inicio consulta 6 inscripciones (`useSeguimientosDe`) porque
+  no hay listado global de seguimientos.
+
+Si el backend implementa alguno de los 8 puntos de `BACKEND.md`, borrá el workaround
+correspondiente en el mismo commit y actualizá `types.ts`.

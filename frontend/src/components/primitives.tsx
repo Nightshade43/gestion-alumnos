@@ -1,6 +1,6 @@
 import React from 'react';
 import { statusTone } from '../../tokens/tokens';
-import type { EstadoInscripcion, EstadoContrato, CategoriaPrograma } from '../api/types';
+import type { EstadoInscripcion, EstadoContrato, CategoriaPrograma, TipoFacturacion } from '../api/types';
 
 /* ─────────────── Button ─────────────── */
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
@@ -218,9 +218,17 @@ export function Modal({ title, kicker, children, footer, onClose, width = 520 }:
 }
 
 /* ─────────────── Progreso de pool de clases ─────────────── */
-export function PoolBar({ consumidas, contratadas }: { consumidas: number; contratadas: number }) {
+/**
+ * El backend solo topea el pool cuando tipoFacturacion === 'PAQUETE'
+ * (ContratoService.consumirClase). Con POR_CLASE el total es referencial:
+ * consumir de más NO devuelve 409, así que no se pinta como agotado.
+ */
+export function PoolBar({ consumidas, contratadas, tipoFacturacion = 'PAQUETE', finalizado }: {
+  consumidas: number; contratadas: number; tipoFacturacion?: TipoFacturacion; finalizado?: boolean;
+}) {
   const pct = Math.min(100, Math.round((consumidas / Math.max(1, contratadas)) * 100));
-  const agotado = consumidas >= contratadas;
+  const topeado = tipoFacturacion === 'PAQUETE';
+  const agotado = topeado && consumidas >= contratadas;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       <div style={{ display: 'flex', alignItems: 'baseline' }}>
@@ -231,7 +239,13 @@ export function PoolBar({ consumidas, contratadas }: { consumidas: number; contr
         <div style={{ height: '100%', width: `${pct}%`, borderRadius: 999, background: agotado ? 'var(--ga-danger-fg)' : 'var(--ga-primary-600)' }} />
       </div>
       <span style={{ fontSize: 12.5, color: 'var(--ga-soft)' }}>
-        {agotado ? 'Pool agotado — consumir devuelve 409' : `${contratadas - consumidas} clases disponibles en el pool`}
+        {finalizado
+          ? 'Contrato finalizado — consumir devuelve 409'
+          : !topeado
+            ? `${tipoFacturacion} — sin tope en el backend, el total es referencial`
+            : agotado
+              ? 'Pool agotado — consumir devuelve 409'
+              : `${contratadas - consumidas} clases disponibles en el pool`}
       </span>
     </div>
   );

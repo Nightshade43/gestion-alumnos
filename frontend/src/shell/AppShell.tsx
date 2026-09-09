@@ -19,7 +19,7 @@ export type Route =
   | { name: 'programas' }
   | { name: 'programa'; id: number }
   | { name: 'instituciones' }
-  | { name: 'contratos' }
+  | { name: 'contratos'; contratoId?: number }
   | { name: 'empresas' };
 
 const itemStyle = (active: boolean): React.CSSProperties => ({

@@ -56,8 +56,12 @@ export interface InscripcionRequest {
 export interface InscripcionResponse {
   id: number; personaId: number; personaNombre: string;
   programaId: number; programaNombre: string;
+  /** Viene del programa. Permite separar ramas sin cruzar con /api/programas. */
+  categoria: CategoriaPrograma;
   planCodigo: string | null; grupoDia: string | null; grupoHorario: string | null;
   fechaInicio: IsoDate; fechaFin: IsoDate | null; estado: EstadoInscripcion;
+  /** null = inscripción particular todavía sin contrato. */
+  contratoId: number | null;
 }
 
 export interface EmpresaRequest { nombre: string; contacto?: string | null }

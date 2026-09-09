@@ -22,7 +22,45 @@
 </style>
 </helmet>
 
-<div style="display:grid;grid-template-columns:248px 1fr;min-height:100vh;width:100%">
+<!-- ═══ LOGIN ═══ -->
+<sc-if value="{{ vLogin }}" hint-placeholder-val="{{ false }}">
+  <div style="min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;padding:40px 20px;box-sizing:border-box">
+    <div style="width:100%;max-width:376px;display:flex;flex-direction:column;gap:22px">
+      <div style="display:flex;align-items:center;gap:11px">
+        <div style="width:34px;height:34px;border-radius:10px;background:#5D4A87;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700">G</div>
+        <span style="font-size:17px;font-weight:600;letter-spacing:-.01em">Gestión de Alumnos</span>
+      </div>
+      <div style="background:#fff;border:1px solid #E6DED2;border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:18px;box-shadow:0 2px 10px rgba(43,39,36,.04)">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <h1 style="margin:0;font-size:21px;font-weight:600;letter-spacing:-.02em">Ingresar</h1>
+          <span style="font-size:13.5px;color:#6F675E;line-height:1.5">Acceso único de administración. Las cuentas las siembra el sistema.</span>
+        </div>
+        <label style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:13px;font-weight:600;color:#3E3833">Usuario</span>
+          <input value="{{ loginUser }}" onChange="{{ onLoginUser }}" placeholder="admin" style="font-size:14.5px;padding:11px 12px;border:1px solid #D6CBBB;border-radius:9px;background:#fff;color:#2B2724;outline:none" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px rgba(93,74,135,.12)" />
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:13px;font-weight:600;color:#3E3833">Contraseña</span>
+          <input type="password" value="{{ loginPass }}" onChange="{{ onLoginPass }}" placeholder="••••••••" style="font-size:14.5px;padding:11px 12px;border:1px solid #D6CBBB;border-radius:9px;background:#fff;color:#2B2724;outline:none" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px rgba(93,74,135,.12)" />
+        </label>
+        <sc-if value="{{ loginError }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:10px;align-items:flex-start;background:#F8E3E1;border:1px solid #EDC9C6;border-radius:10px;padding:11px 13px">
+            <span style="width:18px;height:18px;border-radius:999px;flex:none;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:#F2D2CF;color:#9E3A38;margin-top:1px">×</span>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <span style="font-size:13.5px;font-weight:600;color:#9E3A38">Credenciales inválidas</span>
+              <span style="font-size:12.5px;color:#8A4744;line-height:1.45">401 · Revisá usuario y contraseña. No distinguimos cuál de los dos falló.</span>
+            </div>
+          </div>
+        </sc-if>
+        <button onClick="{{ entrar }}" style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:12px 15px;font-size:14.5px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Ingresar</button>
+      </div>
+      <span style="font-size:12.5px;color:#948B80;text-align:center;line-height:1.5">El token se guarda en memoria; un 401 en cualquier request vuelve a esta pantalla.</span>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ vApp }}" hint-placeholder-val="{{ true }}">
+<div style="display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh;width:100%">
 
   <!-- SIDEBAR -->
   <aside style="background:#2B2724;padding:18px 12px;display:flex;flex-direction:column;gap:3px;color:#E8E1D8;position:sticky;top:0;height:100vh;box-sizing:border-box">
@@ -47,12 +85,35 @@
     <div style="margin-top:auto;border-top:1px solid #3A3531;padding-top:12px;display:flex;align-items:center;gap:10px;padding-left:11px">
       <div style="width:26px;height:26px;border-radius:999px;background:#3A3531;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#D3CBC1">AD</div>
       <span style="font-size:13px;color:#B7ADA1">admin</span>
-      <span style="margin-left:auto;padding-right:11px;font-size:12px;color:#7C736A;cursor:pointer" style-hover="color:#E8E1D8">Salir</span>
+      <span onClick="{{ salir }}" style="margin-left:auto;padding-right:11px;font-size:12px;color:#7C736A;cursor:pointer" style-hover="color:#E8E1D8">Salir</span>
     </div>
   </aside>
 
   <!-- MAIN -->
-  <main style="padding:34px 40px 80px;max-width:1220px;width:100%;box-sizing:border-box">
+  <main style="padding:34px clamp(18px,3.2vw,40px) 80px;max-width:1220px;width:100%;min-width:0;box-sizing:border-box">
+
+
+    <!-- ═══ ERROR DE RED ═══ -->
+    <sc-if value="{{ vError }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:22px">
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <h1 style="margin:0;font-size:30px;font-weight:600;letter-spacing:-.025em">{{ errorPantalla }}</h1>
+          <span style="font-size:14px;color:#6F675E">La pantalla existe; lo que falló es la lectura de datos.</span>
+        </div>
+        <div style="background:#fff;border:1px solid #EDC9C6;border-radius:14px;padding:28px 26px;display:flex;gap:15px;align-items:flex-start;max-width:640px">
+          <span style="width:22px;height:22px;border-radius:999px;flex:none;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#F8E3E1;color:#9E3A38;margin-top:2px">!</span>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <span style="font-size:17px;font-weight:600;letter-spacing:-.01em">No pudimos cargar los datos</span>
+            <span style="font-size:14px;color:#6F675E;line-height:1.55;max-width:52ch">La request falló antes de devolver contenido. No es un 401: la sesión sigue abierta, así que no te devolvemos a Login — se reintenta acá y el resto de la app queda navegable.</span>
+            <div style="background:#FAF7F2;border:1px solid #EDE5D9;border-radius:10px;padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#6F675E">{{ errorRequest }}</div>
+            <div style="display:flex;gap:10px;margin-top:5px">
+              <button onClick="{{ reintentar }}" style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Reintentar</button>
+              <button onClick="{{ goInicio }}" style="background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2">Ir a Inicio</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
 
     <!-- ═══ INICIO ═══ -->
     <sc-if value="{{ vInicio }}" hint-placeholder-val="{{ false }}">
@@ -62,7 +123,7 @@
           <span style="font-size:14px;color:#6F675E">Todo se calcula sobre los listados que ya trae la API — sin endpoints nuevos.</span>
         </div>
 
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:16px">
           <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
             <div onClick="{{ k.ir }}" style="background:#fff;border:1px solid #E6DED2;border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:9px;cursor:pointer" style-hover="border-color:#C9BFDD">
               <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#948B80">{{ k.label }}</span>
@@ -72,8 +133,8 @@
           </sc-for>
         </div>
 
-        <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:20px;align-items:start">
-          <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow:hidden">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:20px;align-items:start">
+          <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto">
             <div style="padding:15px 20px;border-bottom:1px solid #F0EAE1;display:flex;align-items:center;gap:10px">
               <h2 style="margin:0;font-size:16px;font-weight:600">Requiere atención</h2>
               <span style="font-size:13px;color:#948B80">situaciones que la API va a rechazar o que quedaron a medias</span>
@@ -95,7 +156,7 @@
             </sc-if>
           </div>
 
-          <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow:hidden">
+          <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto">
             <div style="padding:15px 20px;border-bottom:1px solid #F0EAE1;display:flex;align-items:center;gap:10px">
               <h2 style="margin:0;font-size:16px;font-weight:600">Últimas observaciones</h2>
               <span style="font-size:13px;color:#948B80">rama particular</span>
@@ -117,7 +178,7 @@
     <!-- ═══ PERSONAS · LISTADO ═══ -->
     <sc-if value="{{ vPersonas }}" hint-placeholder-val="{{ true }}">
       <div style="display:flex;flex-direction:column;gap:22px">
-        <div style="display:flex;align-items:flex-end;gap:16px">
+        <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
           <div style="display:flex;flex-direction:column;gap:5px">
             <h1 style="margin:0;font-size:30px;font-weight:600;letter-spacing:-.025em">Personas</h1>
             <span style="font-size:14px;color:#6F675E">Transversal a las dos ramas — una persona puede tener inscripciones escolares y particulares.</span>
@@ -148,8 +209,8 @@
         </sc-if>
 
         <sc-if value="{{ tabla }}" hint-placeholder-val="{{ true }}">
-          <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow:hidden">
-            <table style="width:100%;border-collapse:collapse;font-size:14.5px">
+          <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto">
+            <table style="width:100%;min-width:700px;border-collapse:collapse;font-size:14.5px">
               <thead>
                 <tr style="background:#FAF7F2;text-align:left">
                   <th style="padding:11px 22px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6F675E;font-weight:600;font-family:'IBM Plex Mono',monospace">Nombre</th>
@@ -191,18 +252,18 @@
             <div style="display:flex;gap:18px;font-size:13.5px;color:#6F675E;font-family:'IBM Plex Mono',monospace"><span>{{ ficha.documento }}</span><span>{{ ficha.telefono }}</span><span>{{ ficha.email }}</span></div>
           </div>
           <div style="margin-left:auto;display:flex;gap:9px">
-            <button style="background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:9px 14px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2">Editar datos</button>
+            <button style="background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:9px 14px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2" onClick="{{ openEditarPersona }}">Editar datos</button>
             <button onClick="{{ openNuevaInscripcion }}" style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:9px 14px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Nueva inscripción</button>
           </div>
         </div>
 
-        <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow:hidden">
+        <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto">
           <div style="padding:15px 22px;border-bottom:1px solid #F0EAE1;display:flex;align-items:center;gap:10px">
             <h2 style="margin:0;font-size:16px;font-weight:600">Inscripciones</h2>
             <span style="font-size:13px;color:#948B80">todas las categorías, más recientes primero</span>
           </div>
           <sc-for list="{{ ficha.inscripciones }}" as="i" hint-placeholder-count="3">
-            <div onClick="{{ i.abrir }}" style="padding:15px 22px;border-bottom:1px solid #F0EAE1;display:grid;grid-template-columns:14px 1.6fr 1.1fr 130px 110px;gap:16px;align-items:center;cursor:pointer" style-hover="background:#F4F1FA">
+            <div onClick="{{ i.abrir }}" style="padding:15px 22px;border-bottom:1px solid #F0EAE1;display:grid;grid-template-columns:14px minmax(0,1.6fr) minmax(0,1.1fr) 130px 110px;gap:16px;align-items:center;cursor:pointer" style-hover="background:#F4F1FA">
               <span style="{{ i.puntoRama }}"></span>
               <div style="display:flex;flex-direction:column;gap:3px">
                 <span style="font-size:14.5px;font-weight:500">{{ i.programaNombre }}</span>
@@ -220,7 +281,7 @@
     <!-- ═══ INSCRIPCIONES · LISTADO ═══ -->
     <sc-if value="{{ vLista }}" hint-placeholder-val="{{ false }}">
       <div style="display:flex;flex-direction:column;gap:22px">
-        <div style="display:flex;align-items:flex-end;gap:16px">
+        <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
           <div style="display:flex;flex-direction:column;gap:5px">
             <div style="display:flex;align-items:center;gap:10px">
               <span style="{{ lista.puntoRama }}"></span>
@@ -240,8 +301,8 @@
           </div>
         </div>
 
-        <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow:hidden">
-          <table style="width:100%;border-collapse:collapse;font-size:14.5px">
+        <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto">
+          <table style="width:100%;min-width:700px;border-collapse:collapse;font-size:14.5px">
             <thead>
               <tr style="background:#FAF7F2;text-align:left">
                 <th style="padding:11px 22px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6F675E;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ lista.colPersona }}</th>
@@ -296,7 +357,7 @@
           </div>
         </div>
 
-        <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;padding:18px 22px;display:grid;grid-template-columns:repeat(5,1fr);gap:22px">
+        <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;padding:18px 22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:22px">
           <div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#948B80">Rama</span><span style="font-size:14.5px;font-weight:500">{{ det.rama }}</span></div>
           <div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#948B80">{{ det.m2label }}</span><span style="font-size:14.5px;font-weight:500">{{ det.m2 }}</span></div>
           <div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#948B80">{{ det.m3label }}</span><span style="font-size:14.5px;font-weight:500">{{ det.m3 }}</span></div>
@@ -309,16 +370,19 @@
           <div style="display:flex;flex-direction:column;gap:16px">
             <div style="display:flex;align-items:baseline;gap:12px">
               <h2 style="margin:0;font-size:20px;font-weight:600;letter-spacing:-.015em">Evaluaciones</h2>
-              <span style="font-size:13.5px;color:#948B80">agrupadas por módulo · promedio con 2 decimales</span>
-              <button style="margin-left:auto;background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:8px 13px;font-size:13.5px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2">Cargar nota</button>
+              <span style="font-size:13.5px;color:#948B80">{{ det.evalBajada }}</span>
+              <button style="margin-left:auto;background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:8px 13px;font-size:13.5px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2" onClick="{{ openNota }}">Cargar nota</button>
             </div>
 
             <sc-for list="{{ det.modulos }}" as="m" hint-placeholder-count="2">
-              <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow:hidden">
+              <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto">
                 <div style="padding:14px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #F0EAE1;background:#FCFAF7">
                   <span style="font-size:15px;font-weight:600">{{ m.titulo }}</span>
                   <span style="{{ m.chip }}">{{ m.chipTexto }}</span>
-                  <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:13px;color:#6F675E">Promedio <strong style="color:#2B2724;font-size:15px">{{ m.promedio }}</strong></span>
+                  <sc-if value="{{ m.tieneExtra }}" hint-placeholder-val="{{ false }}">
+                    <span style="{{ m.extraStyle }}">{{ m.extra }}</span>
+                  </sc-if>
+                  <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:13px;color:#6F675E">{{ m.labelNota }} <strong style="color:#2B2724;font-size:15px">{{ m.promedio }}</strong></span>
                 </div>
                 <sc-if value="{{ m.aviso }}" hint-placeholder-val="{{ false }}">
                   <div style="display:flex;gap:10px;align-items:flex-start;padding:12px 20px;background:#FDF6E7;border-bottom:1px solid #F2E6CB">
@@ -326,7 +390,7 @@
                     <span style="font-size:13.5px;line-height:1.5;color:#7E5A20">{{ m.avisoTexto }}</span>
                   </div>
                 </sc-if>
-                <table style="width:100%;border-collapse:collapse;font-size:14px">
+                <table style="width:100%;min-width:620px;border-collapse:collapse;font-size:14px">
                   <thead>
                     <tr style="text-align:left">
                       <th style="padding:9px 20px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#948B80;font-weight:600;font-family:'IBM Plex Mono',monospace">Tipo</th>
@@ -355,8 +419,8 @@
 
         <!-- PARTICULAR: contrato + seguimiento -->
         <sc-if value="{{ det.esParticular }}" hint-placeholder-val="{{ false }}">
-          <div style="display:grid;grid-template-columns:360px 1fr;gap:20px;align-items:start">
-            <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow:hidden">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;align-items:start">
+            <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto">
               <div style="padding:15px 20px;border-bottom:1px solid #F0EAE1;display:flex;align-items:center;gap:10px">
                 <h2 style="margin:0;font-size:16px;font-weight:600">Contrato</h2>
                 <span style="{{ det.contratoBadge }}">{{ det.contratoEstado }}</span>
@@ -395,7 +459,7 @@
               </div>
             </div>
 
-            <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow:hidden">
+            <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto">
               <div style="padding:15px 20px;border-bottom:1px solid #F0EAE1;display:flex;align-items:center;gap:10px">
                 <h2 style="margin:0;font-size:16px;font-weight:600">Seguimiento</h2>
                 <span style="font-size:13px;color:#948B80">observaciones en texto libre, sin nota</span>
@@ -425,7 +489,7 @@
     <!-- ═══ PROGRAMAS · LISTADO ═══ -->
     <sc-if value="{{ vProgramas }}" hint-placeholder-val="{{ false }}">
       <div style="display:flex;flex-direction:column;gap:22px">
-        <div style="display:flex;align-items:flex-end;gap:16px">
+        <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
           <div style="display:flex;flex-direction:column;gap:5px">
             <h1 style="margin:0;font-size:30px;font-weight:600;letter-spacing:-.025em">Programas</h1>
             <span style="font-size:14px;color:#6F675E">Módulos, planes y grupos viven adentro de cada programa, no en el sidebar.</span>
@@ -436,11 +500,11 @@
               <span onClick="{{ progFiltroEsc }}" style="{{ progTabEsc }}">Escolar</span>
               <span onClick="{{ progFiltroPart }}" style="{{ progTabPart }}">Particular</span>
             </div>
-            <button style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Nuevo programa</button>
+            <button style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E" onClick="{{ openAltaPrograma }}">Nuevo programa</button>
           </div>
         </div>
-        <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow:hidden">
-          <table style="width:100%;border-collapse:collapse;font-size:14.5px">
+        <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto">
+          <table style="width:100%;min-width:700px;border-collapse:collapse;font-size:14.5px">
             <thead>
               <tr style="background:#FAF7F2;text-align:left">
                 <th style="padding:11px 22px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6F675E;font-weight:600;font-family:'IBM Plex Mono',monospace">Programa</th>
@@ -463,6 +527,15 @@
             </tbody>
           </table>
         </div>
+        <sc-if value="{{ vacioProgramas }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;padding:60px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
+            <div style="width:44px;height:44px;border-radius:12px;background:#FAF7F2;border:1px dashed #D6CBBB"></div>
+            <span style="font-size:16px;font-weight:600">Todavía no hay programas</span>
+            <span style="font-size:14px;color:#6F675E;max-width:44ch;line-height:1.55">El programa define la estrategia de evaluación: módulos y planes en la rama escolar, seguimiento libre en la particular. Sin programa no se puede inscribir a nadie.</span>
+            <button onClick="{{ openAltaPrograma }}" style="margin-top:8px;background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Nuevo programa</button>
+          </div>
+        </sc-if>
+
       </div>
     </sc-if>
 
@@ -481,7 +554,7 @@
               <span>{{ prog.institucionNombre }}</span>
             </div>
           </div>
-          <button style="margin-left:auto;background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:9px 14px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2">Editar programa</button>
+          <button style="margin-left:auto;background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:9px 14px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2" onClick="{{ openEditarPrograma }}">Editar programa</button>
         </div>
 
         <div style="display:flex;gap:4px;border-bottom:1px solid #E6DED2">
@@ -492,13 +565,13 @@
           <span onClick="{{ tabGrupos }}" style="{{ prog.tabGru }}">Grupos</span>
         </div>
 
-        <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow:hidden">
+        <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto">
           <div style="padding:15px 22px;border-bottom:1px solid #F0EAE1;display:flex;align-items:center;gap:10px">
             <h2 style="margin:0;font-size:16px;font-weight:600">{{ prog.tabTitulo }}</h2>
             <span style="font-size:13px;color:#948B80">{{ prog.tabBajada }}</span>
-            <button style="margin-left:auto;background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:8px 13px;font-size:13.5px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2">{{ prog.tabAccion }}</button>
+            <button style="margin-left:auto;background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:8px 13px;font-size:13.5px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2" onClick="{{ openAltaTab }}">{{ prog.tabAccion }}</button>
           </div>
-          <table style="width:100%;border-collapse:collapse;font-size:14.5px">
+          <table style="width:100%;min-width:700px;border-collapse:collapse;font-size:14.5px">
             <thead>
               <tr style="text-align:left">
                 <th style="padding:10px 22px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#948B80;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ prog.colA }}</th>
@@ -530,14 +603,14 @@
     <!-- ═══ INSTITUCIONES ═══ -->
     <sc-if value="{{ vInstituciones }}" hint-placeholder-val="{{ false }}">
       <div style="display:flex;flex-direction:column;gap:22px">
-        <div style="display:flex;align-items:flex-end;gap:16px">
+        <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
           <div style="display:flex;flex-direction:column;gap:5px">
             <h1 style="margin:0;font-size:30px;font-weight:600;letter-spacing:-.025em">Instituciones</h1>
             <span style="font-size:14px;color:#6F675E">Soporte de la rama escolar: cada programa escolar pertenece a una institución.</span>
           </div>
-          <button style="margin-left:auto;background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Nueva institución</button>
+          <button style="margin-left:auto;background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E" onClick="{{ openAltaInstitucion }}">Nueva institución</button>
         </div>
-        <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow:hidden">
+        <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto">
           <sc-for list="{{ instituciones }}" as="ins" hint-placeholder-count="2">
             <div style="border-bottom:1px solid #F0EAE1">
               <div onClick="{{ ins.toggle }}" style="padding:16px 22px;display:flex;align-items:center;gap:14px;cursor:pointer" style-hover="background:#FAF7F2">
@@ -555,7 +628,7 @@
                 <div style="background:#FCFAF7;border-top:1px solid #F0EAE1;padding:18px 22px 20px;display:flex;flex-direction:column;gap:14px">
                   <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#948B80">Programas de la institución</span>
                   <sc-for list="{{ ins.detalle }}" as="d" hint-placeholder-count="2">
-                    <div onClick="{{ d.abrir }}" style="background:#fff;border:1px solid #E6DED2;border-radius:12px;padding:14px 18px;display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:16px;align-items:center;cursor:pointer" style-hover="border-color:#C9BFDD;background:#FCFBFE">
+                    <div onClick="{{ d.abrir }}" style="background:#fff;border:1px solid #E6DED2;border-radius:12px;padding:14px 18px;display:grid;grid-template-columns:minmax(0,1.5fr) repeat(3,minmax(0,1fr));gap:16px;align-items:center;cursor:pointer" style-hover="border-color:#C9BFDD;background:#FCFBFE">
                       <div style="display:flex;flex-direction:column;gap:3px">
                         <span style="font-size:14.5px;font-weight:500">{{ d.nombre }}</span>
                         <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#4A3A6E">{{ d.estrategia }}</span>
@@ -573,10 +646,19 @@
       </div>
     </sc-if>
 
+        <sc-if value="{{ vacioInstituciones }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;padding:60px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
+            <div style="width:44px;height:44px;border-radius:12px;background:#FAF7F2;border:1px dashed #D6CBBB"></div>
+            <span style="font-size:16px;font-weight:600">Todavía no hay instituciones</span>
+            <span style="font-size:14px;color:#6F675E;max-width:44ch;line-height:1.55">Cada programa escolar pertenece a una institución. Creá la primera y después colgale sus programas, módulos y grupos.</span>
+            <button onClick="{{ openAltaInstitucion }}" style="margin-top:8px;background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Nueva institución</button>
+          </div>
+        </sc-if>
+
     <!-- ═══ CONTRATOS ═══ -->
     <sc-if value="{{ vContratos }}" hint-placeholder-val="{{ false }}">
       <div style="display:flex;flex-direction:column;gap:22px">
-        <div style="display:flex;align-items:flex-end;gap:16px">
+        <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
           <div style="display:flex;flex-direction:column;gap:5px">
             <h1 style="margin:0;font-size:30px;font-weight:600;letter-spacing:-.025em">Contratos</h1>
             <span style="font-size:14px;color:#6F675E">Individuales y de empresa. El pool de una empresa es compartido: cualquier empleado consume del mismo total.</span>
@@ -586,9 +668,9 @@
             <button onClick="{{ openContratoEmpresa }}" style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Contrato de empresa</button>
           </div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:18px">
           <sc-for list="{{ contratosLista }}" as="ct" hint-placeholder-count="2">
-            <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow:hidden">
+            <div onClick="{{ ct.abrir }}" style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto;cursor:pointer;transition:border-color .12s,box-shadow .12s" style-hover="border-color:#CDBFE5;box-shadow:0 4px 14px rgba(43,39,36,.07)">
               <div style="padding:15px 20px;border-bottom:1px solid #F0EAE1;display:flex;align-items:center;gap:10px">
                 <span style="font-size:15px;font-weight:600">{{ ct.titulo }}</span>
                 <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#4A3A6E;background:#F0ECF7;padding:3px 8px;border-radius:6px">{{ ct.tipoFacturacion }}</span>
@@ -608,20 +690,29 @@
       </div>
     </sc-if>
 
+        <sc-if value="{{ vacioContratos }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;padding:60px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
+            <div style="width:44px;height:44px;border-radius:12px;background:#FAF7F2;border:1px dashed #D6CBBB"></div>
+            <span style="font-size:16px;font-weight:600">Todavía no hay contratos</span>
+            <span style="font-size:14px;color:#6F675E;max-width:44ch;line-height:1.55">Sin contrato, una inscripción particular no puede registrar clases consumidas. Empezá por un contrato individual o armá el pool de una empresa.</span>
+            <button onClick="{{ openContratoIndividual }}" style="margin-top:8px;background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Contrato individual</button>
+          </div>
+        </sc-if>
+
     <!-- ═══ EMPRESAS ═══ -->
     <sc-if value="{{ vEmpresas }}" hint-placeholder-val="{{ false }}">
       <div style="display:flex;flex-direction:column;gap:22px">
-        <div style="display:flex;align-items:flex-end;gap:16px">
+        <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
           <div style="display:flex;flex-direction:column;gap:5px">
             <h1 style="margin:0;font-size:30px;font-weight:600;letter-spacing:-.025em">Empresas</h1>
             <span style="font-size:14px;color:#6F675E">Pagadores corporativos: una empresa cubre a varios empleados bajo un único contrato.</span>
           </div>
-          <button style="margin-left:auto;background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Nueva empresa</button>
+          <button style="margin-left:auto;background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E" onClick="{{ openAltaEmpresa }}">Nueva empresa</button>
         </div>
-        <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow:hidden">
+        <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto">
           <sc-for list="{{ empresas }}" as="em" hint-placeholder-count="2">
             <div style="border-bottom:1px solid #F0EAE1">
-              <div onClick="{{ em.toggle }}" style="padding:18px 22px;display:grid;grid-template-columns:1.2fr 1.1fr 1fr 1fr 20px;gap:18px;align-items:center;cursor:pointer" style-hover="background:#FAF7F2">
+              <div onClick="{{ em.toggle }}" style="padding:18px 22px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr) 20px;gap:18px;align-items:center;cursor:pointer" style-hover="background:#FAF7F2">
                 <div style="display:flex;align-items:center;gap:13px">
                   <div style="width:34px;height:34px;border-radius:10px;background:#F7F0E3;color:#7E5A20;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600">{{ em.iniciales }}</div>
                   <span style="font-size:15px;font-weight:500">{{ em.nombre }}</span>
@@ -641,7 +732,7 @@
                         <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#4A3A6E;background:#F0ECF7;padding:3px 8px;border-radius:6px">{{ ct.tipoFacturacion }}</span>
                         <span style="{{ ct.badge }}">{{ ct.estado }}</span>
                       </div>
-                      <div style="padding:14px 18px;display:grid;grid-template-columns:220px 1fr;gap:22px;align-items:center">
+                      <div style="padding:14px 18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:22px;align-items:center">
                         <div style="display:flex;flex-direction:column;gap:7px">
                           <div style="display:flex;align-items:baseline;gap:8px">
                             <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#948B80">Pool</span>
@@ -670,7 +761,65 @@
       </div>
     </sc-if>
 
+        <sc-if value="{{ vacioEmpresas }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;padding:60px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
+            <div style="width:44px;height:44px;border-radius:12px;background:#FAF7F2;border:1px dashed #D6CBBB"></div>
+            <span style="font-size:16px;font-weight:600">Todavía no hay empresas</span>
+            <span style="font-size:14px;color:#6F675E;max-width:44ch;line-height:1.55">Una empresa agrupa a varios empleados bajo un único pool de clases. Cargala primero y después creá su contrato desde Contratos.</span>
+            <button onClick="{{ openAltaEmpresa }}" style="margin-top:8px;background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Nueva empresa</button>
+          </div>
+        </sc-if>
+
   </main>
+
+  <!-- ═══ MODAL DETALLE DE CONTRATO ═══ -->
+  <sc-if value="{{ modalContrato }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ cerrarModal }}" style="position:fixed;inset:0;background:rgba(43,39,36,.42);display:flex;align-items:center;justify-content:center;z-index:60;padding:24px;box-sizing:border-box">
+      <div onClick="{{ stop }}" style="width:580px;max-height:100%;overflow:auto;background:#fff;border-radius:16px;box-shadow:0 22px 54px rgba(43,39,36,.28)">
+        <div style="padding:22px 24px 18px;border-bottom:1px solid #F0EAE1;display:flex;flex-direction:column;gap:11px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#948B80">{{ ctd.idMono }}</span>
+            <span style="{{ ctd.badge }}">{{ ctd.estado }}</span>
+            <span onClick="{{ cerrarModal }}" style="margin-left:auto;font-size:17px;color:#948B80;cursor:pointer;line-height:1" style-hover="color:#2B2724">×</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <h3 style="margin:0;font-size:20px;font-weight:600;letter-spacing:-.015em">{{ ctd.titulo }}</h3>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#4A3A6E;background:#F0ECF7;padding:3px 8px;border-radius:6px">{{ ctd.tipoFacturacion }}</span>
+          </div>
+          <span style="font-size:13.5px;color:#6F675E;line-height:1.5">{{ ctd.subtitulo }}</span>
+        </div>
+
+        <div style="padding:20px 24px;display:flex;flex-direction:column;gap:14px;border-bottom:1px solid #F0EAE1">
+          <div style="display:flex;align-items:baseline;gap:8px">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#948B80">Pool de clases</span>
+            <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600;font-variant-numeric:tabular-nums">{{ ctd.clasesTexto }}</span>
+          </div>
+          <div style="height:9px;border-radius:999px;background:#F0EAE1;overflow:hidden"><div style="{{ ctd.barra }}"></div></div>
+          <span style="font-size:13px;color:#6F675E;line-height:1.5">{{ ctd.restanteTexto }}</span>
+        </div>
+
+        <div style="padding:20px 24px;display:flex;flex-direction:column;gap:12px;border-bottom:1px solid #F0EAE1">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#948B80">{{ ctd.labelCubre }}</span>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <sc-for list="{{ ctd.empleados }}" as="ce" hint-placeholder-count="2">
+              <div onClick="{{ ce.abrir }}" style="display:flex;align-items:center;gap:11px;padding:10px 12px;margin:0 -12px;border-radius:9px;cursor:pointer" style-hover="background:#FAF7F2">
+                <span style="width:8px;height:8px;border-radius:3px;background:#C79240;flex:none"></span>
+                <span style="font-size:14.5px;font-weight:500">{{ ce.nombre }}</span>
+                <span style="font-size:13px;color:#6F675E">{{ ce.programaNombre }}</span>
+                <span style="{{ ce.badge }}">{{ ce.estado }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="padding:18px 24px 22px;display:flex;align-items:center;gap:9px">
+          <button onClick="{{ ctd.onConsumir }}" style="{{ ctd.btnConsumir }}">Consumir clase</button>
+          <button onClick="{{ ctd.onAmpliar }}" style="{{ ctd.btnAmpliar }}">Ampliar cupo +4</button>
+          <button onClick="{{ ctd.onFinalizar }}" style="{{ ctd.btnFinalizar }}">Finalizar contrato</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
 
   <!-- ═══ MODAL 422 ═══ -->
   <sc-if value="{{ modal422 }}" hint-placeholder-val="{{ false }}">
@@ -716,12 +865,18 @@
         <div style="padding:22px 24px 4px"><h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-.01em">Nueva inscripción</h3><p style="margin:6px 0 0;font-size:13.5px;color:#6F675E">Los campos de Plan y Grupo aparecen solo si el programa elegido los define.</p></div>
         <div style="padding:16px 24px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
           <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#3E3833">Persona *</span><select style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;background:#fff;outline:none"><option>Lucía Ferreyra</option><option>Marcos Ibarra</option><option>Rocío Paz</option></select></label>
-          <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#3E3833">Programa *</span><select onChange="{{ onFormPrograma }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;background:#fff;outline:none"><option value="sede">CENMA Bº SMATA — Sede · ESCOLAR</option><option value="base">CENMA Bº SMATA — Base · ESCOLAR</option><option value="ingles">Inglés IT — Individual · PARTICULAR</option></select></label>
-          <sc-if value="{{ formEscolar }}" hint-placeholder-val="{{ true }}">
-            <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">Plan</span><select style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;background:#fff;outline:none"><option>A — desde módulo 1</option><option>B — desde módulo 4</option><option>C — desde módulo 6</option></select></label>
+          <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#3E3833">Programa *</span><select value="{{ formPrograma }}" onChange="{{ onFormPrograma }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"><option value="sede">CENMA Bº SMATA — Sede · ESCOLAR · CENMA_SEDE</option><option value="base">CENMA Bº SMATA — Base · ESCOLAR · CENMA_BASE</option><option value="ingles">Inglés IT — Empresa · PARTICULAR</option><option value="consultoria">Consultoría IA educativa · PARTICULAR</option></select><span style="font-size:12px;color:#948B80;line-height:1.45">{{ formEstrategiaHint }}</span></label>
+          <sc-if value="{{ formSede }}" hint-placeholder-val="{{ true }}">
+            <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">Plan *</span><select style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"><option>A — desde el módulo 1</option><option>B — desde el módulo 4</option><option>C — desde el módulo 6</option></select><span style="font-size:12px;color:#948B80;line-height:1.45">Exime los módulos anteriores al de inicio.</span></label>
           </sc-if>
           <sc-if value="{{ formEscolar }}" hint-placeholder-val="{{ true }}">
-            <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">Grupo</span><select style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;background:#fff;outline:none"><option>Miércoles 19–21</option><option>Jueves 19–21</option></select></label>
+            <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">Grupo</span><select style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"><sc-for list="{{ formGrupos }}" as="g" hint-placeholder-count="2"><option>{{ g.v }}</option></sc-for></select><span style="font-size:12px;color:#948B80;line-height:1.45">{{ formGrupoHint }}</span></label>
+          </sc-if>
+          <sc-if value="{{ formBase }}" hint-placeholder-val="{{ false }}">
+            <div style="grid-column:span 2;display:flex;gap:10px;align-items:flex-start;background:#FAF7F2;border:1px solid #EDE5D9;border-radius:10px;padding:11px 13px">
+              <span style="width:18px;height:18px;border-radius:999px;flex:none;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:#F0EAE1;color:#6F675E;margin-top:1px">i</span>
+              <span style="font-size:13px;line-height:1.5;color:#6F675E">Base no usa planes: se cursan los 2 módulos del ciclo lectivo completos. El campo <strong style="font-weight:600">planId</strong> se manda vacío.</span>
+            </div>
           </sc-if>
           <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">Fecha de inicio *</span><input value="2026-09-02" style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"></label>
         </div>
@@ -807,6 +962,141 @@
     </div>
   </sc-if>
 
+
+  <!-- ═══ MODAL CARGAR NOTA ═══ -->
+  <sc-if value="{{ modalNota }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ cerrarModal }}" style="position:fixed;inset:0;background:rgba(43,39,36,.42);display:flex;align-items:center;justify-content:center;z-index:60;padding:24px;box-sizing:border-box">
+      <div onClick="{{ stop }}" style="width:520px;background:#fff;border-radius:16px;box-shadow:0 22px 54px rgba(43,39,36,.28);overflow:hidden;max-height:100%;overflow-y:auto">
+        <div style="padding:22px 24px 4px">
+          <h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-.01em">Cargar nota</h3>
+          <p style="margin:6px 0 0;font-size:13.5px;color:#6F675E;line-height:1.5">{{ notaBajada }}</p>
+        </div>
+        <div style="padding:16px 24px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#3E3833">Módulo *</span>
+            <select value="{{ notaModulo }}" onChange="{{ onNotaModulo }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1">
+              <sc-for list="{{ notaModulos }}" as="nm" hint-placeholder-count="2"><option value="{{ nm.v }}">{{ nm.v }}</option></sc-for>
+            </select>
+          </label>
+          <sc-if value="{{ notaEsSede }}" hint-placeholder-val="{{ true }}">
+            <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#3E3833">Tipo *</span>
+              <select value="{{ notaTipo }}" onChange="{{ onNotaTipo }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1">
+                <option value="TP_INTEGRADOR">TP_INTEGRADOR — gate, aprobado / no aprobado</option>
+                <option value="EVALUACION_FINAL">EVALUACION_FINAL — es la nota del módulo</option>
+              </select>
+              <span style="font-size:12px;color:#948B80;line-height:1.45">Sede: el TP habilita la final, y la final no se promedia con el TP.</span>
+            </label>
+          </sc-if>
+          <sc-if value="{{ notaEsBase }}" hint-placeholder-val="{{ false }}">
+            <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#3E3833">Tipo *</span>
+              <select value="{{ notaTipo }}" onChange="{{ onNotaTipo }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1">
+                <option value="NOTA">NOTA — promedia (mínimo 3 por módulo)</option>
+                <option value="INTEGRADOR">INTEGRADOR — interdisciplinario, no promedia</option>
+              </select>
+              <span style="font-size:12px;color:#948B80;line-height:1.45">{{ notaConteoBase }}</span>
+            </label>
+          </sc-if>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">Fecha *</span><input value="{{ notaFecha }}" onInput="{{ onNotaFecha }}" style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">{{ notaLabelValor }}</span>
+            <sc-if value="{{ notaEsGate }}" hint-placeholder-val="{{ false }}">
+              <select value="{{ notaValor }}" onChange="{{ onNotaValor }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"><option value="Aprobado">Aprobado</option><option value="No aprobado">No aprobado</option></select>
+            </sc-if>
+            <sc-if value="{{ notaEsNumero }}" hint-placeholder-val="{{ true }}">
+              <input value="{{ notaValor }}" onInput="{{ onNotaValor }}" placeholder="0.00 – 10.00" style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1">
+            </sc-if>
+          </label>
+        </div>
+        <sc-if value="{{ notaRecuperable }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:0 24px 16px">
+            <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">Recupera a</span>
+              <select value="{{ notaRecupera }}" onChange="{{ onNotaRecupera }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1">
+                <sc-for list="{{ notaRecuperables }}" as="rc" hint-placeholder-count="2"><option value="{{ rc.v }}">{{ rc.label }}</option></sc-for>
+              </select>
+              <span style="font-size:12px;color:#948B80;line-height:1.45">La nota recuperada deja de promediar, pero queda visible en la tabla vía <strong style="font-weight:600">recuperaAId</strong>.</span>
+            </label>
+          </div>
+        </sc-if>
+        <div style="margin:0 24px 18px;background:#F4F1FA;border:1px solid #E3DCEF;border-radius:10px;padding:11px 13px;font-size:13px;line-height:1.5;color:#4A3A6E">{{ notaAviso }}</div>
+        <div style="padding:0 24px 22px;display:flex;gap:10px;justify-content:flex-end">
+          <button onClick="{{ cerrarModal }}" style="background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2">Cancelar</button>
+          <button onClick="{{ guardarNota }}" style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Cargar nota</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ═══ MODAL EDITAR PERSONA ═══ -->
+  <sc-if value="{{ modalEditarPersona }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ cerrarModal }}" style="position:fixed;inset:0;background:rgba(43,39,36,.42);display:flex;align-items:center;justify-content:center;z-index:60;padding:24px;box-sizing:border-box">
+      <div onClick="{{ stop }}" style="width:520px;background:#fff;border-radius:16px;box-shadow:0 22px 54px rgba(43,39,36,.28);overflow:hidden;max-height:100%;overflow-y:auto">
+        <div style="padding:22px 24px 4px">
+          <h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-.01em">Editar datos</h3>
+          <p style="margin:6px 0 0;font-size:13.5px;color:#6F675E;line-height:1.5">Reemplaza el registro completo de la persona. No toca sus inscripciones ni su historial.</p>
+        </div>
+        <div style="padding:16px 24px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#3E3833">Nombre *</span><input value="{{ edNombre }}" onInput="{{ onEdNombre }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">Documento</span><input value="{{ edDocumento }}" onInput="{{ onEdDocumento }}" style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">Teléfono</span><input value="{{ edTelefono }}" onInput="{{ onEdTelefono }}" style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#3E3833">Email</span><input value="{{ edEmail }}" onInput="{{ onEdEmail }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"><span style="font-size:12px;color:#948B80">Si viene, la API valida el formato (400 inline).</span></label>
+        </div>
+        <div style="padding:6px 24px 22px;display:flex;gap:10px;justify-content:flex-end">
+          <button onClick="{{ cerrarModal }}" style="background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2">Cancelar</button>
+          <button onClick="{{ guardarEdicionPersona }}" style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Guardar cambios</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ═══ MODAL DE ALTA GENÉRICO (programa · institución · empresa · módulo · plan · grupo) ═══ -->
+  <sc-if value="{{ modalAlta }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ cerrarModal }}" style="position:fixed;inset:0;background:rgba(43,39,36,.42);display:flex;align-items:center;justify-content:center;z-index:60;padding:24px;box-sizing:border-box">
+      <div onClick="{{ stop }}" style="width:540px;background:#fff;border-radius:16px;box-shadow:0 22px 54px rgba(43,39,36,.28);overflow:hidden;max-height:100%;overflow-y:auto">
+        <div style="padding:22px 24px 4px">
+          <h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-.01em">{{ alta.titulo }}</h3>
+          <p style="margin:6px 0 0;font-size:13.5px;color:#6F675E;line-height:1.5">{{ alta.bajada }}</p>
+        </div>
+        <div style="padding:16px 24px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <sc-for list="{{ altaCampos }}" as="c" hint-placeholder-count="3">
+            <label style="{{ c.wrap }}">
+              <span style="font-size:13px;font-weight:600;color:#3E3833">{{ c.label }}</span>
+              <sc-if value="{{ c.esSelect }}" hint-placeholder-val="{{ false }}">
+                <select style="{{ c.inputStyle }}" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"><sc-for list="{{ c.opciones }}" as="o" hint-placeholder-count="2"><option>{{ o.v }}</option></sc-for></select>
+              </sc-if>
+              <sc-if value="{{ c.esInput }}" hint-placeholder-val="{{ true }}">
+                <input placeholder="{{ c.placeholder }}" style="{{ c.inputStyle }}" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1">
+              </sc-if>
+              <sc-if value="{{ c.tieneHint }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:12px;color:#948B80;line-height:1.45">{{ c.hint }}</span>
+              </sc-if>
+            </label>
+          </sc-for>
+        </div>
+        <div style="margin:0 24px 18px;background:#F4F1FA;border:1px solid #E3DCEF;border-radius:10px;padding:11px 13px;font-size:13px;line-height:1.5;color:#4A3A6E">{{ alta.aviso }}</div>
+        <div style="padding:0 24px 22px;display:flex;gap:10px;justify-content:flex-end">
+          <button onClick="{{ cerrarModal }}" style="background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2">Cancelar</button>
+          <button onClick="{{ guardarAlta }}" style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">{{ alta.boton }}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ═══ MODAL CONFIRMACIÓN DESTRUCTIVA ═══ -->
+  <sc-if value="{{ modalConfirm }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ cerrarConfirm }}" style="position:fixed;inset:0;background:rgba(43,39,36,.42);display:flex;align-items:center;justify-content:center;z-index:60;padding:24px;box-sizing:border-box;z-index:80">
+      <div onClick="{{ stop }}" style="width:470px;background:#fff;border-radius:16px;box-shadow:0 22px 54px rgba(43,39,36,.28);overflow:hidden;max-height:100%;overflow-y:auto">
+        <div style="padding:22px 24px 0;display:flex;flex-direction:column;gap:8px">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#9E3A38">{{ cfm.kicker }}</span>
+          <h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-.01em">{{ cfm.titulo }}</h3>
+          <p style="margin:0;font-size:14.5px;line-height:1.55;color:#6F675E">{{ cfm.texto }}</p>
+          <div style="background:#FAF7F2;border:1px solid #EDE5D9;border-radius:10px;padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#6F675E">{{ cfm.detalle }}</div>
+        </div>
+        <div style="padding:18px 24px 22px;display:flex;gap:10px;justify-content:flex-end">
+          <button onClick="{{ cerrarConfirm }}" style="background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2">Volver</button>
+          <button onClick="{{ confirmar }}" style="background:#9E3A38;color:#fff;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#872F2D">{{ cfm.label }}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
   <!-- ═══ TOAST ═══ -->
   <sc-if value="{{ hayToast }}" hint-placeholder-val="{{ false }}">
     <div style="position:fixed;right:26px;bottom:26px;z-index:70;animation:toastIn .18s ease-out">
@@ -822,9 +1112,10 @@
   </sc-if>
 
 </div>
+</sc-if>
 
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;estadoDemo&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;datos&quot;,&quot;cargando&quot;,&quot;vacio&quot;],&quot;default&quot;:&quot;datos&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Estados de demo&quot;},&quot;avisoSecuencia&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Estados de demo&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;estadoDemo&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;datos&quot;,&quot;cargando&quot;,&quot;vacio&quot;,&quot;error&quot;],&quot;default&quot;:&quot;datos&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Estados de demo&quot;},&quot;avisoSecuencia&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Estados de demo&quot;}}">
 const BADGE = {
   ACTIVA: 'background:#E2F1E7;color:#2F7A4E;border:1px solid #C3E2CE',
   PAUSADA: 'background:#FBEFD8;color:#8F6414;border:1px solid #EEDCB4',
@@ -833,6 +1124,14 @@ const BADGE = {
 };
 const badge = (e) => (BADGE[e] || BADGE.FINALIZADA) + ';font-size:11.5px;font-weight:600;letter-spacing:.03em;padding:4px 9px;border-radius:999px;width:fit-content;display:inline-block';
 const punto = (cat) => 'width:9px;height:9px;border-radius:3px;display:inline-block;background:' + (cat === 'ESCOLAR' ? '#3E6C8A' : '#A8762B');
+const BADGE_CT = {
+  ACTIVO: 'background:#E2F1E7;color:#2F7A4E;border:1px solid #C3E2CE',
+  FINALIZADO: 'background:#E4EDF4;color:#3F6183;border:1px solid #C9DCEA'
+};
+const badgeCt = (e) => (BADGE_CT[e] || BADGE_CT.FINALIZADO) + ';font-size:11.5px;font-weight:600;letter-spacing:.03em;padding:3px 9px;border-radius:999px;width:fit-content;display:inline-block';
+/** El backend solo topea el pool cuando tipoFacturacion === PAQUETE. */
+const poolTopeado = (c) => c.tipoFacturacion === 'PAQUETE';
+const agotado = (c) => poolTopeado(c) && c.clasesConsumidas >= c.clasesContratadas;
 
 const NAV_BASE = 'display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;font-size:14px;cursor:pointer;transition:background .12s;';
 const nav = (on) => NAV_BASE + (on ? 'background:#5D4A87;color:#fff;font-weight:600' : 'color:#D3CBC1');
@@ -843,8 +1142,9 @@ const BTN_DANGER = 'border-radius:9px;padding:9px 14px;font-size:14px;font-weigh
 
 class Component extends DCLogic {
   state = {
+    sesion: true, loginUser: 'admin', loginPass: '', loginError: false, selContratoId: null,
     screen: 'inicio', rama: 'ESCOLAR', selId: null, personaId: null, from: 'personas',
-    query: '', filtro: 'TODOS', modal: null, toast: null, nuevaObs: '', formCat: 'ESCOLAR',
+    query: '', filtro: 'TODOS', modal: null, toast: null, nuevaObs: '', formCat: 'ESCOLAR', formEstr: 'CENMA_SEDE', formPrograma: 'sede',
     personas: [
       { id: 1, nombre: 'Lucía Ferreyra', documento: '38.204.115', telefono: '351 415 8890', email: 'lucia.ferreyra@correo.com' },
       { id: 2, nombre: 'Marcos Ibarra', documento: '29.887.043', telefono: '351 622 1174', email: 'm.ibarra@alcor.com.ar' },
@@ -863,7 +1163,7 @@ class Component extends DCLogic {
       { id: 205, personaId: 3, personaNombre: 'Rocío Paz', programaNombre: 'Inglés IT — Empresa', categoria: 'PARTICULAR', contratoId: null, fechaInicio: '2026-08-18', fechaFin: '—', estado: 'ACTIVA' }
     ],
     contratos: {
-      900: { id: 900, empresaNombre: 'Alcor S.A.', tipoFacturacion: 'PAQUETE', clasesContratadas: 24, clasesConsumidas: 18, estado: 'ACTIVO', cubiertos: ['Marcos Ibarra', 'Damián Ávila'] },
+      900: { id: 900, empresaNombre: 'Alcor S.A.', tipoFacturacion: 'PAQUETE', clasesContratadas: 18, clasesConsumidas: 18, estado: 'ACTIVO', cubiertos: ['Marcos Ibarra', 'Damián Ávila'] },
       901: { id: 901, empresaNombre: null, tipoFacturacion: 'POR_CLASE', clasesContratadas: 8, clasesConsumidas: 8, estado: 'ACTIVO', cubiertos: ['Lucía Ferreyra'] }
     },
     seguimientos: {
@@ -909,16 +1209,16 @@ class Component extends DCLogic {
         ]}
       ],
       102: [
-        { id: 3, titulo: 'Módulo 1', aprobado: true, promedio: '8.33', instancias: [
+        { id: 3, titulo: 'Módulo 1', aprobado: true, promedio: '9.00', instancias: [
           { tipo: 'NOTA', fecha: '2025-04-14', nota: '8.00', promedia: 'Sí', obs: '', ok: true },
-          { tipo: 'NOTA', fecha: '2025-05-19', nota: '7.00', promedia: 'Sí', obs: 'Recuperada', ok: true },
+          { tipo: 'NOTA', fecha: '2025-05-19', nota: '7.00', promedia: 'No', obs: 'Recuperada por la del 09/06', ok: true },
           { tipo: 'NOTA', fecha: '2025-06-09', nota: '10.00', promedia: 'Sí', obs: 'Recupera a la del 19/05', ok: true },
           { tipo: 'INTEGRADOR', fecha: '2025-06-23', nota: 'Aprobado', promedia: 'No', obs: 'Interdisciplinario', ok: true }
         ]},
         { id: 4, titulo: 'Módulo 2', aprobado: true, promedio: '6.50', instancias: [
           { tipo: 'NOTA', fecha: '2025-09-08', nota: '6.00', promedia: 'Sí', obs: '', ok: true },
           { tipo: 'NOTA', fecha: '2025-10-13', nota: '7.00', promedia: 'Sí', obs: '', ok: true },
-          { tipo: 'NOTA', fecha: '2025-11-10', nota: '6.50', promedia: 'Sí', obs: '', ok: true },
+          { tipo: 'NOTA', fecha: '2025-11-10', nota: '6.50', promedia: 'Sí', obs: 'Cierre del ciclo', ok: true },
           { tipo: 'INTEGRADOR', fecha: '2025-11-24', nota: 'Aprobado', promedia: 'No', obs: 'Interdisciplinario', ok: true }
         ]}
       ],
@@ -948,11 +1248,24 @@ class Component extends DCLogic {
     this.toast(destino === 'CANCELADA' ? 'warn' : 'ok', msg[destino], ins.personaNombre + ' — ' + ins.programaNombre);
   };
 
+  finalizarContrato = (cid) => {
+    const c = this.state.contratos[cid];
+    if (!c || c.estado === 'FINALIZADO') return;
+    const next = Object.assign({}, this.state.contratos);
+    next[cid] = Object.assign({}, c, { estado: 'FINALIZADO' });
+    this.setState({ contratos: next });
+    this.toast('ok', 'Contrato finalizado', (c.empresaNombre || 'Contrato individual #' + c.id) + ' — no admite más clases consumidas.');
+  };
+
   consumirClase = (cid) => {
     const c = this.state.contratos[cid];
     if (!c) { this.toast('warn', 'Sin contrato asociado', 'Creá un contrato individual o sumá esta inscripción a un pool de empresa.'); return; }
-    if (c.clasesConsumidas >= c.clasesContratadas) {
-      this.toast('err', '409 · Cupo excedido', 'El pool no tiene clases disponibles. Ampliá el cupo para seguir registrando.');
+    if (c.estado === 'FINALIZADO') {
+      this.toast('err', '409 · Contrato finalizado', 'No se puede consumir una clase de un contrato finalizado.');
+      return;
+    }
+    if (agotado(c)) {
+      this.toast('err', '409 · Cupo excedido', 'El pool PAQUETE no tiene clases disponibles. Ampliá el cupo para seguir registrando.');
       return;
     }
     const next = Object.assign({}, this.state.contratos);
@@ -982,6 +1295,11 @@ class Component extends DCLogic {
     const s = this.state;
     const demo = this.props.estadoDemo || 'datos';
     const screen = s.screen;
+    const err = demo === 'error';
+    const vacioDemo = demo === 'vacio';
+    const vaciar = (arr) => (vacioDemo ? [] : arr);
+    const TITULOS = { inicio: 'Inicio', personas: 'Personas', ficha: 'Persona', lista: 'Inscripciones', detalle: 'Inscripción', programas: 'Programas', programa: 'Programa', instituciones: 'Instituciones', contratos: 'Contratos', empresas: 'Empresas' };
+    const REQS = { inicio: 'GET /api/inscripciones → 500 Internal Server Error', personas: 'GET /api/personas → 500 Internal Server Error', ficha: 'GET /api/personas/1 → 500 Internal Server Error', lista: 'GET /api/inscripciones?categoria=ESCOLAR → 500', detalle: 'GET /api/inscripciones/101 → 500', programas: 'GET /api/programas → 500', programa: 'GET /api/programas/12 → 500', instituciones: 'GET /api/instituciones → 500', contratos: 'GET /api/contratos → 500', empresas: 'GET /api/empresas → 500' };
 
     // ── Personas
     const q = s.query.toLowerCase();
@@ -1010,7 +1328,7 @@ class Component extends DCLogic {
           programaNombre: i.programaNombre,
           rama: i.categoria === 'ESCOLAR' ? 'Escolar' : 'Particular',
           detalleCorto: i.categoria === 'ESCOLAR'
-            ? ('Plan ' + i.planCodigo + ' · ' + i.grupoDia + ' ' + i.grupoHorario)
+            ? ((i.planCodigo && i.planCodigo !== '—' ? 'Plan ' + i.planCodigo : 'Sin plan') + ' · ' + i.grupoDia + ' ' + i.grupoHorario)
             : (s.contratos[i.contratoId] ? (s.contratos[i.contratoId].empresaNombre ? 'Contrato ' + s.contratos[i.contratoId].empresaNombre : 'Contrato individual') : 'Sin contrato'),
           fechaInicio: i.fechaInicio, estado: i.estado, badge: badge(i.estado), puntoRama: punto(i.categoria),
           abrir: () => this.abrirInscripcion(i.id, 'ficha')
@@ -1029,7 +1347,7 @@ class Component extends DCLogic {
           const c = s.contratos[i.contratoId];
           return {
             personaNombre: i.personaNombre, programaNombre: i.programaNombre,
-            c3: esc ? ('Plan ' + i.planCodigo) : (c ? (c.empresaNombre || 'Individual') : 'Sin contrato'),
+            c3: esc ? (i.planCodigo && i.planCodigo !== '—' ? 'Plan ' + i.planCodigo : 'Sin plan') : (c ? (c.empresaNombre || 'Individual') : 'Sin contrato'),
             c4: esc ? (i.grupoDia + ' ' + i.grupoHorario) : (c ? (c.clasesConsumidas + ' / ' + c.clasesContratadas) : '—'),
             fechaInicio: i.fechaInicio, estado: i.estado, badge: badge(i.estado),
             abrir: () => this.abrirInscripcion(i.id, 'lista')
@@ -1054,21 +1372,36 @@ class Component extends DCLogic {
       const activa = i.estado === 'ACTIVA', pausada = i.estado === 'PAUSADA';
       const terminal = i.estado === 'FINALIZADA' || i.estado === 'CANCELADA';
       const segs = s.seguimientos[i.id] || [];
-      const mods = (s.modulos[i.id] || []).map(m => ({
+      const prgDet = s.programas.find(p => p.nombre === i.programaNombre) || {};
+      const sede = prgDet.estrategia === 'CENMA_SEDE';
+      const base = prgDet.estrategia === 'CENMA_BASE';
+      const mods = (s.modulos[i.id] || []).map(m => {
+        const notas = m.instancias.filter(x => x.tipo === 'NOTA').length;
+        const faltan = Math.max(0, 3 - notas);
+        return {
         titulo: m.titulo, promedio: m.promedio, instancias: m.instancias.map(n => Object.assign({}, n, {
           notaStyle: n.ok ? 'color:#2B2724' : 'color:#9E3A38'
         })),
+        labelNota: sede ? 'Nota del módulo' : 'Promedio',
+        tieneExtra: base,
+        extra: base ? (faltan === 0 ? notas + ' notas · mínimo cumplido' : notas + ' de 3 notas mínimas') : '',
+        extraStyle: 'font-family:IBM Plex Mono,monospace;font-size:11px;font-weight:600;letter-spacing:.04em;padding:3px 8px;border-radius:6px;' + (base && faltan === 0 ? 'background:#F0EAE1;color:#6F675E' : 'background:#FBEFD8;color:#8F6414'),
         chip: 'font-family:IBM Plex Mono,monospace;font-size:11px;font-weight:600;letter-spacing:.04em;padding:3px 8px;border-radius:6px;' + (m.aprobado ? 'background:#E2F1E7;color:#2F7A4E' : 'background:#FBEFD8;color:#8F6414'),
         chipTexto: m.aprobado ? 'APROBADO' : 'EN CURSO',
         aviso: !!m.avisoTexto && (this.props.avisoSecuencia !== false),
         avisoTexto: m.avisoTexto || ''
-      }));
+        };
+      });
       const pct = c ? Math.min(100, Math.round(c.clasesConsumidas / c.clasesContratadas * 100)) : 0;
       const rest = c ? c.clasesContratadas - c.clasesConsumidas : 0;
       det = {
         personaNombre: i.personaNombre, programaNombre: i.programaNombre, estado: i.estado, badge: badge(i.estado),
         rama: esc ? 'Escolar' : 'Particular', fechaInicio: i.fechaInicio, fechaFin: i.fechaFin,
-        m2label: esc ? 'Plan' : 'Facturación', m2: esc ? ('Plan ' + i.planCodigo) : (c ? c.tipoFacturacion : '—'),
+        m2label: esc ? (sede ? 'Plan' : 'Estrategia') : 'Facturación',
+        m2: esc ? (sede ? ('Plan ' + i.planCodigo) : 'CENMA_BASE') : (c ? c.tipoFacturacion : '—'),
+        evalBajada: sede
+          ? 'Sede · el TP integrador habilita la final, y la final es la nota del módulo'
+          : 'Base · mínimo 3 notas por módulo + integrador interdisciplinario, promedio con 2 decimales',
         m3label: esc ? 'Grupo' : 'Contrato', m3: esc ? (i.grupoDia + ' ' + i.grupoHorario) : (c ? (c.empresaNombre ? c.empresaNombre : 'Individual #' + c.id) : 'Sin contrato'),
         volver: s.from === 'ficha' ? 'Ficha de ' + i.personaNombre.split(' ')[0] : (esc ? 'Inscripciones escolares' : 'Inscripciones particulares'),
         esEscolar: esc, esParticular: !esc, modulos: mods,
@@ -1079,13 +1412,27 @@ class Component extends DCLogic {
         btnCancelar: terminal ? BTN_OFF : BTN_DANGER,
         onPausar: () => { if (!terminal) this.transicion(i.id, pausada ? 'ACTIVA' : 'PAUSADA'); },
         onFinalizar: () => { if (activa) this.transicion(i.id, 'FINALIZADA'); },
-        onCancelar: () => { if (!terminal) this.transicion(i.id, 'CANCELADA'); },
+        onCancelar: () => {
+          if (terminal) return;
+          this.setState({ confirm: {
+            kicker: 'Acción irreversible', titulo: 'Cancelar la inscripción',
+            texto: 'CANCELADA es un estado terminal: después no se puede reanudar ni finalizar. Las evaluaciones y el seguimiento quedan como registro histórico.',
+            detalle: 'PATCH /api/inscripciones/' + i.id + '/estado → CANCELADA',
+            label: 'Cancelar inscripción', accion: 'cancelarInsc', id: i.id
+          } });
+        },
         contratoEstado: c ? c.estado : '—',
-        contratoBadge: 'background:#E2F1E7;color:#2F7A4E;border:1px solid #C3E2CE;font-size:11.5px;font-weight:600;letter-spacing:.03em;padding:3px 9px;border-radius:999px',
+        contratoBadge: c ? badgeCt(c.estado) : badgeCt('FINALIZADO'),
         contratoTipo: c ? (c.empresaNombre ? 'Empresa · ' + c.tipoFacturacion : 'Individual · ' + c.tipoFacturacion) : '—',
         clasesTexto: c ? (c.clasesConsumidas + ' / ' + c.clasesContratadas) : '—',
-        clasesRestantes: c ? (rest > 0 ? rest + ' clases disponibles en el pool' : 'Pool agotado — consumir devuelve 409') : '',
-        barra: 'height:100%;width:' + pct + '%;border-radius:999px;background:' + (rest > 0 ? '#5D4A87' : '#9E3A38'),
+        clasesRestantes: c
+          ? (c.estado === 'FINALIZADO'
+              ? 'Contrato finalizado — consumir devuelve 409'
+              : (poolTopeado(c)
+                  ? (rest > 0 ? rest + ' clases disponibles en el pool' : 'Pool agotado — consumir devuelve 409')
+                  : 'POR_CLASE — sin tope en el backend'))
+          : '',
+        barra: 'height:100%;width:' + pct + '%;border-radius:999px;background:' + (c && agotado(c) ? '#9E3A38' : '#5D4A87'),
         tieneEmpresa: !!(c && c.empresaNombre),
         cubiertos: c ? c.cubiertos.map(n => ({ nombre: n })) : [],
         seguimientos: segs, sinSeguimientos: segs.length === 0,
@@ -1146,12 +1493,58 @@ class Component extends DCLogic {
       return {
         titulo: c.empresaNombre ? c.empresaNombre : 'Contrato individual #' + c.id,
         tipoFacturacion: c.tipoFacturacion, estado: c.estado,
-        badge: 'margin-left:auto;background:#E2F1E7;color:#2F7A4E;border:1px solid #C3E2CE;font-size:11.5px;font-weight:600;letter-spacing:.03em;padding:3px 9px;border-radius:999px',
+        badge: 'margin-left:auto;' + badgeCt(c.estado),
         clasesTexto: c.clasesConsumidas + ' / ' + c.clasesContratadas,
-        barra: 'height:100%;width:' + pct + '%;border-radius:999px;background:' + (rest > 0 ? '#5D4A87' : '#9E3A38'),
-        cubre: 'Cubre a ' + c.cubiertos.join(', ')
+        barra: 'height:100%;width:' + pct + '%;border-radius:999px;background:' + (agotado(c) ? '#9E3A38' : '#5D4A87'),
+        cubre: 'Cubre a ' + c.cubiertos.join(', '),
+        abrir: () => this.setState({ modal: 'contrato', selContratoId: c.id })
       };
     });
+    // ── Detalle de contrato (modal desde la card)
+    let ctd = {};
+    if (s.modal === 'contrato') {
+      const c = s.contratos[s.selContratoId] || s.contratos[Object.keys(s.contratos)[0]];
+      const pct = Math.min(100, Math.round(c.clasesConsumidas / c.clasesContratadas * 100));
+      const rest = c.clasesContratadas - c.clasesConsumidas;
+      const fin = c.estado === 'FINALIZADO';
+      const tope = poolTopeado(c);
+      ctd = {
+        idMono: 'Contrato #' + c.id,
+        titulo: c.empresaNombre ? c.empresaNombre : 'Contrato individual',
+        tipoFacturacion: c.tipoFacturacion, estado: c.estado, badge: badgeCt(c.estado),
+        subtitulo: c.empresaNombre
+          ? 'Pool compartido: cualquier empleado cubierto consume del mismo total.'
+          : 'Cubre una única inscripción particular.',
+        clasesTexto: c.clasesConsumidas + ' / ' + c.clasesContratadas,
+        barra: 'height:100%;width:' + pct + '%;border-radius:999px;background:' + (agotado(c) ? '#9E3A38' : '#5D4A87'),
+        restanteTexto: fin
+          ? 'Contrato finalizado: consumir una clase devuelve 409 sin importar el cupo.'
+          : (tope
+              ? (rest > 0 ? rest + ' clases disponibles. Al llegar a 0, consumir devuelve 409.' : 'Pool agotado — consumir devuelve 409. Ampliá el cupo para seguir registrando.')
+              : 'Facturación POR_CLASE: el backend no topea el pool, el total es referencial y se puede pasar de ' + c.clasesContratadas + '.'),
+        labelCubre: c.empresaNombre ? 'Empleados cubiertos' : 'Inscripción cubierta',
+        empleados: s.inscripciones.filter(i => i.contratoId === c.id).map(i => ({
+          nombre: i.personaNombre, programaNombre: i.programaNombre, estado: i.estado,
+          badge: 'margin-left:auto;' + badge(i.estado),
+          abrir: () => this.setState({ modal: null, screen: 'detalle', selId: i.id, from: 'lista' })
+        })),
+        btnConsumir: (fin || agotado(c)) ? BTN_OFF : BTN_ON,
+        btnAmpliar: fin ? BTN_OFF : BTN_ON,
+        btnFinalizar: fin ? BTN_OFF : BTN_DANGER,
+        onConsumir: () => this.consumirClase(c.id),
+        onAmpliar: () => { if (!fin) this.ampliarCupo(c.id); },
+        onFinalizar: () => {
+          if (fin) return;
+          this.setState({ confirm: {
+            kicker: 'Acción irreversible', titulo: 'Finalizar el contrato',
+            texto: 'El pool queda cerrado: consumir una clase pasa a devolver 409 para todas las inscripciones cubiertas, y no hay forma de reabrirlo desde la UI.',
+            detalle: 'POST /api/contratos/' + c.id + '/finalizar',
+            label: 'Finalizar contrato', accion: 'finContrato', id: c.id
+          } });
+        }
+      };
+    }
+
     const chev = (on) => 'font-size:15px;color:#948B80;transition:transform .16s;display:inline-block;transform:rotate(' + (on ? '180deg' : '0deg') + ')';
     const instituciones = s.instituciones.map(x => {
       const props = s.programas.filter(p => p.institucionNombre === x.nombre);
@@ -1187,9 +1580,9 @@ class Component extends DCLogic {
           const rest = c.clasesContratadas - c.clasesConsumidas;
           return {
             titulo: 'Contrato #' + c.id, tipoFacturacion: c.tipoFacturacion, estado: c.estado,
-            badge: 'margin-left:auto;background:#E2F1E7;color:#2F7A4E;border:1px solid #C3E2CE;font-size:11.5px;font-weight:600;letter-spacing:.03em;padding:3px 9px;border-radius:999px',
+            badge: 'margin-left:auto;' + badgeCt(c.estado),
             clasesTexto: c.clasesConsumidas + ' / ' + c.clasesContratadas,
-            barra: 'height:100%;width:' + pct + '%;border-radius:999px;background:' + (rest > 0 ? '#5D4A87' : '#9E3A38'),
+            barra: 'height:100%;width:' + pct + '%;border-radius:999px;background:' + (agotado(c) ? '#9E3A38' : '#5D4A87'),
             empleados: s.inscripciones.filter(i => i.contratoId === c.id).map(i => ({
               nombre: i.personaNombre, programaNombre: i.programaNombre, estado: i.estado, badge: badge(i.estado),
               abrir: () => this.abrirInscripcion(i.id, 'lista')
@@ -1227,11 +1620,11 @@ class Component extends DCLogic {
     ];
     const ICO = (bg, fg) => 'width:20px;height:20px;border-radius:999px;flex:none;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-top:1px;background:' + bg + ';color:' + fg;
     const atencion = [];
-    ctsAct.filter(c => c.clasesConsumidas >= c.clasesContratadas).forEach(c => atencion.push({
+    ctsAct.filter(agotado).forEach(c => atencion.push({
       icono: ICO('#F8E3E1', '#9E3A38'), glifo: '×',
       titulo: 'Pool agotado — ' + (c.empresaNombre || 'Contrato individual #' + c.id),
       texto: 'Consumir otra clase devuelve 409. Ampliá el cupo desde el contrato.',
-      ir: () => this.ir('contratos')
+      ir: () => this.setState({ screen: 'contratos', modal: 'contrato', selContratoId: c.id })
     }));
     s.inscripciones.filter(i => i.categoria === 'PARTICULAR' && !i.contratoId).forEach(i => atencion.push({
       icono: ICO('#FBEFD8', '#8F6414'), glifo: '!',
@@ -1256,9 +1649,96 @@ class Component extends DCLogic {
       })));
     }, []).sort((a, b) => (a.fecha < b.fecha ? 1 : -1)).slice(0, 4);
 
+    // ── Altas y ediciones que comparten el mismo shell de modal
+    const F = (label, o) => Object.assign({ label: label, placeholder: '', hint: '', esSelect: false, opciones: [], span: false, mono: false }, o || {});
+    const ALTAS = {
+      programa: { titulo: 'Nuevo programa', boton: 'Crear programa',
+        bajada: 'La estrategia de evaluación decide qué se puede configurar después: módulos y planes en escolar, nada en particular.',
+        aviso: 'CENMA_SEDE habilita planes; CENMA_BASE solo módulos; SEGUIMIENTO_LIBRE no usa ninguno de los dos y el avance se registra en Seguimiento.',
+        campos: [
+          F('Nombre *', { span: true, placeholder: 'CENMA Bº SMATA — Sede' }),
+          F('Categoría *', { esSelect: true, opciones: [{ v: 'ESCOLAR' }, { v: 'PARTICULAR' }] }),
+          F('Estrategia *', { esSelect: true, opciones: [{ v: 'CENMA_SEDE' }, { v: 'CENMA_BASE' }, { v: 'SEGUIMIENTO_LIBRE' }] }),
+          F('Institución', { span: true, esSelect: true, opciones: [{ v: 'CENMA Bº SMATA' }, { v: '— (programa particular)' }], hint: 'Obligatoria en la rama escolar, vacía en particular.' })
+        ] },
+      programaEditar: { titulo: 'Editar programa', boton: 'Guardar cambios',
+        bajada: 'El nombre y la institución se pueden cambiar. La estrategia no: ya hay inscripciones evaluadas con esa regla.',
+        aviso: 'Cambiar la estrategia rompería el historial de módulos y planes. Si hace falta otra regla, se crea un programa nuevo.',
+        campos: [
+          F('Nombre *', { span: true, placeholder: 'CENMA Bº SMATA — Sede' }),
+          F('Estrategia', { esSelect: true, opciones: [{ v: 'CENMA_SEDE — no editable' }], hint: 'Fija desde el alta.' }),
+          F('Institución', { esSelect: true, opciones: [{ v: 'CENMA Bº SMATA' }] })
+        ] },
+      institucion: { titulo: 'Nueva institución', boton: 'Crear institución',
+        bajada: 'Solo el nombre: los programas se cuelgan después, uno por uno.',
+        aviso: 'Las instituciones son de la rama escolar. No tienen contratos ni pool de clases.',
+        campos: [F('Nombre *', { span: true, placeholder: 'CENMA Bº SMATA' })] },
+      empresa: { titulo: 'Nueva empresa', boton: 'Crear empresa',
+        bajada: 'La empresa es el pagador. El pool de clases se define después, al crear su contrato.',
+        aviso: 'Crear la empresa no crea contrato: hasta que exista uno, sus empleados no pueden consumir clases.',
+        campos: [
+          F('Nombre *', { span: true, placeholder: 'Alcor S.A.' }),
+          F('Contacto', { span: true, placeholder: 'rrhh@alcor.com.ar', hint: 'Opcional. Se muestra en el listado de Empresas.' })
+        ] },
+      modulo: { titulo: 'Nuevo módulo', boton: 'Crear módulo',
+        bajada: 'El orden define la secuencia del programa; el flag decide si hay que aprobar el anterior.',
+        aviso: 'Un módulo secuencial exige el TP integrador del módulo previo aprobado. En CENMA_BASE los módulos son independientes.',
+        campos: [
+          F('Orden *', { mono: true, placeholder: '3' }),
+          F('Secuencia *', { esSelect: true, opciones: [{ v: 'Secuencial — requiere el anterior' }, { v: 'Independiente' }] })
+        ] },
+      plan: { titulo: 'Nuevo plan', boton: 'Crear plan',
+        bajada: 'Un plan exime los módulos anteriores a su módulo de inicio.',
+        aviso: 'Solo los programas CENMA_SEDE usan planes. El alumno arranca directo en el módulo de inicio y los anteriores quedan como no exigibles.',
+        campos: [
+          F('Código *', { placeholder: 'B' }),
+          F('Módulo de inicio *', { esSelect: true, opciones: [{ v: 'Módulo 1' }, { v: 'Módulo 4' }, { v: 'Módulo 6' }] })
+        ] },
+      grupo: { titulo: 'Nuevo grupo', boton: 'Crear grupo',
+        bajada: 'Día y horario de cursado. Es información de agenda, no afecta el avance académico.',
+        aviso: 'El grupo no bloquea nada: cambiarlo no altera evaluaciones ni estados de la inscripción.',
+        campos: [
+          F('Día *', { esSelect: true, opciones: [{ v: 'Lunes' }, { v: 'Martes' }, { v: 'Miércoles' }, { v: 'Jueves' }, { v: 'Viernes' }, { v: 'Sábado' }] }),
+          F('Horario *', { mono: true, placeholder: '19–21' })
+        ] }
+    };
+    const alta = ALTAS[s.alta] || { titulo: '', bajada: '', aviso: '', boton: 'Crear', campos: [] };
+    const altaCampos = alta.campos.map(c => ({
+      label: c.label, placeholder: c.placeholder, hint: c.hint, tieneHint: !!c.hint,
+      opciones: c.opciones, esSelect: c.esSelect, esInput: !c.esSelect,
+      wrap: 'display:flex;flex-direction:column;gap:6px' + (c.span ? ';grid-column:span 2' : ''),
+      inputStyle: (c.mono ? "font-family:'IBM Plex Mono',monospace;" : '') + 'font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff'
+    }));
+
+    // ── Carga de nota
+    const insNota = s.inscripciones.find(x => x.id === s.selId);
+    const prgNota = insNota ? (s.programas.find(p => p.nombre === insNota.programaNombre) || {}) : {};
+    const notaSede = prgNota.estrategia === 'CENMA_SEDE';
+    const notaBase = prgNota.estrategia === 'CENMA_BASE';
+    const modsNota = (s.selId && s.modulos[s.selId]) || [];
+    const notaTipo = s.notaTipo || (notaSede ? 'TP_INTEGRADOR' : 'NOTA');
+    const notaGate = notaTipo === 'TP_INTEGRADOR' || notaTipo === 'INTEGRADOR';
+    const modNota = modsNota.find(m => m.titulo === s.notaModulo) || modsNota[0] || { instancias: [] };
+    const notasDelModulo = modNota.instancias.filter(x => x.tipo === 'NOTA' && x.promedia === 'Sí');
+    const notasCargadas = modNota.instancias.filter(x => x.tipo === 'NOTA').length;
+    const recuperables = [{ v: '', label: '— no es recuperatorio' }].concat(notasDelModulo.map(x => ({ v: x.fecha, label: 'Nota ' + x.nota + ' del ' + x.fecha })));
+    const personaEd = s.personas.find(p => p.id === s.personaId) || s.personas[0];
+
     return {
+      vLogin: !s.sesion, vApp: s.sesion,
+      loginUser: s.loginUser, loginPass: s.loginPass, loginError: s.loginError,
+      onLoginUser: (e) => this.set({ loginUser: e.target.value, loginError: false }),
+      onLoginPass: (e) => this.set({ loginPass: e.target.value, loginError: false }),
+      entrar: () => {
+        if (!s.loginUser.trim() || !s.loginPass.trim()) { this.set({ loginError: true }); return; }
+        this.setState({ sesion: true, loginError: false, loginPass: '', screen: 'inicio' });
+      },
+      salir: () => this.setState({ sesion: false, loginPass: '', modal: null, toast: null, screen: 'inicio' }),
+
+      modalContrato: s.modal === 'contrato', ctd: ctd,
+
       navInicio: nav(screen === 'inicio'), goInicio: () => this.ir('inicio'),
-      vInicio: screen === 'inicio', kpis: kpis, atencion: atencion, sinAtencion: atencion.length === 0, ultimasObs: ultimasObs,
+      vInicio: screen === 'inicio' && !err, kpis: kpis, atencion: atencion, sinAtencion: atencion.length === 0, ultimasObs: ultimasObs,
       navPersonas: nav(screen === 'personas' || screen === 'ficha'),
       navEsc: nav(screen === 'lista' && s.rama === 'ESCOLAR'),
       navPart: nav(screen === 'lista' && s.rama === 'PARTICULAR'),
@@ -1271,11 +1751,17 @@ class Component extends DCLogic {
       goCont: () => this.ir('contratos'), goEmp: () => this.ir('empresas'),
       volverLista: () => (s.from === 'ficha' ? this.setState({ screen: 'ficha' }) : this.setState({ screen: 'lista' })),
 
-      vPersonas: screen === 'personas', vFicha: screen === 'ficha', vLista: screen === 'lista',
-      vDetalle: screen === 'detalle',
-      vProgramas: screen === 'programas', vPrograma: screen === 'programa',
-      vInstituciones: screen === 'instituciones', vContratos: screen === 'contratos', vEmpresas: screen === 'empresas',
-      programas: programas, prog: prog, instituciones: instituciones, empresas: empresas, contratosLista: contratosLista,
+      vPersonas: screen === 'personas' && !err, vFicha: screen === 'ficha' && !err, vLista: screen === 'lista' && !err,
+      vDetalle: screen === 'detalle' && !err,
+      vProgramas: screen === 'programas' && !err, vPrograma: screen === 'programa' && !err,
+      vInstituciones: screen === 'instituciones' && !err, vContratos: screen === 'contratos' && !err, vEmpresas: screen === 'empresas' && !err,
+      programas: vaciar(programas), prog: prog, instituciones: vaciar(instituciones), empresas: vaciar(empresas), contratosLista: vaciar(contratosLista),
+      vacioProgramas: screen === 'programas' && vacioDemo,
+      vacioInstituciones: screen === 'instituciones' && vacioDemo,
+      vacioContratos: screen === 'contratos' && vacioDemo,
+      vacioEmpresas: screen === 'empresas' && vacioDemo,
+      vError: err, errorPantalla: TITULOS[screen] || 'Pantalla', errorRequest: REQS[screen] || 'GET /api/... → 500',
+      reintentar: () => this.toast('warn', 'Sigue fallando', 'En el prototipo el error es fijo: pasá el tweak “Estados de demo” a “datos” para ver la pantalla cargada.'),
       progTabTodos: segTab(s.progFiltro === 'TODOS'), progTabEsc: segTab(s.progFiltro === 'ESCOLAR'), progTabPart: segTab(s.progFiltro === 'PARTICULAR'),
       progFiltroTodos: () => this.set({ progFiltro: 'TODOS' }), progFiltroEsc: () => this.set({ progFiltro: 'ESCOLAR' }), progFiltroPart: () => this.set({ progFiltro: 'PARTICULAR' }),
       tabModulos: () => this.set({ tabProg: 'modulos' }), tabPlanes: () => this.set({ tabProg: 'planes' }), tabGrupos: () => this.set({ tabProg: 'grupos' }),
@@ -1342,17 +1828,145 @@ class Component extends DCLogic {
       modal422message: 'message: "Requisitos académicos incompletos: ' + (s.modal422mods || '—') + '"',
       modalPersona: s.modal === 'persona', modalInscripcion: s.modal === 'inscripcion',
       openNuevaPersona: () => this.set({ modal: 'persona' }),
-      openNuevaInscripcion: () => this.set({ modal: 'inscripcion' }),
+      openNuevaInscripcion: () => this.set({ modal: 'inscripcion', formPrograma: 'sede', formCat: 'ESCOLAR', formEstr: 'CENMA_SEDE' }),
       cerrarModal: () => this.set({ modal: null }),
       stop: (e) => e.stopPropagation(),
       formNombre: s.formNombre || '', onFormNombre: (e) => this.set({ formNombre: e.target.value }),
+      formPrograma: s.formPrograma || 'sede',
       formEscolar: s.formCat === 'ESCOLAR',
-      onFormPrograma: (e) => this.set({ formCat: e.target.value === 'ingles' ? 'PARTICULAR' : 'ESCOLAR' }),
-      formAviso: s.formCat === 'ESCOLAR'
-        ? 'Si la persona ya tiene una inscripción escolar ACTIVA o PAUSADA, la API responde 409 y el alta se rechaza.'
-        : 'Las inscripciones particulares se crean sin contrato: se asocian después desde Contratos, individualmente o a un pool de empresa.',
+      formSede: s.formEstr === 'CENMA_SEDE',
+      formBase: s.formEstr === 'CENMA_BASE',
+      formGrupos: s.formEstr === 'CENMA_BASE'
+        ? [{ v: 'Lunes 19–21' }]
+        : [{ v: 'Miércoles 19–21' }, { v: 'Jueves 19–21' }],
+      formGrupoHint: s.formEstr === 'CENMA_BASE'
+        ? 'Único grupo del ciclo lectivo. Informativo: no afecta el avance.'
+        : 'Agenda de cursado. Informativo: no afecta el avance ni las notas.',
+      formEstrategiaHint: s.formEstr === 'CENMA_SEDE'
+        ? '9 módulos secuenciales · planes A/B/C con eximición · TP integrador y final por módulo.'
+        : (s.formEstr === 'CENMA_BASE'
+            ? '2 módulos por ciclo lectivo · sin planes · mínimo 3 notas e integrador por módulo.'
+            : 'Seguimiento libre: sin módulos ni notas, el progreso se registra en observaciones.'),
+      onFormPrograma: (e) => {
+        const v = e.target.value;
+        const map = { sede: { formCat: 'ESCOLAR', formEstr: 'CENMA_SEDE' }, base: { formCat: 'ESCOLAR', formEstr: 'CENMA_BASE' } };
+        this.set(Object.assign({ formPrograma: v }, map[v] || { formCat: 'PARTICULAR', formEstr: 'SEGUIMIENTO_LIBRE' }));
+      },
+      formAviso: s.formEstr === 'CENMA_SEDE'
+        ? 'El plan exime los módulos anteriores al de inicio: B arranca en el 4, C en el 6. Si la persona ya tiene una inscripción escolar ACTIVA o PAUSADA, la API responde 409.'
+        : (s.formEstr === 'CENMA_BASE'
+            ? 'Base manda planId vacío: los 2 módulos del ciclo lectivo se cursan completos. Si la persona ya tiene una inscripción escolar ACTIVA o PAUSADA, la API responde 409.'
+            : 'Las inscripciones particulares se crean sin plan, sin grupo y sin contrato: el contrato se asocia después desde Contratos, individualmente o a un pool de empresa.'),
       guardarPersona: () => { this.set({ modal: null, formNombre: '' }); this.toast('ok', 'Persona creada', '201 · La persona ya está disponible para inscribir.'); },
       guardarInscripcion: () => { this.set({ modal: null }); this.toast('ok', 'Inscripción creada', '201 · Estado inicial ACTIVA.'); },
+
+      modalNota: s.modal === 'nota',
+      openNota: () => this.set({ modal: 'nota', notaModulo: (modsNota[0] && modsNota[0].titulo) || '', notaTipo: notaSede ? 'TP_INTEGRADOR' : 'NOTA', notaFecha: '2026-09-02', notaValor: '', notaRecupera: '' }),
+      notaEsSede: notaSede, notaEsBase: notaBase,
+      notaBajada: notaSede
+        ? 'Queda asociada a la inscripción y al módulo. La EVALUACION_FINAL define sola la nota del módulo; el TP integrador no promedia.'
+        : 'Queda asociada a la inscripción y al módulo. El promedio del módulo se recalcula sobre las notas que promedian.',
+      notaConteoBase: notasCargadas >= 3
+        ? 'Este módulo ya tiene ' + notasCargadas + ' notas: el mínimo está cumplido.'
+        : 'Este módulo tiene ' + notasCargadas + ' de las 3 notas mínimas (el integrador no cuenta).',
+      notaRecuperable: notaBase && notaTipo === 'NOTA' && notasDelModulo.length > 0,
+      notaRecuperables: recuperables,
+      notaRecupera: s.notaRecupera || '', onNotaRecupera: (e) => this.set({ notaRecupera: e.target.value }),
+      notaModulos: modsNota.map(m => ({ v: m.titulo })),
+      notaModulo: s.notaModulo || '', onNotaModulo: (e) => this.set({ notaModulo: e.target.value }),
+      notaTipo: notaTipo, onNotaTipo: (e) => this.set({ notaTipo: e.target.value, notaValor: '' }),
+      notaFecha: s.notaFecha || '2026-09-02', onNotaFecha: (e) => this.set({ notaFecha: e.target.value }),
+      notaValor: s.notaValor || '', onNotaValor: (e) => this.set({ notaValor: e.target.value }),
+      notaEsGate: notaGate, notaEsNumero: !notaGate,
+      notaLabelValor: notaGate ? 'Resultado *' : 'Nota *',
+      notaAviso: modsNota.length === 0
+        ? 'Esta inscripción no tiene módulos: el programa es de seguimiento libre o todavía no los definió. Cargalos desde el programa antes de evaluar.'
+        : (notaSede
+            ? (notaGate
+                ? 'El TP integrador no lleva nota ni promedia: es el gate que habilita la EVALUACION_FINAL y, en módulos secuenciales, el módulo siguiente.'
+                : 'En Sede la final ES la nota del módulo: no se promedia con el TP. Con menos de 6 el módulo queda sin aprobar. La API no valida la secuencia, así que se puede cargar sin TP aprobado.')
+            : (notaGate
+                ? 'El integrador interdisciplinario se registra aprobado / no aprobado y va con cuentaParaPromedio = false: no entra al promedio del módulo.'
+                : 'La nota entra al promedio del módulo (2 decimales, BigDecimal). Con recuperatorio, la nueva reemplaza a la original en el promedio y la original se conserva.')),
+      guardarNota: () => {
+        const tit = s.notaModulo || (modsNota[0] && modsNota[0].titulo);
+        if (!tit) { this.toast('warn', '400 · Falta el módulo', 'moduloId es obligatorio y este programa no tiene módulos cargados.'); return; }
+        const val = (s.notaValor || '').trim();
+        if (!notaGate && !val) { this.toast('warn', '400 · Falta la nota', 'El campo nota es obligatorio salvo en el TP integrador, que se registra como aprobado o no aprobado.'); return; }
+        const rec = s.notaRecupera || '';
+        const next = Object.assign({}, s.modulos);
+        next[s.selId] = (next[s.selId] || []).map(m => {
+          if (m.titulo !== tit) return m;
+          const previas = m.instancias.map(x => (rec && x.fecha === rec && x.tipo === 'NOTA')
+            ? Object.assign({}, x, { promedia: 'No', obs: 'Recuperada por la del ' + (s.notaFecha || '2026-09-02') })
+            : x);
+          const inst = previas.concat([{
+            tipo: notaTipo, fecha: s.notaFecha || '2026-09-02',
+            nota: notaGate ? (val || 'Aprobado') : (parseFloat(val) || 0).toFixed(2),
+            promedia: notaGate ? 'No' : 'Sí',
+            obs: rec ? 'Recupera a la del ' + rec : (notaGate ? (notaSede ? 'Gate de habilitación' : 'Interdisciplinario') : ''),
+            ok: notaGate ? (val || 'Aprobado') === 'Aprobado' : parseFloat(val) >= 6
+          }]);
+          const gatesOk = inst.filter(x => x.tipo.indexOf('INTEGRADOR') >= 0).every(x => x.ok);
+          if (notaSede) {
+            // Sede: la última EVALUACION_FINAL es la nota del módulo, no se promedia con el TP.
+            const finales = inst.filter(x => x.tipo === 'EVALUACION_FINAL');
+            const ultima = finales.length ? parseFloat(finales[finales.length - 1].nota) : null;
+            return Object.assign({}, m, {
+              instancias: inst,
+              promedio: ultima === null || isNaN(ultima) ? '—' : ultima.toFixed(2),
+              aprobado: ultima !== null && !isNaN(ultima) && ultima >= 6 && gatesOk
+            });
+          }
+          // Base: promedio de las notas que promedian; el integrador queda fuera.
+          const nums = inst.filter(x => x.tipo === 'NOTA' && x.promedia === 'Sí').map(x => parseFloat(x.nota)).filter(n => !isNaN(n));
+          const prom = nums.length ? nums.reduce((a, b) => a + b, 0) / nums.length : null;
+          return Object.assign({}, m, {
+            instancias: inst,
+            promedio: prom === null ? '—' : prom.toFixed(2),
+            aprobado: prom !== null && prom >= 6 && inst.filter(x => x.tipo === 'NOTA').length >= 3 && gatesOk
+          });
+        });
+        this.setState({ modulos: next, modal: null, notaValor: '', notaRecupera: '' });
+        this.toast('ok', 'Nota cargada', notaSede
+          ? '201 · ' + notaTipo + ' en ' + tit + '. En Sede la final define sola la nota del módulo.'
+          : '201 · ' + notaTipo + ' en ' + tit + (rec ? ', recuperando la del ' + rec : '') + '. Promedio recalculado sobre las notas que promedian.');
+      },
+
+      modalEditarPersona: s.modal === 'editarPersona',
+      openEditarPersona: () => this.set({ modal: 'editarPersona', edNombre: personaEd.nombre, edDocumento: personaEd.documento, edTelefono: personaEd.telefono, edEmail: personaEd.email }),
+      edNombre: s.edNombre || '', onEdNombre: (e) => this.set({ edNombre: e.target.value }),
+      edDocumento: s.edDocumento || '', onEdDocumento: (e) => this.set({ edDocumento: e.target.value }),
+      edTelefono: s.edTelefono || '', onEdTelefono: (e) => this.set({ edTelefono: e.target.value }),
+      edEmail: s.edEmail || '', onEdEmail: (e) => this.set({ edEmail: e.target.value }),
+      guardarEdicionPersona: () => {
+        const nom = (s.edNombre || '').trim();
+        if (!nom) { this.toast('warn', '400 · Falta el nombre', 'nombre es obligatorio.'); return; }
+        this.setState({
+          modal: null,
+          personas: s.personas.map(p => p.id === personaEd.id ? Object.assign({}, p, { nombre: nom, documento: s.edDocumento, telefono: s.edTelefono, email: s.edEmail }) : p),
+          inscripciones: s.inscripciones.map(i => i.personaId === personaEd.id ? Object.assign({}, i, { personaNombre: nom }) : i)
+        });
+        this.toast('ok', 'Datos actualizados', '200 · El nombre se propaga a las inscripciones y al seguimiento.');
+      },
+
+      modalAlta: s.modal === 'alta', alta: alta, altaCampos: altaCampos,
+      openAltaPrograma: () => this.set({ modal: 'alta', alta: 'programa' }),
+      openEditarPrograma: () => this.set({ modal: 'alta', alta: 'programaEditar' }),
+      openAltaInstitucion: () => this.set({ modal: 'alta', alta: 'institucion' }),
+      openAltaEmpresa: () => this.set({ modal: 'alta', alta: 'empresa' }),
+      openAltaTab: () => this.set({ modal: 'alta', alta: s.tabProg === 'planes' ? 'plan' : (s.tabProg === 'grupos' ? 'grupo' : 'modulo') }),
+      guardarAlta: () => { this.set({ modal: null }); this.toast('ok', alta.titulo.replace('Nuevo', 'Creado').replace('Nueva', 'Creada').replace('Editar programa', 'Programa actualizado'), '201 · ' + alta.boton + ' — en el prototipo no persiste.'); },
+
+      modalConfirm: !!s.confirm, cfm: s.confirm || {},
+      cerrarConfirm: () => this.set({ confirm: null }),
+      confirmar: () => {
+        const c = s.confirm;
+        this.set({ confirm: null });
+        if (!c) return;
+        if (c.accion === 'cancelarInsc') this.transicion(c.id, 'CANCELADA');
+        if (c.accion === 'finContrato') this.finalizarContrato(c.id);
+      },
 
       hayToast: !!s.toast, toast: Object.assign({ icono: t.tipo === 'ok' ? '✓' : (t.tipo === 'err' ? '×' : '!') }, t),
       toastStyle: 'display:flex;align-items:flex-start;gap:12px;background:#fff;border:1px solid #E6DED2;border-left:3px solid ' + tint + ';border-radius:12px;padding:14px 16px;box-shadow:0 10px 26px rgba(43,39,36,.13);max-width:380px',

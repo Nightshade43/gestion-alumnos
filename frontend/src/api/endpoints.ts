@@ -47,7 +47,14 @@ export const grupos = {
 };
 
 export const inscripciones = {
-  /** OJO: personaId es obligatorio en el backend. No existe "listar todas". Ver GAPS en el README. */
+  /** Listado global. Ambos filtros son opcionales y combinables. */
+  list: (f: { personaId?: number; categoria?: T.CategoriaPrograma } = {}) => {
+    const qs = new URLSearchParams();
+    if (f.personaId != null) qs.set('personaId', String(f.personaId));
+    if (f.categoria) qs.set('categoria', f.categoria);
+    const s = qs.toString();
+    return api.get<T.InscripcionResponse[]>('/api/inscripciones' + (s ? `?${s}` : ''));
+  },
   byPersona:  (personaId: number) => api.get<T.InscripcionResponse[]>(`/api/inscripciones?personaId=${personaId}`),
   get:        (id: number) => api.get<T.InscripcionResponse>(`/api/inscripciones/${id}`),
   create:     (b: T.InscripcionRequest) => api.post<T.InscripcionResponse>('/api/inscripciones', b),
@@ -65,7 +72,7 @@ export const empresas = {
 };
 
 export const contratos = {
-  /** Solo por id: no hay GET de lista. Ver GAPS en el README. */
+  list:          () => api.get<T.ContratoResponse[]>('/api/contratos'),
   get:           (id: number) => api.get<T.ContratoResponse>(`/api/contratos/${id}`),
   createIndividual: (b: T.ContratoRequest) => api.post<T.ContratoResponse>('/api/contratos', b),
   createEmpresa:    (b: T.ContratoEmpresaRequest) => api.post<T.ContratoResponse>('/api/contratos/empresa', b),

@@ -27,17 +27,34 @@ definidos y deben respetarse. Los valores exactos están en `tokens/tokens.css`
 
 ---
 
-## ⚠️ Gaps del backend detectados al leer el repo
-Estos tres puntos afectan directamente lo que la UI puede pedir. Ninguno es un bug: son
-endpoints que todavía no existen. Recomendación: **agregarlos en el backend**; mientras no
-estén, el paquete incluye el workaround.
+## Estado de la API
 
-| # | Gap | Impacto en la UI | Workaround incluido |
+**Los 3 gaps de la primera revisión están resueltos en `master`** (detalle abajo). De la
+implementación de las 11 pantallas salieron **8 pendientes nuevos**, ninguno bloqueante:
+están especificados uno por uno, con contrato propuesto y criterio de aceptación, en
+**[BACKEND.md](./BACKEND.md)**. El frontend funciona sin ellos; lo que cambian es cantidad
+de requests, exactitud de dos avisos de Inicio y una deuda de modelo (el gate de Sede
+guardado como nota 10/0).
+
+### Gaps de la primera revisión — resueltos
+Los tres gaps de la primera lectura ya están cerrados en `master`. El paquete quedó
+sincronizado: **no hay más workarounds client-side**.
+
+| # | Gap original | Cómo quedó | Efecto en el paquete |
 |---|---|---|---|
-| 1 | `GET /api/inscripciones` exige `personaId` (`@RequestParam Long personaId`, no opcional). No hay listado global. | Los listados "Inscripciones escolares" / "Inscripciones particulares" y los KPIs de Inicio necesitan todas las inscripciones. | `useTodasLasInscripciones()` en `src/api/queries.ts`: fan-out `GET /api/personas` + N requests. Aceptable con el volumen actual; borrar cuando exista el listado. |
-| 2 | `ContratoController` solo expone `GET /api/contratos/{id}`. No hay listado. | La pantalla **Contratos** y el KPI "Contratos activos" no tienen de dónde leer. | Ninguno real: hoy solo se puede llegar a un contrato desde una inscripción cuyo id se conozca. **Sugerido: `GET /api/contratos` (y opcional `?empresaId=`).** |
-| 3 | `InscripcionResponse` no trae `categoria` ni `contratoId`. | Separar por rama y saber si una inscripción particular ya tiene contrato requiere cruzar con `GET /api/programas` en el cliente. | Cruce client-side por `programaId` (los programas sí traen `categoria`). **Sugerido: sumar `categoria` y `contratoId` al response** — evita el join en el front. |
+| 1 | `GET /api/inscripciones` exigía `personaId` | `listar(personaId?, categoria?)`, ambos opcionales y combinables | `useTodasLasInscripciones()` **eliminado**. Ahora `useInscripciones({ categoria })`: una sola request por pantalla, el filtro de rama lo hace el backend. |
+| 2 | `ContratoController` sin listado | `GET /api/contratos` devuelve todos con sus `inscripciones` | `useContratos()`. La pantalla Contratos y el KPI "Contratos activos" ya tienen origen de datos. |
+| 3 | `InscripcionResponse` sin `categoria`/`contratoId` | ambos campos agregados (`categoria` del programa, `contratoId` null si no tiene) | Se fue el cruce con `/api/programas` y el `includes('CENMA')` provisorio de `PersonasScreen`. "Sin contrato" ahora es `contratoId === null`. |
 
+Sobre el orden de parámetros del record: `types.ts` mapea **por nombre de campo**
+(interfaces TS sobre JSON), así que la nueva posición de `categoria` (6º) y `contratoId`
+(último) en el constructor canónico no afecta al front. Nada en el paquete depende del
+orden — sí conviene revisarlo en los tests de backend que construyan el record posicionalmente.
+
+Verificado contra `master` el 2026-09-07: `InscripcionController` expone un único
+`@GetMapping` (`listar(personaId?, categoria?)`) y `ContratoController` tiene los seis
+mappings completos (`GET /`, `GET /{id}`, `POST /`, `POST /empresa`, `consumir-clase`,
+`ampliar-cupo`, `finalizar`).
 Complemento ya conocido: la API **no valida secuencia académica** al cargar notas
 (se puede cargar `EVALUACION_FINAL` sin `TP_INTEGRADOR` aprobado). La UI muestra una
 **advertencia ámbar no bloqueante**, no lo impide.
@@ -49,19 +66,23 @@ La especificación pantalla por pantalla (layout, componentes, copy exacto, endp
 consume cada una y estados) está en **[SCREENS.md](./SCREENS.md)**.
 Mapa corto:
 
+Estado del código de referencia: **11 de 11 pantallas escritas y ruteadas** en `App.tsx`,
+más el guard de sesión, los 6 modales, las confirmaciones destructivas, los vacíos y el
+error de red. No queda ninguna pantalla en placeholder.
+
 | Pantalla | Propósito | Endpoints |
 |---|---|---|
 | Login | Autenticación única | `POST /api/auth/login` |
-| Inicio | KPIs + "Requiere atención" + últimas observaciones | personas, programas, inscripciones (fan-out), contratos |
+| Inicio | KPIs + "Requiere atención" + últimas observaciones | `GET /api/personas|programas|inscripciones|contratos` |
 | Personas (listado) | Buscar y crear personas | `GET/POST /api/personas` |
 | Persona (ficha) | Datos + inscripciones de ambas ramas | `GET /api/personas/{id}`, `GET /api/inscripciones?personaId=` |
-| Inscripciones escolares | Listado con Plan/Grupo, filtro por estado | ver gap #1 |
-| Inscripciones particulares | Listado con contrato y clases | ver gaps #1 y #3 |
+| Inscripciones escolares | Listado con Plan/Grupo, filtro por estado | `GET /api/inscripciones?categoria=ESCOLAR` |
+| Inscripciones particulares | Listado con contrato y clases | `GET /api/inscripciones?categoria=PARTICULAR` |
 | Inscripción (detalle) | Máquina de estados + evaluaciones o seguimiento/contrato | transiciones, instancias-evaluativas, seguimientos, contratos |
 | Programas (listado) | Filtro por categoría | `GET /api/programas` |
 | Programa (detalle) | Pestañas Módulos · Planes · Grupos | `GET /api/modulos|planes|grupos?programaId=` |
 | Instituciones | Listado con desplegable de sus programas | `GET /api/instituciones`, `GET /api/programas` |
-| Contratos | Pool de clases, alta individual y de empresa | `POST /api/contratos`, `POST /api/contratos/empresa` (ver gap #2) |
+| Contratos | Pool de clases, alta individual y de empresa | `GET/POST /api/contratos`, `POST /api/contratos/empresa` |
 | Empresas | Listado con desplegable de contratos y empleados | `GET /api/empresas` |
 
 ## Interactions & Behavior
@@ -120,23 +141,36 @@ los pocos glifos usados son texto (`✓`, `!`, `×`, `⌄`, `←`).
 ```
 design_handoff_gestion_alumnos/
 ├─ README.md                      ← este archivo
-├─ SCREENS.md                     ← especificación pantalla por pantalla
+├─ SCREENS.md                     ← especificación pantalla por pantalla (+ huecos de API)
+├─ BACKEND.md                     ← los 8 pendientes de backend, con contrato y aceptación
 ├─ PROMPT.md                      ← prompt inicial para Claude Code
 ├─ tokens/tokens.css              ← variables CSS + keyframes (importar una vez)
 ├─ tokens/tokens.ts               ← espejo tipado
 ├─ src/api/types.ts               ← tipos 1:1 con los records de web/dto
 ├─ src/api/client.ts              ← fetch + JWT + interceptor 401 + ApiError
 ├─ src/api/endpoints.ts           ← superficie completa de la API
-├─ src/api/queries.ts             ← hooks TanStack Query + workaround del gap #1
+├─ src/api/queries.ts             ← hooks TanStack Query (sin workarounds)
 ├─ src/components/primitives.tsx  ← Button, Field/Input/Select, badges, Card, DataTable,
 │                                    Skeleton, EmptyState, Modal, PoolBar
 ├─ src/components/Toasts.tsx      ← ToastProvider + useToasts
 ├─ src/components/ErrorSurface.tsx← componente único de error (400→500) + useApiErrorHandler
+├─ src/App.tsx                    ← guard de sesión + router mínimo (Route union)
 ├─ src/shell/AppShell.tsx         ← sidebar + layout de escritorio + ScreenHeader
-├─ src/screens/PersonasScreen.tsx ← pantalla de referencia completa
+├─ src/screens/LoginScreen.tsx        ← auth + 401 inline
+├─ src/screens/InicioScreen.tsx       ← 4 KPIs + requiere atención + últimas observaciones
+├─ src/screens/PersonasScreen.tsx     ← listado + alta
+├─ src/screens/PersonaScreen.tsx      ← ficha: datos + inscripciones de las dos ramas + edición
+├─ src/screens/InscripcionesScreen.tsx← listado por rama + alta (reusada desde la ficha)
+├─ src/screens/InscripcionScreen.tsx  ← detalle: transiciones, evaluaciones, contrato, seguimiento
+├─ src/screens/ProgramasScreen.tsx    ← índice + filtro segmentado + alta con estrategia
+├─ src/screens/ProgramaScreen.tsx     ← pestañas Módulos · Planes (solo Sede) · Grupos
+├─ src/screens/InstitucionesScreen.tsx← lista desplegable con sus programas
+├─ src/screens/ContratosScreen.tsx    ← grilla de pools + detalle 580px + altas individual/empresa
+├─ src/screens/EmpresasScreen.tsx     ← lista desplegable con contratos y empleados cubiertos
 └─ design/                        ← mockups HTML (referencia visual, no código)
    ├─ Fundamentos.dc.html         ← paleta, tipografía, componentes, nav, estados
-   └─ App.dc.html                 ← todas las pantallas navegables
+   ├─ App.dc.html                 ← todas las pantallas navegables
+   └─ screens/                    ← 16 capturas PNG + índice (guía visual rápida)
 ```
 
 Abrir los dos `.dc.html` en el navegador: son la referencia visual definitiva.

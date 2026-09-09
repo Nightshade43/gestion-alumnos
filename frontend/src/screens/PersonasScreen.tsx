@@ -1,5 +1,5 @@
 import React from 'react';
-import { usePersonas, useCrearPersona, useTodasLasInscripciones } from '../api/queries';
+import { usePersonas, useCrearPersona, useInscripciones } from '../api/queries';
 import { Button, Card, DataTable, EmptyState, Field, Input, Modal, SkeletonList } from '../components/primitives';
 import { ErrorScreen, useApiErrorHandler } from '../components/ErrorSurface';
 import { ScreenHeader, type Route } from '../shell/AppShell';
@@ -12,7 +12,7 @@ import { useToasts } from '../components/Toasts';
  */
 export function PersonasScreen({ onNavigate }: { onNavigate: (r: Route) => void }) {
   const { data, isPending, error, refetch } = usePersonas();
-  const todas = useTodasLasInscripciones();
+  const todas = useInscripciones();
   const [query, setQuery] = React.useState('');
   const [nueva, setNueva] = React.useState(false);
 
@@ -24,8 +24,8 @@ export function PersonasScreen({ onNavigate }: { onNavigate: (r: Route) => void 
     !q || p.nombre.toLowerCase().includes(q) || (p.documento ?? '').includes(q));
 
   const resumen = (personaId: number) => {
-    const mias = todas.data.filter((i) => i.personaId === personaId);
-    const esc = mias.filter((i) => i.programaNombre.includes('CENMA')).length; // ver nota en SCREENS.md
+    const mias = (todas.data ?? []).filter((i) => i.personaId === personaId);
+    const esc = mias.filter((i) => i.categoria === 'ESCOLAR').length;
     const par = mias.length - esc;
     const partes = [];
     if (esc) partes.push(`${esc} escolar${esc > 1 ? 'es' : ''}`);
