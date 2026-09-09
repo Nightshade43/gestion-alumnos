@@ -70,6 +70,19 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(Instant.now(), status.value(), status.getReasonPhrase(), mensaje));
     }
 
+    @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(jakarta.validation.ConstraintViolationException ex) {
+        String detalle = ex.getConstraintViolations().stream()
+                .map(v -> ultimoSegmento(v.getPropertyPath().toString()) + ": " + v.getMessage())
+                .collect(Collectors.joining("; "));
+        return build(HttpStatus.BAD_REQUEST, detalle);
+    }
+
+    private String ultimoSegmento(String path) {
+        int idx = path.lastIndexOf('.');
+        return idx >= 0 ? path.substring(idx + 1) : path;
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
         log.error("Error no manejado", ex);

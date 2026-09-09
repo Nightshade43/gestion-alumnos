@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface SeguimientoRepository extends JpaRepository<Seguimiento, Long> {
     List<Seguimiento> findByInscripcionIdOrderByFechaDesc(Long inscripcionId);
+    List<Seguimiento> findAllByOrderByFechaDescIdDesc();
 }
