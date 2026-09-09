@@ -1,0 +1,79 @@
+/* Gestión de Alumnos — design tokens (paleta C · Ciruela)
+   Fuente de verdad de los valores usados en los mockups HTML. */
+:root {
+  /* ── Primario (Ciruela) */
+  --ga-primary-50:  #F4F1FA;
+  --ga-primary-100: #E6E0F1;
+  --ga-primary-400: #75609F;
+  --ga-primary-600: #5D4A87;  /* acción por defecto */
+  --ga-primary-700: #4A3A6E;  /* hover / texto sobre tinte */
+  --ga-chip-bg:     #F0ECF7;
+  --ga-chip-text:   #4A3A6E;
+
+  /* ── Neutros cálidos */
+  --ga-canvas:      #FAF7F2;
+  --ga-surface:     #FFFFFF;
+  --ga-surface-2:   #FAF7F2;
+  --ga-surface-3:   #F4EFE8;
+  --ga-row-alt:     #FCFAF7;
+  --ga-line:        #E6DED2;
+  --ga-line-soft:   #F0EAE1;
+  --ga-line-softer: #F5F0E9;
+  --ga-line-strong: #D6CBBB;
+  --ga-ink:         #2B2724;
+  --ga-ink-soft:    #3E3833;
+  --ga-muted:       #6F675E;
+  --ga-soft:        #948B80;
+
+  /* ── Sidebar (oscuro) */
+  --ga-nav-bg:      #2B2724;
+  --ga-nav-hover:   #3A3531;
+  --ga-nav-text:    #D3CBC1;
+  --ga-nav-label:   #7C736A;
+
+  /* ── Estados de Inscripcion / Contrato */
+  --ga-ok-fg:       #2F7A4E; --ga-ok-bg:     #E2F1E7; --ga-ok-line:     #C3E2CE;
+  --ga-warn-fg:     #8F6414; --ga-warn-bg:   #FBEFD8; --ga-warn-line:   #EEDCB4;
+  --ga-info-fg:     #3F6183; --ga-info-bg:   #E4EDF4; --ga-info-line:   #C9DCEA;
+  --ga-danger-fg:   #9E3A38; --ga-danger-bg: #F8E3E1; --ga-danger-line: #EDC9C6;
+  --ga-warn-panel:  #FDF6E7; --ga-warn-panel-line: #F2E6CB; --ga-warn-panel-fg: #7E5A20;
+
+  /* ── Identidad de rama (nunca es el primario) */
+  --ga-escolar:     #3E6C8A; --ga-escolar-bg:    #EDF3F7; --ga-escolar-fg:    #31546B;
+  --ga-particular:  #A8762B; --ga-particular-bg: #F7F0E3; --ga-particular-fg: #7E5A20;
+
+  /* ── Tipografía */
+  --ga-font-ui:   'Instrument Sans', system-ui, sans-serif;
+  --ga-font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --ga-fs-display: 30px;  /* título de pantalla, 600, -.025em */
+  --ga-fs-title:   22px;  /* sección, 600, -.015em */
+  --ga-fs-section: 16px;  /* card header, 600 */
+  --ga-fs-body:    15px;  /* lectura, 400, 1.55 */
+  --ga-fs-cell:  14.5px;  /* celda de tabla / input */
+  --ga-fs-aux:     13px;  /* ayuda, metadatos */
+  --ga-fs-label:   11px;  /* mono, uppercase, .1em */
+
+  /* ── Espaciado, radios, sombras */
+  --ga-sp-1: 4px; --ga-sp-2: 8px; --ga-sp-3: 10px; --ga-sp-4: 14px;
+  --ga-sp-5: 16px; --ga-sp-6: 20px; --ga-sp-7: 22px; --ga-sp-8: 24px; --ga-sp-9: 34px;
+  --ga-radius-xs: 6px; --ga-radius-sm: 9px; --ga-radius-md: 12px;
+  --ga-radius-lg: 14px; --ga-radius-xl: 16px; --ga-radius-pill: 999px;
+  --ga-shadow-sm: 0 1px 2px rgba(43,39,36,.12);
+  --ga-shadow-md: 0 6px 18px rgba(43,39,36,.07);
+  --ga-shadow-lg: 0 22px 54px rgba(43,39,36,.28);
+  --ga-focus-ring: 0 0 0 3px var(--ga-primary-100);
+
+  /* ── Layout de escritorio (sin responsive) */
+  --ga-sidebar-w: 248px;
+  --ga-content-max: 1220px;
+  --ga-content-pad: 34px 40px 80px;
+}
+
+html, body { margin: 0; background: var(--ga-canvas); color: var(--ga-ink); font-family: var(--ga-font-ui); -webkit-font-smoothing: antialiased; }
+a { color: var(--ga-primary-600); text-decoration: none; }
+a:hover { color: var(--ga-primary-700); text-decoration: underline; }
+.ga-num { font-family: var(--ga-font-mono); font-variant-numeric: tabular-nums; }
+
+@keyframes ga-shimmer { 0% { background-position: -420px 0 } 100% { background-position: 420px 0 } }
+@keyframes ga-spin { to { transform: rotate(360deg) } }
+@keyframes ga-toast-in { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
