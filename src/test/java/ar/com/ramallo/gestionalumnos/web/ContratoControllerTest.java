@@ -33,10 +33,11 @@ class ContratoControllerTest {
     @MockitoBean private InscripcionRepository inscripcionRepository;
     @MockitoBean private JwtAuthenticationFilter jwtAuthenticationFilter;
     @MockitoBean private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private Persona persona;
 
     private Inscripcion inscripcionDe(Long id, String nombrePersona) {
-        Persona persona = Persona.builder().id(id).nombre(nombrePersona).build();
-        return Inscripcion.builder().id(id).persona(persona).fechaInicio(LocalDate.now()).build();
+        Programa programa = Programa.builder().id(100L).nombre("Ingles IT").build();
+        return Inscripcion.builder().id(id).persona(persona).programa(programa).fechaInicio(LocalDate.now()).build();
     }
 
     private Contrato contratoDe(Long id, Empresa empresa, Integer contratadas, Integer consumidas) {
@@ -54,7 +55,9 @@ class ContratoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"inscripcionId\":5,\"tipoFacturacion\":\"PAQUETE\",\"clasesContratadas\":10}"))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.inscripciones[0].personaNombre").value("Martin Sosa"));
+                .andExpect(jsonPath("$.inscripciones[0].personaNombre").value("Martin Sosa"))
+                .andExpect(jsonPath("$.inscripciones[0].programaNombre").value("Ingles IT"))
+                .andExpect(jsonPath("$.inscripciones[0].estado").value("ACTIVA"));
     }
 
     @Test
