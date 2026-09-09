@@ -12,9 +12,10 @@ import java.time.LocalDate;
 public record InscripcionResponse(
         Long id, Long personaId, String personaNombre, Long programaId, String programaNombre,
         CategoriaPrograma categoria, String planCodigo, String grupoDia, String grupoHorario,
-        LocalDate fechaInicio, LocalDate fechaFin, EstadoInscripcion estado, Long contratoId) {
+        LocalDate fechaInicio, LocalDate fechaFin, EstadoInscripcion estado, Long contratoId,
+        boolean puedeFinalizar, int modulosPendientes) {
 
-    public static InscripcionResponse from(Inscripcion inscripcion) {
+    public static InscripcionResponse from(Inscripcion inscripcion, boolean puedeFinalizar, int modulosPendientes) {
         Plan plan = inscripcion.getPlan();
         Grupo grupo = inscripcion.getGrupo();
         Contrato contrato = inscripcion.getContrato();
@@ -27,6 +28,7 @@ public record InscripcionResponse(
                 grupo != null ? grupo.getDia() : null,
                 grupo != null ? grupo.getHorario() : null,
                 inscripcion.getFechaInicio(), inscripcion.getFechaFin(), inscripcion.getEstado(),
-                contrato != null ? contrato.getId() : null);
+                contrato != null ? contrato.getId() : null,
+                puedeFinalizar, modulosPendientes);
     }
 }

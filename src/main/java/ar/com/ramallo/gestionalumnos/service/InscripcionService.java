@@ -11,7 +11,6 @@ import ar.com.ramallo.gestionalumnos.repository.*;
 import ar.com.ramallo.gestionalumnos.service.evaluacion.EstrategiaEvaluacionService;
 import ar.com.ramallo.gestionalumnos.service.evaluacion.EvaluacionServiceFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +29,8 @@ public class InscripcionService {
     private final ProgramaRepository programaRepository;
     private final PlanRepository planRepository;
     private final GrupoRepository grupoRepository;
+
+    public record EstadoAcademico(boolean puedeFinalizar, int modulosPendientes) {}
 
     @Transactional
     public Inscripcion crearInscripcion(Persona persona, Programa programa, Plan plan, Grupo grupo, LocalDate fechaInicio) {
@@ -89,8 +90,7 @@ public class InscripcionService {
         Inscripcion inscripcion = obtener(inscripcionId);
         validarTransicion(inscripcion.getEstado(), EstadoInscripcion.FINALIZADA);
 
-        if (inscripcion.getPrograma().getCategoria() == CategoriaPrograma.ESCOLAR
-                && !cicloEscolarCompleto(inscripcion)) {
+        if (!evaluarEstadoAcademico(inscripcion).puedeFinalizar()) {
             throw new RequisitosAcademicosIncompletosException(
                     "No se puede finalizar: no todos los modulos requeridos estan aprobados");
         }
@@ -127,6 +127,28 @@ public class InscripcionService {
         return inscripcion;
     }
 
+    public EstadoAcademico evaluarEstadoAcademico(Inscripcion inscripcion) {
+        if (inscripcion.getPrograma().getCategoria() != CategoriaPrograma.ESCOLAR) {
+            return new EstadoAcademico(true, 0);
+        }
+
+        EstrategiaEvaluacionService estrategia = evaluacionServiceFactory.resolver(inscripcion.getPrograma());
+        List<Modulo> modulos = moduloRepository.findByProgramaIdOrderByOrden(inscripcion.getPrograma().getId());
+
+        Integer moduloInicio = inscripcion.getPlan() != null ? inscripcion.getPlan().getModuloInicio() : null;
+
+        List<Modulo> modulosRequeridos = modulos.stream()
+                .filter(modulo -> moduloInicio == null || modulo.getOrden() >= moduloInicio)
+                .toList();
+
+        long pendientes = modulosRequeridos.stream()
+                .filter(modulo -> !estrategia.moduloAprobado(inscripcion, modulo))
+                .count();
+
+        boolean puedeFinalizar = !modulosRequeridos.isEmpty() && pendientes == 0;
+        return new EstadoAcademico(puedeFinalizar, (int) pendientes);
+    }
+
     private Inscripcion cambiarEstado(Long inscripcionId, EstadoInscripcion destino) {
         Inscripcion inscripcion = obtener(inscripcionId);
         validarTransicion(inscripcion.getEstado(), destino);
@@ -151,19 +173,5 @@ public class InscripcionService {
         if (!esValida) {
             throw new EstadoInvalidoException("Transicion invalida: " + actual + " -> " + destino);
         }
-    }
-
-    private boolean cicloEscolarCompleto(Inscripcion inscripcion) {
-        EstrategiaEvaluacionService estrategia = evaluacionServiceFactory.resolver(inscripcion.getPrograma());
-        List<Modulo> modulos = moduloRepository.findByProgramaIdOrderByOrden(inscripcion.getPrograma().getId());
-
-        Integer moduloInicio = inscripcion.getPlan() != null ? inscripcion.getPlan().getModuloInicio() : null;
-
-        List<Modulo> modulosRequeridos = modulos.stream()
-                .filter(modulo -> moduloInicio == null || modulo.getOrden() >= moduloInicio)
-                .toList();
-
-        return !modulosRequeridos.isEmpty()
-                && modulosRequeridos.stream().allMatch(modulo -> estrategia.moduloAprobado(inscripcion, modulo));
     }
 }

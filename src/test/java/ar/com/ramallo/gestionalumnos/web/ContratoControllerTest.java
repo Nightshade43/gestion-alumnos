@@ -33,9 +33,9 @@ class ContratoControllerTest {
     @MockitoBean private InscripcionRepository inscripcionRepository;
     @MockitoBean private JwtAuthenticationFilter jwtAuthenticationFilter;
     @MockitoBean private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-    private Persona persona;
 
     private Inscripcion inscripcionDe(Long id, String nombrePersona) {
+        Persona persona = Persona.builder().id(id).nombre(nombrePersona).build();
         Programa programa = Programa.builder().id(100L).nombre("Ingles IT").build();
         return Inscripcion.builder().id(id).persona(persona).programa(programa).fechaInicio(LocalDate.now()).build();
     }

@@ -31,12 +31,12 @@ public class InscripcionController {
         Inscripcion inscripcion = inscripcionService.crearInscripcion(
                 request.personaId(), request.programaId(), request.planId(),
                 request.grupoId(), request.fechaInicio());
-        return InscripcionResponse.from(inscripcion);
+        return armarResponse(inscripcion);
     }
 
     @GetMapping("/{id}")
     public InscripcionResponse obtener(@PathVariable Long id) {
-        return InscripcionResponse.from(buscarOFallar(id));
+        return armarResponse(buscarOFallar(id));
     }
 
     @GetMapping
@@ -53,38 +53,43 @@ public class InscripcionController {
                     .toList();
         }
 
-        return inscripciones.stream().map(InscripcionResponse::from).toList();
+        return inscripciones.stream().map(this::armarResponse).toList();
     }
 
     @PostMapping("/{id}/pausar")
     public InscripcionResponse pausar(@PathVariable Long id) {
-        return InscripcionResponse.from(inscripcionService.pausar(id));
+        return armarResponse(inscripcionService.pausar(id));
     }
 
     @PostMapping("/{id}/reanudar")
     public InscripcionResponse reanudar(@PathVariable Long id) {
-        return InscripcionResponse.from(inscripcionService.reanudar(id));
+        return armarResponse(inscripcionService.reanudar(id));
     }
 
     @PostMapping("/{id}/finalizar")
     public InscripcionResponse finalizar(@PathVariable Long id) {
-        return InscripcionResponse.from(inscripcionService.finalizar(id));
+        return armarResponse(inscripcionService.finalizar(id));
     }
 
     @PostMapping("/{id}/cancelar")
     public InscripcionResponse cancelar(@PathVariable Long id) {
-        return InscripcionResponse.from(inscripcionService.cancelar(id));
+        return armarResponse(inscripcionService.cancelar(id));
     }
 
     @PatchMapping("/{id}/grupo")
     public InscripcionResponse cambiarGrupo(@PathVariable Long id, @RequestParam Long grupoId) {
         Grupo grupo = grupoRepository.findById(grupoId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Grupo no encontrado: " + grupoId));
-        return InscripcionResponse.from(inscripcionService.cambiarGrupo(id, grupo));
+        return armarResponse(inscripcionService.cambiarGrupo(id, grupo));
     }
 
     private Inscripcion buscarOFallar(Long id) {
         return inscripcionRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Inscripcion no encontrada: " + id));
+    }
+
+    private InscripcionResponse armarResponse(Inscripcion inscripcion) {
+        InscripcionService.EstadoAcademico estadoAcademico = inscripcionService.evaluarEstadoAcademico(inscripcion);
+        return InscripcionResponse.from(inscripcion, estadoAcademico.puedeFinalizar(), estadoAcademico.modulosPendientes());
     }
 }

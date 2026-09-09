@@ -279,6 +279,65 @@ class InscripcionServiceTest {
                 .isInstanceOf(RequisitosAcademicosIncompletosException.class);
     }
 
+    @Test
+    void evaluarEstadoAcademicoEsSiemprePuedeFinalizarParaParticulares() {
+        Inscripcion inscripcion = Inscripcion.builder()
+                .persona(persona).programa(programaParticular)
+                .fechaInicio(LocalDate.now().minusMonths(1)).estado(EstadoInscripcion.ACTIVA).build();
+
+        InscripcionService.EstadoAcademico resultado = inscripcionService.evaluarEstadoAcademico(inscripcion);
+
+        assertThat(resultado.puedeFinalizar()).isTrue();
+        assertThat(resultado.modulosPendientes()).isZero();
+        verify(moduloRepository, never()).findByProgramaIdOrderByOrden(any());
+        verify(evaluacionServiceFactory, never()).resolver(any());
+    }
+
+    @Test
+    void evaluarEstadoAcademicoCuentaModulosPendientesCorrectamente() {
+        Modulo modulo1 = Modulo.builder().id(40L).orden(1).esSecuencial(false).programa(programaEscolar).build();
+        Modulo modulo2 = Modulo.builder().id(41L).orden(2).esSecuencial(false).programa(programaEscolar).build();
+        Modulo modulo3 = Modulo.builder().id(42L).orden(3).esSecuencial(false).programa(programaEscolar).build();
+        Inscripcion inscripcion = inscripcionConEstado(EstadoInscripcion.ACTIVA);
+        when(moduloRepository.findByProgramaIdOrderByOrden(any())).thenReturn(List.of(modulo1, modulo2, modulo3));
+        when(evaluacionServiceFactory.resolver(programaEscolar)).thenReturn(estrategiaEvaluacionService);
+        when(estrategiaEvaluacionService.moduloAprobado(inscripcion, modulo1)).thenReturn(true);
+        when(estrategiaEvaluacionService.moduloAprobado(inscripcion, modulo2)).thenReturn(false);
+        when(estrategiaEvaluacionService.moduloAprobado(inscripcion, modulo3)).thenReturn(false);
+
+        InscripcionService.EstadoAcademico resultado = inscripcionService.evaluarEstadoAcademico(inscripcion);
+
+        assertThat(resultado.puedeFinalizar()).isFalse();
+        assertThat(resultado.modulosPendientes()).isEqualTo(2);
+    }
+
+    @Test
+    void evaluarEstadoAcademicoDevuelvePuedeFinalizarTrueSinPendientesCuandoTodoAprobado() {
+        Modulo modulo1 = Modulo.builder().id(50L).orden(1).esSecuencial(false).programa(programaEscolar).build();
+        Modulo modulo2 = Modulo.builder().id(51L).orden(2).esSecuencial(false).programa(programaEscolar).build();
+        Inscripcion inscripcion = inscripcionConEstado(EstadoInscripcion.ACTIVA);
+        when(moduloRepository.findByProgramaIdOrderByOrden(any())).thenReturn(List.of(modulo1, modulo2));
+        when(evaluacionServiceFactory.resolver(programaEscolar)).thenReturn(estrategiaEvaluacionService);
+        when(estrategiaEvaluacionService.moduloAprobado(eq(inscripcion), any(Modulo.class))).thenReturn(true);
+
+        InscripcionService.EstadoAcademico resultado = inscripcionService.evaluarEstadoAcademico(inscripcion);
+
+        assertThat(resultado.puedeFinalizar()).isTrue();
+        assertThat(resultado.modulosPendientes()).isZero();
+    }
+
+    @Test
+    void evaluarEstadoAcademicoDevuelveFalseYCeroPendientesSiNoHayModulosConfigurados() {
+        Inscripcion inscripcion = inscripcionConEstado(EstadoInscripcion.ACTIVA);
+        when(moduloRepository.findByProgramaIdOrderByOrden(any())).thenReturn(List.of());
+        when(evaluacionServiceFactory.resolver(programaEscolar)).thenReturn(estrategiaEvaluacionService);
+
+        InscripcionService.EstadoAcademico resultado = inscripcionService.evaluarEstadoAcademico(inscripcion);
+
+        assertThat(resultado.puedeFinalizar()).isFalse();
+        assertThat(resultado.modulosPendientes()).isZero();
+    }
+
     private Inscripcion inscripcionConEstado(EstadoInscripcion estado) {
         return Inscripcion.builder()
                 .persona(persona).programa(programaEscolar).fechaInicio(LocalDate.now().minusMonths(1))

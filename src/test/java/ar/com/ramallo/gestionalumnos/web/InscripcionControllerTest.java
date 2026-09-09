@@ -58,6 +58,18 @@ class InscripcionControllerTest {
     }
 
     @Test
+    void devuelvePuedeFinalizarYModulosPendientesEnLaRespuesta() throws Exception {
+        when(inscripcionService.reanudar(10L)).thenReturn(inscripcionDe(10L, EstadoInscripcion.ACTIVA));
+        when(inscripcionService.evaluarEstadoAcademico(any()))
+                .thenReturn(new InscripcionService.EstadoAcademico(false, 2));
+
+        mockMvc.perform(post("/api/inscripciones/10/reanudar"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.puedeFinalizar").value(false))
+                .andExpect(jsonPath("$.modulosPendientes").value(2));
+    }
+
+    @Test
     void devuelve409SiLaPersonaYaTieneInscripcionEscolar() throws Exception {
         when(inscripcionService.crearInscripcion(anyLong(), anyLong(), any(), any(), any(LocalDate.class)))
                 .thenThrow(new RegistroDuplicadoException("La persona ya tiene una inscripcion escolar activa"));
