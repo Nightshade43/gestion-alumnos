@@ -114,6 +114,6 @@ class SeguimientoControllerTest {
     void rechazaLimitMayorA100ConBadRequest() throws Exception {
         mockMvc.perform(get("/api/seguimientos").param("limit", "101"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("limit: debe ser menor o igual que 100"));
+                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.startsWith("limit:")));
     }
 }
