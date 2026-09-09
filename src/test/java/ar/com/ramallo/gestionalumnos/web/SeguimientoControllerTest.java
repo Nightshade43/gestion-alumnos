@@ -41,11 +41,22 @@ class SeguimientoControllerTest {
 
     @Test
     void creaSeguimientoYDevuelve201() throws Exception {
-        Inscripcion inscripcion = Inscripcion.builder().id(1L).persona(Persona.builder().id(1L).nombre("Juan Pérez").build())
+        Inscripcion inscripcion = Inscripcion.builder().id(1L)
+                .persona(Persona.builder().id(1L).nombre("Juan Pérez").build())
                 .programa(Programa.builder().id(1L).nombre("Inglés IT").build())
                 .build();
         Seguimiento guardado = Seguimiento.builder().id(1L).inscripcion(inscripcion)
                 .fecha(LocalDate.parse("2026-03-01")).observacion("Buen progreso").build();
+        when(seguimientoService.crearSeguimiento(1L, LocalDate.parse("2026-03-01"), "Buen progreso"))
+                .thenReturn(guardado);
+
+        mockMvc.perform(post("/api/seguimientos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"inscripcionId\":1,\"fecha\":\"2026-03-01\",\"observacion\":\"Buen progreso\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.observacion").value("Buen progreso"))
+                .andExpect(jsonPath("$.personaNombre").value("Juan Pérez"))
+                .andExpect(jsonPath("$.programaNombre").value("Inglés IT"));
     }
 
     @Test
@@ -75,5 +86,34 @@ class SeguimientoControllerTest {
                 .build();
         when(seguimientoRepository.findByInscripcionIdOrderByFechaDesc(1L)).thenReturn(List.of(
                 Seguimiento.builder().id(1L).inscripcion(inscripcion).fecha(LocalDate.now()).observacion("Obs 1").build()));
+
+        mockMvc.perform(get("/api/seguimientos").param("inscripcionId", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].personaNombre").value("Juan Pérez"))
+                .andExpect(jsonPath("$[0].programaNombre").value("Inglés IT"));
+    }
+
+    @Test
+    void listaTodosLosSeguimientosSinInscripcionId() throws Exception {
+        Inscripcion inscripcion = Inscripcion.builder().id(1L)
+                .persona(Persona.builder().id(1L).nombre("Juan Pérez").build())
+                .programa(Programa.builder().id(1L).nombre("Inglés IT").build())
+                .build();
+        when(seguimientoRepository.findAllByOrderByFechaDescIdDesc()).thenReturn(List.of(
+                Seguimiento.builder().id(2L).inscripcion(inscripcion).fecha(LocalDate.parse("2026-03-05")).observacion("Obs reciente").build(),
+                Seguimiento.builder().id(1L).inscripcion(inscripcion).fecha(LocalDate.parse("2026-03-01")).observacion("Obs vieja").build()));
+
+        mockMvc.perform(get("/api/seguimientos"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].observacion").value("Obs reciente"));
+    }
+
+    @Test
+    void rechazaLimitMayorA100ConBadRequest() throws Exception {
+        mockMvc.perform(get("/api/seguimientos").param("limit", "101"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("limit: debe ser menor o igual que 100"));
     }
 }
