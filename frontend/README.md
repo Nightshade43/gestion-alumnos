@@ -10,8 +10,12 @@ Dominio: **Persona → Inscripción → Programa**, con dos ramas separadas visu
 evaluaciones con notas) y **Particular** (clases individuales y de empresa: contratos con
 pool de clases compartido, empresas, seguimiento en texto libre).
 
-Destino acordado: **subcarpeta `/frontend` dentro del repo del backend**, Vite + React + TS,
-datos con **TanStack Query**. CORS lo configura el usuario en el backend (hoy no está puesto).
+Destino acordado: **subcarpeta `/frontend` dentro del repo del backend**, Vite + React 19 + TS,
+datos con **TanStack Query**. El scaffold listo para `npm install && npm run dev` está en
+`scaffold/` (ver [scaffold/README.md](./scaffold/README.md)); `CLAUDE.md` va a la raíz del repo.
+
+En desarrollo **no hace falta CORS**: el proxy de Vite reenvía `/api` a `localhost:8080` y
+`client.ts` usa rutas relativas. CORS se configura al desplegar, junto con `VITE_API_BASE`.
 
 ## About the Design Files
 Los archivos `.dc.html` de `design/` son **referencias de diseño hechas en HTML**:
@@ -143,7 +147,10 @@ design_handoff_gestion_alumnos/
 ├─ README.md                      ← este archivo
 ├─ SCREENS.md                     ← especificación pantalla por pantalla (+ huecos de API)
 ├─ BACKEND.md                     ← los 8 pendientes de backend, con contrato y aceptación
+├─ CLAUDE.md                      ← reglas del proyecto → copiar a la raíz del repo
 ├─ PROMPT.md                      ← prompt inicial para Claude Code
+├─ scaffold/                      ← config de /frontend: package.json, vite.config.ts (proxy),
+│                                   tsconfig, index.html, src/main.tsx, .env.example, README
 ├─ tokens/tokens.css              ← variables CSS + keyframes (importar una vez)
 ├─ tokens/tokens.ts               ← espejo tipado
 ├─ src/api/types.ts               ← tipos 1:1 con los records de web/dto

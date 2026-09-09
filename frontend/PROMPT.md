@@ -5,9 +5,12 @@ Pegar esto en la raíz del repo `gestion-alumnos`, con la carpeta
 
 ---
 
-Vas a implementar el frontend de este proyecto en `/frontend` (Vite + React + TypeScript
-+ TanStack Query). El backend es el de este mismo repo: Java 21 / Spring Boot 4.1.1,
-API REST con JWT en `http://localhost:8080`.
+Vas a implementar el frontend de este proyecto en `/frontend` (Vite + React 19 + TypeScript
++ TanStack Query, npm). El backend es el de este mismo repo: Java 21 / Spring Boot 4.1.1,
+API REST con JWT en `http://localhost:8080`, con datos de prueba cargados por `seed-data.sh`.
+
+En desarrollo las requests salen relativas (`/api/...`) y las reenvía el **proxy de Vite**:
+no toques la config de CORS del backend — eso queda para el deploy.
 
 Leé primero `design_handoff_gestion_alumnos/README.md` y `SCREENS.md` completos.
 `BACKEND.md` lista 8 pendientes de backend: **ninguno bloquea el frontend**, no los
@@ -27,9 +30,13 @@ Reglas:
    mensajes: mostrá `message` de la API donde el diseño lo indica.
 6. Sin responsive: es una app de escritorio. No agregues media queries.
 
+Antes de escribir código: copiá `design_handoff_gestion_alumnos/CLAUDE.md` a la raíz del
+repo y seguí `design_handoff_gestion_alumnos/scaffold/README.md` para armar `/frontend`
+(los comandos exactos están ahí; gestor de paquetes: **npm**).
+
 Orden de trabajo sugerido:
-1. Scaffold de `/frontend` (Vite + React + TS + TanStack Query) y copiar `tokens/` y `src/`
-   tal cual: son código real, no pseudocódigo.
+1. Montar `/frontend` con `scaffold/` + `src/` + `tokens/` y dejar `npm run dev` andando.
+   Único ajuste de rutas: el import de `tokens.ts` en `primitives.tsx` pasa a `'../styles/tokens'`.
 2. Levantar `ToastProvider` + `AppShell` + Login y verificar el guard de 401 contra el backend.
 3. Verificar pantalla por pantalla contra `design/App.dc.html`, en el orden del sidebar.
 4. Recién después, refactors propios del proyecto (routing con URL real, tests, code splitting).

@@ -1,6 +1,9 @@
 import type { ErrorResponse } from './types';
 
-const BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8080';
+// Vacío por defecto: las requests salen relativas (/api/...) y las reenvía el proxy de
+// Vite a localhost:8080, así no hace falta CORS en desarrollo. Para un deploy con el
+// backend en otro origen, definir VITE_API_BASE y configurar CORS en el backend.
+const BASE = import.meta.env.VITE_API_BASE ?? '';
 const TOKEN_KEY = 'ga.jwt';
 
 export const tokenStore = {
