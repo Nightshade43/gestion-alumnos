@@ -36,6 +36,9 @@ class InscripcionControllerTest {
     @MockitoBean private JwtAuthenticationFilter jwtAuthenticationFilter;
     @MockitoBean private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
+    private static final InscripcionService.EstadoAcademico PUEDE_FINALIZAR =
+            new InscripcionService.EstadoAcademico(true, 0);
+
     private Inscripcion inscripcionDe(Long id, EstadoInscripcion estado) {
         Persona persona = Persona.builder().id(1L).nombre("Ana Gomez").build();
         Programa programa = Programa.builder().id(1L).nombre("Ingles Base").categoria(CategoriaPrograma.ESCOLAR)
@@ -48,7 +51,7 @@ class InscripcionControllerTest {
     void creaInscripcionYDevuelve201() throws Exception {
         when(inscripcionService.crearInscripcion(1L, 1L, null, null, LocalDate.parse("2026-03-01")))
                 .thenReturn(inscripcionDe(10L, EstadoInscripcion.ACTIVA));
-
+        when(inscripcionService.evaluarEstadoAcademico(any())).thenReturn(PUEDE_FINALIZAR);
         mockMvc.perform(post("/api/inscripciones")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"personaId\":1,\"programaId\":1,\"fechaInicio\":\"2026-03-01\"}"))
@@ -112,7 +115,7 @@ class InscripcionControllerTest {
     @Test
     void reanudaUnaInscripcion() throws Exception {
         when(inscripcionService.reanudar(10L)).thenReturn(inscripcionDe(10L, EstadoInscripcion.ACTIVA));
-
+        when(inscripcionService.evaluarEstadoAcademico(any())).thenReturn(PUEDE_FINALIZAR);
         mockMvc.perform(post("/api/inscripciones/10/reanudar"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.estado").value("ACTIVA"));
@@ -121,7 +124,7 @@ class InscripcionControllerTest {
     @Test
     void cancelaUnaInscripcion() throws Exception {
         when(inscripcionService.cancelar(10L)).thenReturn(inscripcionDe(10L, EstadoInscripcion.CANCELADA));
-
+        when(inscripcionService.evaluarEstadoAcademico(any())).thenReturn(PUEDE_FINALIZAR);
         mockMvc.perform(post("/api/inscripciones/10/cancelar"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.estado").value("CANCELADA"));
@@ -134,7 +137,7 @@ class InscripcionControllerTest {
         actualizada.setGrupo(grupo);
         when(grupoRepository.findById(2L)).thenReturn(Optional.of(grupo));
         when(inscripcionService.cambiarGrupo(10L, grupo)).thenReturn(actualizada);
-
+        when(inscripcionService.evaluarEstadoAcademico(any())).thenReturn(PUEDE_FINALIZAR);
         mockMvc.perform(patch("/api/inscripciones/10/grupo").param("grupoId", "2"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.grupoDia").value("Martes"));
@@ -152,7 +155,7 @@ class InscripcionControllerTest {
     void listaInscripcionesPorPersona() throws Exception {
         when(inscripcionRepository.findByPersonaId(1L))
                 .thenReturn(List.of(inscripcionDe(10L, EstadoInscripcion.ACTIVA)));
-
+        when(inscripcionService.evaluarEstadoAcademico(any())).thenReturn(PUEDE_FINALIZAR);
         mockMvc.perform(get("/api/inscripciones").param("personaId", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1));
@@ -162,7 +165,7 @@ class InscripcionControllerTest {
     void listaTodasLasInscripcionesSinFiltro() throws Exception {
         when(inscripcionRepository.findAll())
                 .thenReturn(List.of(inscripcionDe(10L, EstadoInscripcion.ACTIVA)));
-
+        when(inscripcionService.evaluarEstadoAcademico(any())).thenReturn(PUEDE_FINALIZAR);
         mockMvc.perform(get("/api/inscripciones"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1));
@@ -174,7 +177,7 @@ class InscripcionControllerTest {
     void filtraInscripcionesPorCategoria() throws Exception {
         when(inscripcionRepository.findAll())
                 .thenReturn(List.of(inscripcionDe(10L, EstadoInscripcion.ACTIVA)));
-
+        when(inscripcionService.evaluarEstadoAcademico(any())).thenReturn(PUEDE_FINALIZAR);
         mockMvc.perform(get("/api/inscripciones").param("categoria", "PARTICULAR"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0)); // inscripcionDe() usa programa ESCOLAR
