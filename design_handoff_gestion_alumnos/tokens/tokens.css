@@ -1,49 +1,51 @@
-/* Gestión de Alumnos — design tokens (paleta C · Ciruela)
-   Fuente de verdad de los valores usados en los mockups HTML. */
+/* Gestión de Alumnos — design tokens (tema Dark CENMA)
+   Fuente de verdad de los valores usados en las pantallas.
+   Migrado desde la paleta C "Ciruela" (ver tokens.css.bak) al tema oscuro
+   de la app de gestión de alumnos de Inglés — CENMA Bº SMATA. */
 :root {
-  /* ── Primario (Ciruela) */
-  --ga-primary-50:  #F4F1FA;
-  --ga-primary-100: #E6E0F1;
-  --ga-primary-400: #75609F;
-  --ga-primary-600: #5D4A87;  /* acción por defecto */
-  --ga-primary-700: #4A3A6E;  /* hover / texto sobre tinte */
-  --ga-chip-bg:     #F0ECF7;
-  --ga-chip-text:   #4A3A6E;
+  /* ── Primario (violeta CENMA) */
+  --ga-primary-50:  #1A1830;
+  --ga-primary-100: #241F3F;
+  --ga-primary-400: #7A6FD0;
+  --ga-primary-600: #9D8FF7;  /* acción por defecto — texto sobre este fondo debe ser oscuro, no blanco */
+  --ga-primary-700: #BB78F7;  /* hover / texto sobre tinte */
+  --ga-chip-bg:     #1F1B38;
+  --ga-chip-text:   #C9BEFF;
 
-  /* ── Neutros cálidos */
-  --ga-canvas:      #FAF7F2;
-  --ga-surface:     #FFFFFF;
-  --ga-surface-2:   #FAF7F2;
-  --ga-surface-3:   #F4EFE8;
-  --ga-row-alt:     #FCFAF7;
-  --ga-line:        #E6DED2;
-  --ga-line-soft:   #F0EAE1;
-  --ga-line-softer: #F5F0E9;
-  --ga-line-strong: #D6CBBB;
-  --ga-ink:         #2B2724;
-  --ga-ink-soft:    #3E3833;
-  --ga-muted:       #6F675E;
-  --ga-soft:        #948B80;
+  /* ── Neutros fríos (dark) */
+  --ga-canvas:      #0D0F18;
+  --ga-surface:     #13162A;
+  --ga-surface-2:   #191D35;
+  --ga-surface-3:   #1E2240;
+  --ga-row-alt:     #14172A;
+  --ga-line:        #1E2240;
+  --ga-line-soft:   #191D35;
+  --ga-line-softer: #161A30;
+  --ga-line-strong: #2D3260;
+  --ga-ink:         #DDE1FF;
+  --ga-ink-soft:    #C8CCF0;
+  --ga-muted:       #8890C0;
+  --ga-soft:        #6670A0;
 
-  /* ── Sidebar (oscuro) */
-  --ga-nav-bg:      #2B2724;
-  --ga-nav-hover:   #3A3531;
-  --ga-nav-text:    #D3CBC1;
-  --ga-nav-label:   #7C736A;
+  /* ── Sidebar (más oscuro que el canvas, para diferenciarlo) */
+  --ga-nav-bg:      #0A0C16;
+  --ga-nav-hover:   #191D35;
+  --ga-nav-text:    #C8CCF0;
+  --ga-nav-label:   #4A5280;
 
   /* ── Estados de Inscripcion / Contrato */
-  --ga-ok-fg:       #2F7A4E; --ga-ok-bg:     #E2F1E7; --ga-ok-line:     #C3E2CE;
-  --ga-warn-fg:     #8F6414; --ga-warn-bg:   #FBEFD8; --ga-warn-line:   #EEDCB4;
-  --ga-info-fg:     #3F6183; --ga-info-bg:   #E4EDF4; --ga-info-line:   #C9DCEA;
-  --ga-danger-fg:   #9E3A38; --ga-danger-bg: #F8E3E1; --ga-danger-line: #EDC9C6;
-  --ga-warn-panel:  #FDF6E7; --ga-warn-panel-line: #F2E6CB; --ga-warn-panel-fg: #7E5A20;
+  --ga-ok-fg:       #5EC97E; --ga-ok-bg:     rgba(94,201,126,.13);  --ga-ok-line:     rgba(94,201,126,.30);
+  --ga-warn-fg:     #E8A24A; --ga-warn-bg:   rgba(232,162,74,.14);  --ga-warn-line:   rgba(232,162,74,.30);
+  --ga-info-fg:     #7AB4F7; --ga-info-bg:   rgba(122,180,247,.13); --ga-info-line:   rgba(122,180,247,.30);
+  --ga-danger-fg:   #E87A7A; --ga-danger-bg: rgba(232,122,122,.12); --ga-danger-line: rgba(232,122,122,.30);
+  --ga-warn-panel:  #241C14; --ga-warn-panel-line: rgba(232,162,74,.30); --ga-warn-panel-fg: #E8A24A;
 
   /* ── Identidad de rama (nunca es el primario) */
-  --ga-escolar:     #3E6C8A; --ga-escolar-bg:    #EDF3F7; --ga-escolar-fg:    #31546B;
-  --ga-particular:  #A8762B; --ga-particular-bg: #F7F0E3; --ga-particular-fg: #7E5A20;
+  --ga-escolar:     #7DCFB6; --ga-escolar-bg:    rgba(125,207,182,.11); --ga-escolar-fg:    #7DCFB6;
+  --ga-particular:  #F0883E; --ga-particular-bg: rgba(240,136,62,.12); --ga-particular-fg: #F0883E;
 
   /* ── Tipografía */
-  --ga-font-ui:   'Instrument Sans', system-ui, sans-serif;
+  --ga-font-ui:   'IBM Plex Sans', system-ui, sans-serif;
   --ga-font-mono: 'IBM Plex Mono', ui-monospace, monospace;
   --ga-fs-display: 30px;  /* título de pantalla, 600, -.025em */
   --ga-fs-title:   22px;  /* sección, 600, -.015em */
@@ -58,10 +60,10 @@
   --ga-sp-5: 16px; --ga-sp-6: 20px; --ga-sp-7: 22px; --ga-sp-8: 24px; --ga-sp-9: 34px;
   --ga-radius-xs: 6px; --ga-radius-sm: 9px; --ga-radius-md: 12px;
   --ga-radius-lg: 14px; --ga-radius-xl: 16px; --ga-radius-pill: 999px;
-  --ga-shadow-sm: 0 1px 2px rgba(43,39,36,.12);
-  --ga-shadow-md: 0 6px 18px rgba(43,39,36,.07);
-  --ga-shadow-lg: 0 22px 54px rgba(43,39,36,.28);
-  --ga-focus-ring: 0 0 0 3px var(--ga-primary-100);
+  --ga-shadow-sm: 0 1px 2px rgba(0,0,0,.35);
+  --ga-shadow-md: 0 6px 18px rgba(0,0,0,.30);
+  --ga-shadow-lg: 0 22px 54px rgba(0,0,0,.55);
+  --ga-focus-ring: 0 0 0 3px rgba(157,143,247,.35);
 
   /* ── Layout de escritorio (sin responsive) */
   --ga-sidebar-w: 248px;
