@@ -15,6 +15,23 @@ Orden recomendado: **1 → 3 → 2 → 7 → 5 → 4 → 6 → 8**.
 
 ---
 
+## Pendiente de adopción en frontend (backend ya resuelto, sin tocar contrato)
+
+Los ítems 1-3 están cerrados del lado del backend hace rato, pero el frontend nunca los
+adoptó — sigue corriendo los workarounds exactos que estos cambios debían eliminar. Es
+trabajo de frontend puro, sin ningún cambio de API pendiente:
+
+- [ ] **#1** — Borrar `useSeguimientosDe` de `api/queries.ts` y el array de 6 queries en
+      paralelo de `InicioScreen.tsx`; reemplazar por una sola `GET /api/seguimientos?limit=4`.
+- [ ] **#2** — Usar `puedeFinalizar`/`modulosPendientes` de `InscripcionResponse`: sumar la
+      tercera fila de "Requiere atención" en Inicio y deshabilitar el botón Finalizar del
+      detalle cuando `puedeFinalizar === false`, en vez de dejar que falle con 422.
+- [ ] **#3** — Sacar los `useInscripciones({ categoria: 'PARTICULAR' })` redundantes de
+      `ContratosScreen.tsx` (aparece dos veces) y `EmpresasScreen.tsx` — ya no hace falta el
+      cruce en memoria, `programaNombre`/`estado` vienen directo en `EmpleadoCubierto`.
+
+---
+
 ## Resumen
 
 | # | Tema | Tipo | Prioridad | Rompe contrato | Estado |
