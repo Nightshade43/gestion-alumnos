@@ -12,9 +12,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  body { margin:0; background:#FAF7F2; font-family:'Instrument Sans',system-ui,sans-serif; -webkit-font-smoothing:antialiased; color:#2B2724; }
-  a { color:#5D4A87; text-decoration:none; }
-  a:hover { color:#4A3A6E; text-decoration:underline; }
+  body { margin:0; background:#0D0F18; font-family:'IBM Plex Sans',system-ui,sans-serif; -webkit-font-smoothing:antialiased; color:#DDE1FF; }
+  a { color:#9D8FF7; text-decoration:none; }
+  a:hover { color:#BB78F7; text-decoration:underline; }
   input, select, textarea, button { font-family:inherit; }
   @keyframes shimmer { 0%{background-position:-420px 0} 100%{background-position:420px 0} }
   @keyframes spin { to { transform:rotate(360deg) } }
@@ -27,34 +27,34 @@
   <div style="min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;padding:40px 20px;box-sizing:border-box">
     <div style="width:100%;max-width:376px;display:flex;flex-direction:column;gap:22px">
       <div style="display:flex;align-items:center;gap:11px">
-        <div style="width:34px;height:34px;border-radius:10px;background:#5D4A87;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700">G</div>
+        <div style="width:34px;height:34px;border-radius:10px;background:#9D8FF7;display:flex;align-items:center;justify-content:center;color:#0D0F18;font-size:16px;font-weight:700">G</div>
         <span style="font-size:17px;font-weight:600;letter-spacing:-.01em">Gestión de Alumnos</span>
       </div>
-      <div style="background:#fff;border:1px solid #E6DED2;border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:18px;box-shadow:0 2px 10px rgba(43,39,36,.04)">
+      <div style="background:#13162A;border:1px solid #1E2240;border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:18px;box-shadow:0 2px 10px rgba(0,0,0,.20)">
         <div style="display:flex;flex-direction:column;gap:6px">
           <h1 style="margin:0;font-size:21px;font-weight:600;letter-spacing:-.02em">Ingresar</h1>
-          <span style="font-size:13.5px;color:#6F675E;line-height:1.5">Acceso único de administración. Las cuentas las siembra el sistema.</span>
+          <span style="font-size:13.5px;color:#8890C0;line-height:1.5">Acceso único de administración. Las cuentas las siembra el sistema.</span>
         </div>
         <label style="display:flex;flex-direction:column;gap:6px">
-          <span style="font-size:13px;font-weight:600;color:#3E3833">Usuario</span>
-          <input value="{{ loginUser }}" onChange="{{ onLoginUser }}" placeholder="admin" style="font-size:14.5px;padding:11px 12px;border:1px solid #D6CBBB;border-radius:9px;background:#fff;color:#2B2724;outline:none" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px rgba(93,74,135,.12)" />
+          <span style="font-size:13px;font-weight:600;color:#C8CCF0">Usuario</span>
+          <input value="{{ loginUser }}" onChange="{{ onLoginUser }}" placeholder="admin" style="font-size:14.5px;padding:11px 12px;border:1px solid #2D3260;border-radius:9px;background:#13162A;color:#DDE1FF;outline:none" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px rgba(93,74,135,.12)" />
         </label>
         <label style="display:flex;flex-direction:column;gap:6px">
-          <span style="font-size:13px;font-weight:600;color:#3E3833">Contraseña</span>
-          <input type="password" value="{{ loginPass }}" onChange="{{ onLoginPass }}" placeholder="••••••••" style="font-size:14.5px;padding:11px 12px;border:1px solid #D6CBBB;border-radius:9px;background:#fff;color:#2B2724;outline:none" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px rgba(93,74,135,.12)" />
+          <span style="font-size:13px;font-weight:600;color:#C8CCF0">Contraseña</span>
+          <input type="password" value="{{ loginPass }}" onChange="{{ onLoginPass }}" placeholder="••••••••" style="font-size:14.5px;padding:11px 12px;border:1px solid #2D3260;border-radius:9px;background:#13162A;color:#DDE1FF;outline:none" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px rgba(93,74,135,.12)" />
         </label>
         <sc-if value="{{ loginError }}" hint-placeholder-val="{{ false }}">
-          <div style="display:flex;gap:10px;align-items:flex-start;background:#F8E3E1;border:1px solid #EDC9C6;border-radius:10px;padding:11px 13px">
-            <span style="width:18px;height:18px;border-radius:999px;flex:none;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:#F2D2CF;color:#9E3A38;margin-top:1px">×</span>
+          <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(232,122,122,.12);border:1px solid rgba(232,122,122,.30);border-radius:10px;padding:11px 13px">
+            <span style="width:18px;height:18px;border-radius:999px;flex:none;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:rgba(232,122,122,.22);color:#E87A7A;margin-top:1px">×</span>
             <div style="display:flex;flex-direction:column;gap:3px">
-              <span style="font-size:13.5px;font-weight:600;color:#9E3A38">Credenciales inválidas</span>
-              <span style="font-size:12.5px;color:#8A4744;line-height:1.45">401 · Revisá usuario y contraseña. No distinguimos cuál de los dos falló.</span>
+              <span style="font-size:13.5px;font-weight:600;color:#E87A7A">Credenciales inválidas</span>
+              <span style="font-size:12.5px;color:#E87A7A;line-height:1.45">401 · Revisá usuario y contraseña. No distinguimos cuál de los dos falló.</span>
             </div>
           </div>
         </sc-if>
-        <button onClick="{{ entrar }}" style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:12px 15px;font-size:14.5px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Ingresar</button>
+        <button onClick="{{ entrar }}" style="background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:12px 15px;font-size:14.5px;font-weight:600;cursor:pointer" style-hover="background:#BB78F7">Ingresar</button>
       </div>
-      <span style="font-size:12.5px;color:#948B80;text-align:center;line-height:1.5">El token se guarda en memoria; un 401 en cualquier request vuelve a esta pantalla.</span>
+      <span style="font-size:12.5px;color:#6670A0;text-align:center;line-height:1.5">El token se guarda en memoria; un 401 en cualquier request vuelve a esta pantalla.</span>
     </div>
   </div>
 </sc-if>
@@ -63,29 +63,29 @@
 <div style="display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh;width:100%">
 
   <!-- SIDEBAR -->
-  <aside style="background:#2B2724;padding:18px 12px;display:flex;flex-direction:column;gap:3px;color:#E8E1D8;position:sticky;top:0;height:100vh;box-sizing:border-box">
+  <aside style="background:#0A0C16;padding:18px 12px;display:flex;flex-direction:column;gap:3px;color:#C8CCF0;position:sticky;top:0;height:100vh;box-sizing:border-box">
     <div style="display:flex;align-items:center;gap:10px;padding:6px 10px 18px">
-      <div style="width:26px;height:26px;border-radius:8px;background:#5D4A87;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700">G</div>
+      <div style="width:26px;height:26px;border-radius:8px;background:#9D8FF7;display:flex;align-items:center;justify-content:center;color:#0D0F18;font-size:13px;font-weight:700">G</div>
       <span style="font-size:14.5px;font-weight:600">Gestión de Alumnos</span>
     </div>
 
     <div style="{{ navInicio }}" onClick="{{ goInicio }}">Inicio</div>
     <div style="{{ navPersonas }}" onClick="{{ goPersonas }}">Personas</div>
 
-    <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#7C736A;padding:16px 11px 7px;display:flex;align-items:center;gap:8px"><span style="width:7px;height:7px;border-radius:2px;background:#5E90AF"></span>Escolar</div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#4A5280;padding:16px 11px 7px;display:flex;align-items:center;gap:8px"><span style="width:7px;height:7px;border-radius:2px;background:#7DCFB6"></span>Escolar</div>
     <div style="{{ navEsc }}" onClick="{{ goEsc }}">Inscripciones</div>
     <div style="{{ navProg }}" onClick="{{ goProg }}">Programas</div>
     <div style="{{ navInst }}" onClick="{{ goInst }}">Instituciones</div>
 
-    <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#7C736A;padding:16px 11px 7px;display:flex;align-items:center;gap:8px"><span style="width:7px;height:7px;border-radius:2px;background:#C79240"></span>Particular</div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#4A5280;padding:16px 11px 7px;display:flex;align-items:center;gap:8px"><span style="width:7px;height:7px;border-radius:2px;background:#F0883E"></span>Particular</div>
     <div style="{{ navPart }}" onClick="{{ goPart }}">Inscripciones</div>
     <div style="{{ navCont }}" onClick="{{ goCont }}">Contratos</div>
     <div style="{{ navEmp }}" onClick="{{ goEmp }}">Empresas</div>
 
-    <div style="margin-top:auto;border-top:1px solid #3A3531;padding-top:12px;display:flex;align-items:center;gap:10px;padding-left:11px">
-      <div style="width:26px;height:26px;border-radius:999px;background:#3A3531;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#D3CBC1">AD</div>
-      <span style="font-size:13px;color:#B7ADA1">admin</span>
-      <span onClick="{{ salir }}" style="margin-left:auto;padding-right:11px;font-size:12px;color:#7C736A;cursor:pointer" style-hover="color:#E8E1D8">Salir</span>
+    <div style="margin-top:auto;border-top:1px solid #191D35;padding-top:12px;display:flex;align-items:center;gap:10px;padding-left:11px">
+      <div style="width:26px;height:26px;border-radius:999px;background:#191D35;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#C8CCF0">AD</div>
+      <span style="font-size:13px;color:#4A5280">admin</span>
+      <span onClick="{{ salir }}" style="margin-left:auto;padding-right:11px;font-size:12px;color:#4A5280;cursor:pointer" style-hover="color:#C8CCF0">Salir</span>
     </div>
   </aside>
 
@@ -98,17 +98,17 @@
       <div style="display:flex;flex-direction:column;gap:22px">
         <div style="display:flex;flex-direction:column;gap:5px">
           <h1 style="margin:0;font-size:30px;font-weight:600;letter-spacing:-.025em">{{ errorPantalla }}</h1>
-          <span style="font-size:14px;color:#6F675E">La pantalla existe; lo que falló es la lectura de datos.</span>
+          <span style="font-size:14px;color:#8890C0">La pantalla existe; lo que falló es la lectura de datos.</span>
         </div>
-        <div style="background:#fff;border:1px solid #EDC9C6;border-radius:14px;padding:28px 26px;display:flex;gap:15px;align-items:flex-start;max-width:640px">
-          <span style="width:22px;height:22px;border-radius:999px;flex:none;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#F8E3E1;color:#9E3A38;margin-top:2px">!</span>
+        <div style="background:#13162A;border:1px solid rgba(232,122,122,.30);border-radius:14px;padding:28px 26px;display:flex;gap:15px;align-items:flex-start;max-width:640px">
+          <span style="width:22px;height:22px;border-radius:999px;flex:none;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:rgba(232,122,122,.12);color:#E87A7A;margin-top:2px">!</span>
           <div style="display:flex;flex-direction:column;gap:9px">
             <span style="font-size:17px;font-weight:600;letter-spacing:-.01em">No pudimos cargar los datos</span>
-            <span style="font-size:14px;color:#6F675E;line-height:1.55;max-width:52ch">La request falló antes de devolver contenido. No es un 401: la sesión sigue abierta, así que no te devolvemos a Login — se reintenta acá y el resto de la app queda navegable.</span>
-            <div style="background:#FAF7F2;border:1px solid #EDE5D9;border-radius:10px;padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#6F675E">{{ errorRequest }}</div>
+            <span style="font-size:14px;color:#8890C0;line-height:1.55;max-width:52ch">La request falló antes de devolver contenido. No es un 401: la sesión sigue abierta, así que no te devolvemos a Login — se reintenta acá y el resto de la app queda navegable.</span>
+            <div style="background:#191D35;border:1px solid #1E2240;border-radius:10px;padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8890C0">{{ errorRequest }}</div>
             <div style="display:flex;gap:10px;margin-top:5px">
-              <button onClick="{{ reintentar }}" style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Reintentar</button>
-              <button onClick="{{ goInicio }}" style="background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2">Ir a Inicio</button>
+              <button onClick="{{ reintentar }}" style="background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#BB78F7">Reintentar</button>
+              <button onClick="{{ goInicio }}" style="background:#13162A;color:#DDE1FF;border:1px solid #2D3260;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#191D35">Ir a Inicio</button>
             </div>
           </div>
         </div>
@@ -120,54 +120,54 @@
       <div style="display:flex;flex-direction:column;gap:24px">
         <div style="display:flex;flex-direction:column;gap:5px">
           <h1 style="margin:0;font-size:30px;font-weight:600;letter-spacing:-.025em">Inicio</h1>
-          <span style="font-size:14px;color:#6F675E">Todo se calcula sobre los listados que ya trae la API — sin endpoints nuevos.</span>
+          <span style="font-size:14px;color:#8890C0">Todo se calcula sobre los listados que ya trae la API — sin endpoints nuevos.</span>
         </div>
 
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:16px">
           <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
-            <div onClick="{{ k.ir }}" style="background:#fff;border:1px solid #E6DED2;border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:9px;cursor:pointer" style-hover="border-color:#C9BFDD">
-              <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#948B80">{{ k.label }}</span>
+            <div onClick="{{ k.ir }}" style="background:#13162A;border:1px solid #1E2240;border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:9px;cursor:pointer" style-hover="border-color:#7A6FD0">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#6670A0">{{ k.label }}</span>
               <span style="font-size:34px;font-weight:600;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums">{{ k.valor }}</span>
-              <span style="font-size:13px;color:#6F675E">{{ k.detalle }}</span>
+              <span style="font-size:13px;color:#8890C0">{{ k.detalle }}</span>
             </div>
           </sc-for>
         </div>
 
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:20px;align-items:start">
-          <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto">
-            <div style="padding:15px 20px;border-bottom:1px solid #F0EAE1;display:flex;align-items:center;gap:10px">
+          <div style="background:#13162A;border:1px solid #1E2240;border-radius:14px;overflow-x:auto">
+            <div style="padding:15px 20px;border-bottom:1px solid #191D35;display:flex;align-items:center;gap:10px">
               <h2 style="margin:0;font-size:16px;font-weight:600">Requiere atención</h2>
-              <span style="font-size:13px;color:#948B80">situaciones que la API va a rechazar o que quedaron a medias</span>
+              <span style="font-size:13px;color:#6670A0">situaciones que la API va a rechazar o que quedaron a medias</span>
             </div>
             <sc-for list="{{ atencion }}" as="a" hint-placeholder-count="3">
-              <div onClick="{{ a.ir }}" style="padding:14px 20px;border-bottom:1px solid #F5F0E9;display:flex;align-items:flex-start;gap:12px;cursor:pointer" style-hover="background:#FAF7F2">
+              <div onClick="{{ a.ir }}" style="padding:14px 20px;border-bottom:1px solid #191D35;display:flex;align-items:flex-start;gap:12px;cursor:pointer" style-hover="background:#191D35">
                 <span style="{{ a.icono }}">{{ a.glifo }}</span>
                 <div style="display:flex;flex-direction:column;gap:3px">
                   <span style="font-size:14.5px;font-weight:500">{{ a.titulo }}</span>
-                  <span style="font-size:13px;color:#6F675E;line-height:1.45">{{ a.texto }}</span>
+                  <span style="font-size:13px;color:#8890C0;line-height:1.45">{{ a.texto }}</span>
                 </div>
               </div>
             </sc-for>
             <sc-if value="{{ sinAtencion }}" hint-placeholder-val="{{ false }}">
               <div style="padding:44px 20px;text-align:center;display:flex;flex-direction:column;gap:7px;align-items:center">
                 <span style="font-size:15px;font-weight:600">Nada pendiente</span>
-                <span style="font-size:13.5px;color:#6F675E">Todos los contratos tienen cupo y no hay inscripciones sin cubrir.</span>
+                <span style="font-size:13.5px;color:#8890C0">Todos los contratos tienen cupo y no hay inscripciones sin cubrir.</span>
               </div>
             </sc-if>
           </div>
 
-          <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto">
-            <div style="padding:15px 20px;border-bottom:1px solid #F0EAE1;display:flex;align-items:center;gap:10px">
+          <div style="background:#13162A;border:1px solid #1E2240;border-radius:14px;overflow-x:auto">
+            <div style="padding:15px 20px;border-bottom:1px solid #191D35;display:flex;align-items:center;gap:10px">
               <h2 style="margin:0;font-size:16px;font-weight:600">Últimas observaciones</h2>
-              <span style="font-size:13px;color:#948B80">rama particular</span>
+              <span style="font-size:13px;color:#6670A0">rama particular</span>
             </div>
             <sc-for list="{{ ultimasObs }}" as="o" hint-placeholder-count="3">
-              <div onClick="{{ o.ir }}" style="padding:14px 20px;border-bottom:1px solid #F5F0E9;display:flex;flex-direction:column;gap:5px;cursor:pointer" style-hover="background:#FAF7F2">
+              <div onClick="{{ o.ir }}" style="padding:14px 20px;border-bottom:1px solid #191D35;display:flex;flex-direction:column;gap:5px;cursor:pointer" style-hover="background:#191D35">
                 <div style="display:flex;align-items:baseline;gap:10px">
                   <span style="font-size:14px;font-weight:600">{{ o.persona }}</span>
-                  <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#948B80">{{ o.fecha }}</span>
+                  <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#6670A0">{{ o.fecha }}</span>
                 </div>
-                <span style="font-size:13.5px;color:#6F675E;line-height:1.5">{{ o.texto }}</span>
+                <span style="font-size:13.5px;color:#8890C0;line-height:1.5">{{ o.texto }}</span>
               </div>
             </sc-for>
           </div>
@@ -181,53 +181,53 @@
         <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
           <div style="display:flex;flex-direction:column;gap:5px">
             <h1 style="margin:0;font-size:30px;font-weight:600;letter-spacing:-.025em">Personas</h1>
-            <span style="font-size:14px;color:#6F675E">Transversal a las dos ramas — una persona puede tener inscripciones escolares y particulares.</span>
+            <span style="font-size:14px;color:#8890C0">Transversal a las dos ramas — una persona puede tener inscripciones escolares y particulares.</span>
           </div>
           <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
-            <input placeholder="Buscar por nombre o documento…" value="{{ query }}" onInput="{{ onQuery }}" style="font-size:14px;padding:9px 13px;border:1px solid #D6CBBB;border-radius:9px;width:250px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1">
-            <button onClick="{{ openNuevaPersona }}" style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 1px 2px rgba(43,39,36,.12)" style-hover="background:#4A3A6E">Nueva persona</button>
+            <input placeholder="Buscar por nombre o documento…" value="{{ query }}" onInput="{{ onQuery }}" style="font-size:14px;padding:9px 13px;border:1px solid #2D3260;border-radius:9px;width:250px;outline:none;background:#13162A" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F">
+            <button onClick="{{ openNuevaPersona }}" style="background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.35)" style-hover="background:#BB78F7">Nueva persona</button>
           </div>
         </div>
 
         <sc-if value="{{ cargando }}" hint-placeholder-val="{{ false }}">
-          <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:14px">
-            <div style="height:13px;width:34%;border-radius:5px;background:linear-gradient(90deg,#F0EAE1 25%,#F8F3EC 50%,#F0EAE1 75%);background-size:420px 100%;animation:shimmer 1.4s infinite linear"></div>
-            <div style="height:13px;width:82%;border-radius:5px;background:linear-gradient(90deg,#F0EAE1 25%,#F8F3EC 50%,#F0EAE1 75%);background-size:420px 100%;animation:shimmer 1.4s infinite linear"></div>
-            <div style="height:13px;width:64%;border-radius:5px;background:linear-gradient(90deg,#F0EAE1 25%,#F8F3EC 50%,#F0EAE1 75%);background-size:420px 100%;animation:shimmer 1.4s infinite linear"></div>
-            <div style="height:13px;width:75%;border-radius:5px;background:linear-gradient(90deg,#F0EAE1 25%,#F8F3EC 50%,#F0EAE1 75%);background-size:420px 100%;animation:shimmer 1.4s infinite linear"></div>
-            <div style="height:13px;width:48%;border-radius:5px;background:linear-gradient(90deg,#F0EAE1 25%,#F8F3EC 50%,#F0EAE1 75%);background-size:420px 100%;animation:shimmer 1.4s infinite linear"></div>
+          <div style="background:#13162A;border:1px solid #1E2240;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:14px">
+            <div style="height:13px;width:34%;border-radius:5px;background:linear-gradient(90deg,#191D35 25%,#1E2240 50%,#191D35 75%);background-size:420px 100%;animation:shimmer 1.4s infinite linear"></div>
+            <div style="height:13px;width:82%;border-radius:5px;background:linear-gradient(90deg,#191D35 25%,#1E2240 50%,#191D35 75%);background-size:420px 100%;animation:shimmer 1.4s infinite linear"></div>
+            <div style="height:13px;width:64%;border-radius:5px;background:linear-gradient(90deg,#191D35 25%,#1E2240 50%,#191D35 75%);background-size:420px 100%;animation:shimmer 1.4s infinite linear"></div>
+            <div style="height:13px;width:75%;border-radius:5px;background:linear-gradient(90deg,#191D35 25%,#1E2240 50%,#191D35 75%);background-size:420px 100%;animation:shimmer 1.4s infinite linear"></div>
+            <div style="height:13px;width:48%;border-radius:5px;background:linear-gradient(90deg,#191D35 25%,#1E2240 50%,#191D35 75%);background-size:420px 100%;animation:shimmer 1.4s infinite linear"></div>
           </div>
         </sc-if>
 
         <sc-if value="{{ vacio }}" hint-placeholder-val="{{ false }}">
-          <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;padding:64px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
-            <div style="width:46px;height:46px;border-radius:13px;background:#FAF7F2;border:1px dashed #D6CBBB"></div>
+          <div style="background:#13162A;border:1px solid #1E2240;border-radius:14px;padding:64px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
+            <div style="width:46px;height:46px;border-radius:13px;background:#191D35;border:1px dashed #2D3260"></div>
             <span style="font-size:16px;font-weight:600">Todavía no hay personas cargadas</span>
-            <span style="font-size:14px;color:#6F675E;max-width:38ch;line-height:1.5">Creá la primera y después vinculala a un programa escolar o particular desde su ficha.</span>
-            <button onClick="{{ openNuevaPersona }}" style="margin-top:8px;background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Nueva persona</button>
+            <span style="font-size:14px;color:#8890C0;max-width:38ch;line-height:1.5">Creá la primera y después vinculala a un programa escolar o particular desde su ficha.</span>
+            <button onClick="{{ openNuevaPersona }}" style="margin-top:8px;background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#BB78F7">Nueva persona</button>
           </div>
         </sc-if>
 
         <sc-if value="{{ tabla }}" hint-placeholder-val="{{ true }}">
-          <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto">
+          <div style="background:#13162A;border:1px solid #1E2240;border-radius:14px;overflow-x:auto">
             <table style="width:100%;min-width:700px;border-collapse:collapse;font-size:14.5px">
               <thead>
-                <tr style="background:#FAF7F2;text-align:left">
-                  <th style="padding:11px 22px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6F675E;font-weight:600;font-family:'IBM Plex Mono',monospace">Nombre</th>
-                  <th style="padding:11px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6F675E;font-weight:600;font-family:'IBM Plex Mono',monospace">Documento</th>
-                  <th style="padding:11px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6F675E;font-weight:600;font-family:'IBM Plex Mono',monospace">Teléfono</th>
-                  <th style="padding:11px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6F675E;font-weight:600;font-family:'IBM Plex Mono',monospace">Inscripciones</th>
+                <tr style="background:#191D35;text-align:left">
+                  <th style="padding:11px 22px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8890C0;font-weight:600;font-family:'IBM Plex Mono',monospace">Nombre</th>
+                  <th style="padding:11px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8890C0;font-weight:600;font-family:'IBM Plex Mono',monospace">Documento</th>
+                  <th style="padding:11px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8890C0;font-weight:600;font-family:'IBM Plex Mono',monospace">Teléfono</th>
+                  <th style="padding:11px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8890C0;font-weight:600;font-family:'IBM Plex Mono',monospace">Inscripciones</th>
                   <th style="padding:11px 22px"></th>
                 </tr>
               </thead>
               <tbody>
                 <sc-for list="{{ personas }}" as="p" hint-placeholder-count="4">
-                  <tr onClick="{{ p.abrir }}" style="border-top:1px solid #F0EAE1;cursor:pointer" style-hover="background:#F4F1FA">
+                  <tr onClick="{{ p.abrir }}" style="border-top:1px solid #191D35;cursor:pointer" style-hover="background:#1A1830">
                     <td style="padding:13px 22px;font-weight:500">{{ p.nombre }}</td>
-                    <td style="padding:13px 16px;font-family:'IBM Plex Mono',monospace;font-size:13.5px;color:#6F675E">{{ p.documento }}</td>
-                    <td style="padding:13px 16px;font-family:'IBM Plex Mono',monospace;font-size:13.5px;color:#6F675E">{{ p.telefono }}</td>
-                    <td style="padding:13px 16px"><span style="font-size:13px;color:#3E3833">{{ p.resumen }}</span></td>
-                    <td style="padding:13px 22px;text-align:right;font-size:13.5px;color:#5D4A87;font-weight:600">Ver ficha</td>
+                    <td style="padding:13px 16px;font-family:'IBM Plex Mono',monospace;font-size:13.5px;color:#8890C0">{{ p.documento }}</td>
+                    <td style="padding:13px 16px;font-family:'IBM Plex Mono',monospace;font-size:13.5px;color:#8890C0">{{ p.telefono }}</td>
+                    <td style="padding:13px 16px"><span style="font-size:13px;color:#C8CCF0">{{ p.resumen }}</span></td>
+                    <td style="padding:13px 22px;text-align:right;font-size:13.5px;color:#9D8FF7;font-weight:600">Ver ficha</td>
                   </tr>
                 </sc-for>
               </tbody>
@@ -236,7 +236,7 @@
         </sc-if>
 
         <sc-if value="{{ sinResultados }}" hint-placeholder-val="{{ false }}">
-          <div style="padding:26px;text-align:center;font-size:14px;color:#6F675E">Ninguna persona coincide con la búsqueda.</div>
+          <div style="padding:26px;text-align:center;font-size:14px;color:#8890C0">Ninguna persona coincide con la búsqueda.</div>
         </sc-if>
       </div>
     </sc-if>
@@ -244,33 +244,33 @@
     <!-- ═══ PERSONA · FICHA ═══ -->
     <sc-if value="{{ vFicha }}" hint-placeholder-val="{{ false }}">
       <div style="display:flex;flex-direction:column;gap:22px">
-        <span onClick="{{ goPersonas }}" style="font-size:13px;color:#6F675E;cursor:pointer;width:fit-content" style-hover="color:#5D4A87">← Personas</span>
+        <span onClick="{{ goPersonas }}" style="font-size:13px;color:#8890C0;cursor:pointer;width:fit-content" style-hover="color:#9D8FF7">← Personas</span>
         <div style="display:flex;align-items:flex-start;gap:16px">
-          <div style="width:54px;height:54px;border-radius:16px;background:#E6E0F1;color:#4A3A6E;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:600">{{ ficha.iniciales }}</div>
+          <div style="width:54px;height:54px;border-radius:16px;background:#241F3F;color:#BB78F7;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:600">{{ ficha.iniciales }}</div>
           <div style="display:flex;flex-direction:column;gap:6px">
             <h1 style="margin:0;font-size:30px;font-weight:600;letter-spacing:-.025em">{{ ficha.nombre }}</h1>
-            <div style="display:flex;gap:18px;font-size:13.5px;color:#6F675E;font-family:'IBM Plex Mono',monospace"><span>{{ ficha.documento }}</span><span>{{ ficha.telefono }}</span><span>{{ ficha.email }}</span></div>
+            <div style="display:flex;gap:18px;font-size:13.5px;color:#8890C0;font-family:'IBM Plex Mono',monospace"><span>{{ ficha.documento }}</span><span>{{ ficha.telefono }}</span><span>{{ ficha.email }}</span></div>
           </div>
           <div style="margin-left:auto;display:flex;gap:9px">
-            <button style="background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:9px 14px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2" onClick="{{ openEditarPersona }}">Editar datos</button>
-            <button onClick="{{ openNuevaInscripcion }}" style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:9px 14px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Nueva inscripción</button>
+            <button style="background:#13162A;color:#DDE1FF;border:1px solid #2D3260;border-radius:9px;padding:9px 14px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#191D35" onClick="{{ openEditarPersona }}">Editar datos</button>
+            <button onClick="{{ openNuevaInscripcion }}" style="background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:9px 14px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#BB78F7">Nueva inscripción</button>
           </div>
         </div>
 
-        <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto">
-          <div style="padding:15px 22px;border-bottom:1px solid #F0EAE1;display:flex;align-items:center;gap:10px">
+        <div style="background:#13162A;border:1px solid #1E2240;border-radius:14px;overflow-x:auto">
+          <div style="padding:15px 22px;border-bottom:1px solid #191D35;display:flex;align-items:center;gap:10px">
             <h2 style="margin:0;font-size:16px;font-weight:600">Inscripciones</h2>
-            <span style="font-size:13px;color:#948B80">todas las categorías, más recientes primero</span>
+            <span style="font-size:13px;color:#6670A0">todas las categorías, más recientes primero</span>
           </div>
           <sc-for list="{{ ficha.inscripciones }}" as="i" hint-placeholder-count="3">
-            <div onClick="{{ i.abrir }}" style="padding:15px 22px;border-bottom:1px solid #F0EAE1;display:grid;grid-template-columns:14px minmax(0,1.6fr) minmax(0,1.1fr) 130px 110px;gap:16px;align-items:center;cursor:pointer" style-hover="background:#F4F1FA">
+            <div onClick="{{ i.abrir }}" style="padding:15px 22px;border-bottom:1px solid #191D35;display:grid;grid-template-columns:14px minmax(0,1.6fr) minmax(0,1.1fr) 130px 110px;gap:16px;align-items:center;cursor:pointer" style-hover="background:#1A1830">
               <span style="{{ i.puntoRama }}"></span>
               <div style="display:flex;flex-direction:column;gap:3px">
                 <span style="font-size:14.5px;font-weight:500">{{ i.programaNombre }}</span>
-                <span style="font-size:12.5px;color:#948B80">{{ i.rama }}</span>
+                <span style="font-size:12.5px;color:#6670A0">{{ i.rama }}</span>
               </div>
-              <span style="font-size:13.5px;color:#6F675E">{{ i.detalleCorto }}</span>
-              <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#6F675E">{{ i.fechaInicio }}</span>
+              <span style="font-size:13.5px;color:#8890C0">{{ i.detalleCorto }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#8890C0">{{ i.fechaInicio }}</span>
               <span style="{{ i.badge }}">{{ i.estado }}</span>
             </div>
           </sc-for>
@@ -287,40 +287,40 @@
               <span style="{{ lista.puntoRama }}"></span>
               <h1 style="margin:0;font-size:30px;font-weight:600;letter-spacing:-.025em">{{ lista.titulo }}</h1>
             </div>
-            <span style="font-size:14px;color:#6F675E">{{ lista.bajada }}</span>
+            <span style="font-size:14px;color:#8890C0">{{ lista.bajada }}</span>
           </div>
           <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
-            <select onChange="{{ onFiltroEstado }}" style="font-size:14px;padding:9px 12px;border:1px solid #D6CBBB;border-radius:9px;background:#fff;outline:none">
+            <select onChange="{{ onFiltroEstado }}" style="font-size:14px;padding:9px 12px;border:1px solid #2D3260;border-radius:9px;background:#13162A;outline:none">
               <option value="TODOS">Todos los estados</option>
               <option value="ACTIVA">Activas</option>
               <option value="PAUSADA">Pausadas</option>
               <option value="FINALIZADA">Finalizadas</option>
               <option value="CANCELADA">Canceladas</option>
             </select>
-            <button onClick="{{ openNuevaInscripcion }}" style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Nueva inscripción</button>
+            <button onClick="{{ openNuevaInscripcion }}" style="background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#BB78F7">Nueva inscripción</button>
           </div>
         </div>
 
-        <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto">
+        <div style="background:#13162A;border:1px solid #1E2240;border-radius:14px;overflow-x:auto">
           <table style="width:100%;min-width:700px;border-collapse:collapse;font-size:14.5px">
             <thead>
-              <tr style="background:#FAF7F2;text-align:left">
-                <th style="padding:11px 22px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6F675E;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ lista.colPersona }}</th>
-                <th style="padding:11px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6F675E;font-weight:600;font-family:'IBM Plex Mono',monospace">Programa</th>
-                <th style="padding:11px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6F675E;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ lista.col3 }}</th>
-                <th style="padding:11px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6F675E;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ lista.col4 }}</th>
-                <th style="padding:11px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6F675E;font-weight:600;font-family:'IBM Plex Mono',monospace">Inicio</th>
-                <th style="padding:11px 22px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6F675E;font-weight:600;font-family:'IBM Plex Mono',monospace">Estado</th>
+              <tr style="background:#191D35;text-align:left">
+                <th style="padding:11px 22px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8890C0;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ lista.colPersona }}</th>
+                <th style="padding:11px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8890C0;font-weight:600;font-family:'IBM Plex Mono',monospace">Programa</th>
+                <th style="padding:11px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8890C0;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ lista.col3 }}</th>
+                <th style="padding:11px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8890C0;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ lista.col4 }}</th>
+                <th style="padding:11px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8890C0;font-weight:600;font-family:'IBM Plex Mono',monospace">Inicio</th>
+                <th style="padding:11px 22px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8890C0;font-weight:600;font-family:'IBM Plex Mono',monospace">Estado</th>
               </tr>
             </thead>
             <tbody>
               <sc-for list="{{ lista.filas }}" as="f" hint-placeholder-count="4">
-                <tr onClick="{{ f.abrir }}" style="border-top:1px solid #F0EAE1;cursor:pointer" style-hover="background:#F4F1FA">
+                <tr onClick="{{ f.abrir }}" style="border-top:1px solid #191D35;cursor:pointer" style-hover="background:#1A1830">
                   <td style="padding:13px 22px;font-weight:500">{{ f.personaNombre }}</td>
-                  <td style="padding:13px 16px;color:#3E3833">{{ f.programaNombre }}</td>
-                  <td style="padding:13px 16px;color:#6F675E">{{ f.c3 }}</td>
-                  <td style="padding:13px 16px;color:#6F675E;font-family:'IBM Plex Mono',monospace;font-size:13.5px">{{ f.c4 }}</td>
-                  <td style="padding:13px 16px;font-family:'IBM Plex Mono',monospace;font-size:13.5px;color:#6F675E">{{ f.fechaInicio }}</td>
+                  <td style="padding:13px 16px;color:#C8CCF0">{{ f.programaNombre }}</td>
+                  <td style="padding:13px 16px;color:#8890C0">{{ f.c3 }}</td>
+                  <td style="padding:13px 16px;color:#8890C0;font-family:'IBM Plex Mono',monospace;font-size:13.5px">{{ f.c4 }}</td>
+                  <td style="padding:13px 16px;font-family:'IBM Plex Mono',monospace;font-size:13.5px;color:#8890C0">{{ f.fechaInicio }}</td>
                   <td style="padding:13px 22px"><span style="{{ f.badge }}">{{ f.estado }}</span></td>
                 </tr>
               </sc-for>
@@ -328,9 +328,9 @@
           </table>
           <sc-if value="{{ lista.vacia }}" hint-placeholder-val="{{ false }}">
             <div style="padding:56px 24px;display:flex;flex-direction:column;align-items:center;gap:9px;text-align:center">
-              <div style="width:44px;height:44px;border-radius:12px;background:#FAF7F2;border:1px dashed #D6CBBB"></div>
+              <div style="width:44px;height:44px;border-radius:12px;background:#191D35;border:1px dashed #2D3260"></div>
               <span style="font-size:15px;font-weight:600">Ninguna inscripción con ese estado</span>
-              <span style="font-size:13.5px;color:#6F675E">Cambiá el filtro o creá una nueva inscripción.</span>
+              <span style="font-size:13.5px;color:#8890C0">Cambiá el filtro o creá una nueva inscripción.</span>
             </div>
           </sc-if>
         </div>
@@ -340,7 +340,7 @@
     <!-- ═══ INSCRIPCIÓN · DETALLE ═══ -->
     <sc-if value="{{ vDetalle }}" hint-placeholder-val="{{ false }}">
       <div style="display:flex;flex-direction:column;gap:22px">
-        <span onClick="{{ volverLista }}" style="font-size:13px;color:#6F675E;cursor:pointer;width:fit-content" style-hover="color:#5D4A87">← {{ det.volver }}</span>
+        <span onClick="{{ volverLista }}" style="font-size:13px;color:#8890C0;cursor:pointer;width:fit-content" style-hover="color:#9D8FF7">← {{ det.volver }}</span>
 
         <div style="display:flex;align-items:flex-start;gap:16px">
           <div style="display:flex;flex-direction:column;gap:8px">
@@ -348,7 +348,7 @@
               <h1 style="margin:0;font-size:30px;font-weight:600;letter-spacing:-.025em">{{ det.personaNombre }}</h1>
               <span style="{{ det.badge }}">{{ det.estado }}</span>
             </div>
-            <span style="font-size:15px;color:#6F675E">{{ det.programaNombre }}</span>
+            <span style="font-size:15px;color:#8890C0">{{ det.programaNombre }}</span>
           </div>
           <div style="margin-left:auto;display:flex;gap:9px;align-items:center">
             <button onClick="{{ det.onPausar }}" disabled="{{ det.pausarOff }}" style="{{ det.btnPausar }}">{{ det.labelPausa }}</button>
@@ -357,12 +357,12 @@
           </div>
         </div>
 
-        <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;padding:18px 22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:22px">
-          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#948B80">Rama</span><span style="font-size:14.5px;font-weight:500">{{ det.rama }}</span></div>
-          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#948B80">{{ det.m2label }}</span><span style="font-size:14.5px;font-weight:500">{{ det.m2 }}</span></div>
-          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#948B80">{{ det.m3label }}</span><span style="font-size:14.5px;font-weight:500">{{ det.m3 }}</span></div>
-          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#948B80">Inicio</span><span style="font-size:14.5px;font-weight:500;font-family:'IBM Plex Mono',monospace">{{ det.fechaInicio }}</span></div>
-          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#948B80">Fin</span><span style="font-size:14.5px;font-weight:500;font-family:'IBM Plex Mono',monospace;color:#948B80">{{ det.fechaFin }}</span></div>
+        <div style="background:#13162A;border:1px solid #1E2240;border-radius:14px;padding:18px 22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:22px">
+          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#6670A0">Rama</span><span style="font-size:14.5px;font-weight:500">{{ det.rama }}</span></div>
+          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#6670A0">{{ det.m2label }}</span><span style="font-size:14.5px;font-weight:500">{{ det.m2 }}</span></div>
+          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#6670A0">{{ det.m3label }}</span><span style="font-size:14.5px;font-weight:500">{{ det.m3 }}</span></div>
+          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#6670A0">Inicio</span><span style="font-size:14.5px;font-weight:500;font-family:'IBM Plex Mono',monospace">{{ det.fechaInicio }}</span></div>
+          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#6670A0">Fin</span><span style="font-size:14.5px;font-weight:500;font-family:'IBM Plex Mono',monospace;color:#6670A0">{{ det.fechaFin }}</span></div>
         </div>
 
         <!-- ESCOLAR: evaluaciones -->
@@ -370,44 +370,44 @@
           <div style="display:flex;flex-direction:column;gap:16px">
             <div style="display:flex;align-items:baseline;gap:12px">
               <h2 style="margin:0;font-size:20px;font-weight:600;letter-spacing:-.015em">Evaluaciones</h2>
-              <span style="font-size:13.5px;color:#948B80">{{ det.evalBajada }}</span>
-              <button style="margin-left:auto;background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:8px 13px;font-size:13.5px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2" onClick="{{ openNota }}">Cargar nota</button>
+              <span style="font-size:13.5px;color:#6670A0">{{ det.evalBajada }}</span>
+              <button style="margin-left:auto;background:#13162A;color:#DDE1FF;border:1px solid #2D3260;border-radius:9px;padding:8px 13px;font-size:13.5px;font-weight:500;cursor:pointer" style-hover="background:#191D35" onClick="{{ openNota }}">Cargar nota</button>
             </div>
 
             <sc-for list="{{ det.modulos }}" as="m" hint-placeholder-count="2">
-              <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto">
-                <div style="padding:14px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #F0EAE1;background:#FCFAF7">
+              <div style="background:#13162A;border:1px solid #1E2240;border-radius:14px;overflow-x:auto">
+                <div style="padding:14px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #191D35;background:#14172A">
                   <span style="font-size:15px;font-weight:600">{{ m.titulo }}</span>
                   <span style="{{ m.chip }}">{{ m.chipTexto }}</span>
                   <sc-if value="{{ m.tieneExtra }}" hint-placeholder-val="{{ false }}">
                     <span style="{{ m.extraStyle }}">{{ m.extra }}</span>
                   </sc-if>
-                  <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:13px;color:#6F675E">{{ m.labelNota }} <strong style="color:#2B2724;font-size:15px">{{ m.promedio }}</strong></span>
+                  <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:13px;color:#8890C0">{{ m.labelNota }} <strong style="color:#DDE1FF;font-size:15px">{{ m.promedio }}</strong></span>
                 </div>
                 <sc-if value="{{ m.aviso }}" hint-placeholder-val="{{ false }}">
-                  <div style="display:flex;gap:10px;align-items:flex-start;padding:12px 20px;background:#FDF6E7;border-bottom:1px solid #F2E6CB">
-                    <span style="width:18px;height:18px;border-radius:999px;background:#FBEFD8;color:#8F6414;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:none;margin-top:1px">!</span>
-                    <span style="font-size:13.5px;line-height:1.5;color:#7E5A20">{{ m.avisoTexto }}</span>
+                  <div style="display:flex;gap:10px;align-items:flex-start;padding:12px 20px;background:#241C14;border-bottom:1px solid rgba(232,162,74,.30)">
+                    <span style="width:18px;height:18px;border-radius:999px;background:rgba(232,162,74,.14);color:#E8A24A;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:none;margin-top:1px">!</span>
+                    <span style="font-size:13.5px;line-height:1.5;color:#F0883E">{{ m.avisoTexto }}</span>
                   </div>
                 </sc-if>
                 <table style="width:100%;min-width:620px;border-collapse:collapse;font-size:14px">
                   <thead>
                     <tr style="text-align:left">
-                      <th style="padding:9px 20px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#948B80;font-weight:600;font-family:'IBM Plex Mono',monospace">Tipo</th>
-                      <th style="padding:9px 16px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#948B80;font-weight:600;font-family:'IBM Plex Mono',monospace">Fecha</th>
-                      <th style="padding:9px 16px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#948B80;font-weight:600;font-family:'IBM Plex Mono',monospace">Nota</th>
-                      <th style="padding:9px 16px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#948B80;font-weight:600;font-family:'IBM Plex Mono',monospace">Promedia</th>
-                      <th style="padding:9px 20px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#948B80;font-weight:600;font-family:'IBM Plex Mono',monospace">Observación</th>
+                      <th style="padding:9px 20px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#6670A0;font-weight:600;font-family:'IBM Plex Mono',monospace">Tipo</th>
+                      <th style="padding:9px 16px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#6670A0;font-weight:600;font-family:'IBM Plex Mono',monospace">Fecha</th>
+                      <th style="padding:9px 16px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#6670A0;font-weight:600;font-family:'IBM Plex Mono',monospace">Nota</th>
+                      <th style="padding:9px 16px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#6670A0;font-weight:600;font-family:'IBM Plex Mono',monospace">Promedia</th>
+                      <th style="padding:9px 20px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#6670A0;font-weight:600;font-family:'IBM Plex Mono',monospace">Observación</th>
                     </tr>
                   </thead>
                   <tbody>
                     <sc-for list="{{ m.instancias }}" as="n" hint-placeholder-count="3">
-                      <tr style="border-top:1px solid #F5F0E9">
-                        <td style="padding:11px 20px"><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#4A3A6E;background:#F0ECF7;padding:3px 8px;border-radius:6px">{{ n.tipo }}</span></td>
-                        <td style="padding:11px 16px;font-family:'IBM Plex Mono',monospace;font-size:13.5px;color:#6F675E">{{ n.fecha }}</td>
+                      <tr style="border-top:1px solid #191D35">
+                        <td style="padding:11px 20px"><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#BB78F7;background:#241F3F;padding:3px 8px;border-radius:6px">{{ n.tipo }}</span></td>
+                        <td style="padding:11px 16px;font-family:'IBM Plex Mono',monospace;font-size:13.5px;color:#8890C0">{{ n.fecha }}</td>
                         <td style="padding:11px 16px;font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums"><span style="{{ n.notaStyle }}">{{ n.nota }}</span></td>
-                        <td style="padding:11px 16px;font-size:13.5px;color:#6F675E">{{ n.promedia }}</td>
-                        <td style="padding:11px 20px;font-size:13.5px;color:#6F675E">{{ n.obs }}</td>
+                        <td style="padding:11px 16px;font-size:13.5px;color:#8890C0">{{ n.promedia }}</td>
+                        <td style="padding:11px 20px;font-size:13.5px;color:#8890C0">{{ n.obs }}</td>
                       </tr>
                     </sc-for>
                   </tbody>
@@ -420,64 +420,64 @@
         <!-- PARTICULAR: contrato + seguimiento -->
         <sc-if value="{{ det.esParticular }}" hint-placeholder-val="{{ false }}">
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;align-items:start">
-            <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto">
-              <div style="padding:15px 20px;border-bottom:1px solid #F0EAE1;display:flex;align-items:center;gap:10px">
+            <div style="background:#13162A;border:1px solid #1E2240;border-radius:14px;overflow-x:auto">
+              <div style="padding:15px 20px;border-bottom:1px solid #191D35;display:flex;align-items:center;gap:10px">
                 <h2 style="margin:0;font-size:16px;font-weight:600">Contrato</h2>
                 <span style="{{ det.contratoBadge }}">{{ det.contratoEstado }}</span>
               </div>
               <div style="padding:18px 20px;display:flex;flex-direction:column;gap:16px">
                 <div style="display:flex;flex-direction:column;gap:4px">
-                  <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#948B80">Tipo</span>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#6670A0">Tipo</span>
                   <span style="font-size:14.5px;font-weight:500">{{ det.contratoTipo }}</span>
                 </div>
                 <div style="display:flex;flex-direction:column;gap:8px">
                   <div style="display:flex;align-items:baseline;gap:8px">
-                    <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#948B80">Pool de clases</span>
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#6670A0">Pool de clases</span>
                     <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums">{{ det.clasesTexto }}</span>
                   </div>
-                  <div style="height:9px;border-radius:999px;background:#F0EAE1;overflow:hidden"><div style="{{ det.barra }}"></div></div>
-                  <span style="font-size:12.5px;color:#948B80">{{ det.clasesRestantes }}</span>
+                  <div style="height:9px;border-radius:999px;background:#191D35;overflow:hidden"><div style="{{ det.barra }}"></div></div>
+                  <span style="font-size:12.5px;color:#6670A0">{{ det.clasesRestantes }}</span>
                 </div>
                 <sc-if value="{{ det.tieneEmpresa }}" hint-placeholder-val="{{ false }}">
-                  <div style="display:flex;flex-direction:column;gap:8px;border-top:1px solid #F0EAE1;padding-top:14px">
-                    <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#948B80">Cubre a</span>
+                  <div style="display:flex;flex-direction:column;gap:8px;border-top:1px solid #191D35;padding-top:14px">
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#6670A0">Cubre a</span>
                     <sc-for list="{{ det.cubiertos }}" as="c" hint-placeholder-count="3">
-                      <span style="font-size:14px;color:#3E3833">{{ c.nombre }}</span>
+                      <span style="font-size:14px;color:#C8CCF0">{{ c.nombre }}</span>
                     </sc-for>
                   </div>
                 </sc-if>
                 <sc-if value="{{ det.sinContrato }}" hint-placeholder-val="{{ false }}">
-                  <div style="border-top:1px solid #F0EAE1;padding-top:14px;display:flex;flex-direction:column;gap:10px">
-                    <span style="font-size:13.5px;color:#6F675E;line-height:1.5">Esta inscripción todavía no está cubierta por ningún contrato: no se pueden registrar clases consumidas.</span>
-                    <button onClick="{{ det.onCrearContrato }}" style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:9px 12px;font-size:13.5px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Crear contrato individual</button>
+                  <div style="border-top:1px solid #191D35;padding-top:14px;display:flex;flex-direction:column;gap:10px">
+                    <span style="font-size:13.5px;color:#8890C0;line-height:1.5">Esta inscripción todavía no está cubierta por ningún contrato: no se pueden registrar clases consumidas.</span>
+                    <button onClick="{{ det.onCrearContrato }}" style="background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:9px 12px;font-size:13.5px;font-weight:600;cursor:pointer" style-hover="background:#BB78F7">Crear contrato individual</button>
                   </div>
                 </sc-if>
                 <div style="{{ det.accionesContrato }}">
-                  <button onClick="{{ det.onConsumir }}" style="flex:1;background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:9px 12px;font-size:13.5px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Consumir clase</button>
-                  <button onClick="{{ det.onAmpliar }}" style="flex:1;background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:9px 12px;font-size:13.5px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2">Ampliar cupo</button>
+                  <button onClick="{{ det.onConsumir }}" style="flex:1;background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:9px 12px;font-size:13.5px;font-weight:600;cursor:pointer" style-hover="background:#BB78F7">Consumir clase</button>
+                  <button onClick="{{ det.onAmpliar }}" style="flex:1;background:#13162A;color:#DDE1FF;border:1px solid #2D3260;border-radius:9px;padding:9px 12px;font-size:13.5px;font-weight:500;cursor:pointer" style-hover="background:#191D35">Ampliar cupo</button>
                 </div>
               </div>
             </div>
 
-            <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto">
-              <div style="padding:15px 20px;border-bottom:1px solid #F0EAE1;display:flex;align-items:center;gap:10px">
+            <div style="background:#13162A;border:1px solid #1E2240;border-radius:14px;overflow-x:auto">
+              <div style="padding:15px 20px;border-bottom:1px solid #191D35;display:flex;align-items:center;gap:10px">
                 <h2 style="margin:0;font-size:16px;font-weight:600">Seguimiento</h2>
-                <span style="font-size:13px;color:#948B80">observaciones en texto libre, sin nota</span>
+                <span style="font-size:13px;color:#6670A0">observaciones en texto libre, sin nota</span>
               </div>
-              <div style="padding:16px 20px;display:flex;gap:10px;border-bottom:1px solid #F0EAE1;background:#FCFAF7">
-                <textarea placeholder="Nueva observación…" value="{{ nuevaObs }}" onInput="{{ onObs }}" style="flex:1;resize:vertical;min-height:44px;font-size:14px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"></textarea>
-                <button onClick="{{ det.onAgregarObs }}" style="align-self:flex-start;background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:11px 14px;font-size:13.5px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Agregar</button>
+              <div style="padding:16px 20px;display:flex;gap:10px;border-bottom:1px solid #191D35;background:#14172A">
+                <textarea placeholder="Nueva observación…" value="{{ nuevaObs }}" onInput="{{ onObs }}" style="flex:1;resize:vertical;min-height:44px;font-size:14px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;outline:none;background:#13162A" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F"></textarea>
+                <button onClick="{{ det.onAgregarObs }}" style="align-self:flex-start;background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:11px 14px;font-size:13.5px;font-weight:600;cursor:pointer" style-hover="background:#BB78F7">Agregar</button>
               </div>
               <sc-for list="{{ det.seguimientos }}" as="s" hint-placeholder-count="3">
-                <div style="padding:14px 20px;border-bottom:1px solid #F5F0E9;display:flex;gap:16px">
-                  <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#948B80;flex:none;width:88px;padding-top:2px">{{ s.fecha }}</span>
-                  <span style="font-size:14px;line-height:1.55;color:#3E3833">{{ s.observacion }}</span>
+                <div style="padding:14px 20px;border-bottom:1px solid #191D35;display:flex;gap:16px">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#6670A0;flex:none;width:88px;padding-top:2px">{{ s.fecha }}</span>
+                  <span style="font-size:14px;line-height:1.55;color:#C8CCF0">{{ s.observacion }}</span>
                 </div>
               </sc-for>
               <sc-if value="{{ det.sinSeguimientos }}" hint-placeholder-val="{{ false }}">
                 <div style="padding:48px 20px;text-align:center;display:flex;flex-direction:column;gap:7px;align-items:center">
                   <span style="font-size:15px;font-weight:600">Sin observaciones todavía</span>
-                  <span style="font-size:13.5px;color:#6F675E;max-width:38ch;line-height:1.5">Registrá la primera para dejar trazada la evolución del alumno.</span>
+                  <span style="font-size:13.5px;color:#8890C0;max-width:38ch;line-height:1.5">Registrá la primera para dejar trazada la evolución del alumno.</span>
                 </div>
               </sc-if>
             </div>
@@ -492,47 +492,47 @@
         <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
           <div style="display:flex;flex-direction:column;gap:5px">
             <h1 style="margin:0;font-size:30px;font-weight:600;letter-spacing:-.025em">Programas</h1>
-            <span style="font-size:14px;color:#6F675E">Módulos, planes y grupos viven adentro de cada programa, no en el sidebar.</span>
+            <span style="font-size:14px;color:#8890C0">Módulos, planes y grupos viven adentro de cada programa, no en el sidebar.</span>
           </div>
           <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
-            <div style="display:flex;background:#F0EAE1;border-radius:9px;padding:3px;gap:2px">
+            <div style="display:flex;background:#191D35;border-radius:9px;padding:3px;gap:2px">
               <span onClick="{{ progFiltroTodos }}" style="{{ progTabTodos }}">Todos</span>
               <span onClick="{{ progFiltroEsc }}" style="{{ progTabEsc }}">Escolar</span>
               <span onClick="{{ progFiltroPart }}" style="{{ progTabPart }}">Particular</span>
             </div>
-            <button style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E" onClick="{{ openAltaPrograma }}">Nuevo programa</button>
+            <button style="background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#BB78F7" onClick="{{ openAltaPrograma }}">Nuevo programa</button>
           </div>
         </div>
-        <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto">
+        <div style="background:#13162A;border:1px solid #1E2240;border-radius:14px;overflow-x:auto">
           <table style="width:100%;min-width:700px;border-collapse:collapse;font-size:14.5px">
             <thead>
-              <tr style="background:#FAF7F2;text-align:left">
-                <th style="padding:11px 22px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6F675E;font-weight:600;font-family:'IBM Plex Mono',monospace">Programa</th>
-                <th style="padding:11px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6F675E;font-weight:600;font-family:'IBM Plex Mono',monospace">Categoría</th>
-                <th style="padding:11px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6F675E;font-weight:600;font-family:'IBM Plex Mono',monospace">Estrategia</th>
-                <th style="padding:11px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6F675E;font-weight:600;font-family:'IBM Plex Mono',monospace">Institución</th>
-                <th style="padding:11px 22px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6F675E;font-weight:600;font-family:'IBM Plex Mono',monospace">Inscripciones</th>
+              <tr style="background:#191D35;text-align:left">
+                <th style="padding:11px 22px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8890C0;font-weight:600;font-family:'IBM Plex Mono',monospace">Programa</th>
+                <th style="padding:11px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8890C0;font-weight:600;font-family:'IBM Plex Mono',monospace">Categoría</th>
+                <th style="padding:11px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8890C0;font-weight:600;font-family:'IBM Plex Mono',monospace">Estrategia</th>
+                <th style="padding:11px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8890C0;font-weight:600;font-family:'IBM Plex Mono',monospace">Institución</th>
+                <th style="padding:11px 22px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8890C0;font-weight:600;font-family:'IBM Plex Mono',monospace">Inscripciones</th>
               </tr>
             </thead>
             <tbody>
               <sc-for list="{{ programas }}" as="pr" hint-placeholder-count="4">
-                <tr onClick="{{ pr.abrir }}" style="border-top:1px solid #F0EAE1;cursor:pointer" style-hover="background:#F4F1FA">
+                <tr onClick="{{ pr.abrir }}" style="border-top:1px solid #191D35;cursor:pointer" style-hover="background:#1A1830">
                   <td style="padding:13px 22px;font-weight:500">{{ pr.nombre }}</td>
-                  <td style="padding:13px 16px"><span style="display:inline-flex;align-items:center;gap:7px;font-size:13px;color:#3E3833"><span style="{{ pr.punto }}"></span>{{ pr.categoriaLabel }}</span></td>
-                  <td style="padding:13px 16px"><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#4A3A6E;background:#F0ECF7;padding:3px 8px;border-radius:6px">{{ pr.estrategia }}</span></td>
-                  <td style="padding:13px 16px;color:#6F675E">{{ pr.institucionNombre }}</td>
-                  <td style="padding:13px 22px;font-family:'IBM Plex Mono',monospace;font-size:13.5px;color:#6F675E">{{ pr.cantidad }}</td>
+                  <td style="padding:13px 16px"><span style="display:inline-flex;align-items:center;gap:7px;font-size:13px;color:#C8CCF0"><span style="{{ pr.punto }}"></span>{{ pr.categoriaLabel }}</span></td>
+                  <td style="padding:13px 16px"><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#BB78F7;background:#241F3F;padding:3px 8px;border-radius:6px">{{ pr.estrategia }}</span></td>
+                  <td style="padding:13px 16px;color:#8890C0">{{ pr.institucionNombre }}</td>
+                  <td style="padding:13px 22px;font-family:'IBM Plex Mono',monospace;font-size:13.5px;color:#8890C0">{{ pr.cantidad }}</td>
                 </tr>
               </sc-for>
             </tbody>
           </table>
         </div>
         <sc-if value="{{ vacioProgramas }}" hint-placeholder-val="{{ false }}">
-          <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;padding:60px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
-            <div style="width:44px;height:44px;border-radius:12px;background:#FAF7F2;border:1px dashed #D6CBBB"></div>
+          <div style="background:#13162A;border:1px solid #1E2240;border-radius:14px;padding:60px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
+            <div style="width:44px;height:44px;border-radius:12px;background:#191D35;border:1px dashed #2D3260"></div>
             <span style="font-size:16px;font-weight:600">Todavía no hay programas</span>
-            <span style="font-size:14px;color:#6F675E;max-width:44ch;line-height:1.55">El programa define la estrategia de evaluación: módulos y planes en la rama escolar, seguimiento libre en la particular. Sin programa no se puede inscribir a nadie.</span>
-            <button onClick="{{ openAltaPrograma }}" style="margin-top:8px;background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Nuevo programa</button>
+            <span style="font-size:14px;color:#8890C0;max-width:44ch;line-height:1.55">El programa define la estrategia de evaluación: módulos y planes en la rama escolar, seguimiento libre en la particular. Sin programa no se puede inscribir a nadie.</span>
+            <button onClick="{{ openAltaPrograma }}" style="margin-top:8px;background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#BB78F7">Nuevo programa</button>
           </div>
         </sc-if>
 
@@ -542,22 +542,22 @@
     <!-- ═══ PROGRAMA · DETALLE CON PESTAÑAS ═══ -->
     <sc-if value="{{ vPrograma }}" hint-placeholder-val="{{ false }}">
       <div style="display:flex;flex-direction:column;gap:22px">
-        <span onClick="{{ goProg }}" style="font-size:13px;color:#6F675E;cursor:pointer;width:fit-content" style-hover="color:#5D4A87">← Programas</span>
+        <span onClick="{{ goProg }}" style="font-size:13px;color:#8890C0;cursor:pointer;width:fit-content" style-hover="color:#9D8FF7">← Programas</span>
         <div style="display:flex;align-items:flex-start;gap:16px">
           <div style="display:flex;flex-direction:column;gap:8px">
             <h1 style="margin:0;font-size:30px;font-weight:600;letter-spacing:-.025em">{{ prog.nombre }}</h1>
-            <div style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:#6F675E">
+            <div style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:#8890C0">
               <span style="display:inline-flex;align-items:center;gap:7px"><span style="{{ prog.punto }}"></span>{{ prog.categoriaLabel }}</span>
-              <span style="color:#D6CBBB">·</span>
-              <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#4A3A6E;background:#F0ECF7;padding:3px 8px;border-radius:6px">{{ prog.estrategia }}</span>
-              <span style="color:#D6CBBB">·</span>
+              <span style="color:#2D3260">·</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#BB78F7;background:#241F3F;padding:3px 8px;border-radius:6px">{{ prog.estrategia }}</span>
+              <span style="color:#2D3260">·</span>
               <span>{{ prog.institucionNombre }}</span>
             </div>
           </div>
-          <button style="margin-left:auto;background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:9px 14px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2" onClick="{{ openEditarPrograma }}">Editar programa</button>
+          <button style="margin-left:auto;background:#13162A;color:#DDE1FF;border:1px solid #2D3260;border-radius:9px;padding:9px 14px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#191D35" onClick="{{ openEditarPrograma }}">Editar programa</button>
         </div>
 
-        <div style="display:flex;gap:4px;border-bottom:1px solid #E6DED2">
+        <div style="display:flex;gap:4px;border-bottom:1px solid #1E2240">
           <span onClick="{{ tabModulos }}" style="{{ prog.tabMod }}">Módulos</span>
           <sc-if value="{{ prog.tienePlanes }}" hint-placeholder-val="{{ false }}">
             <span onClick="{{ tabPlanes }}" style="{{ prog.tabPla }}">Planes</span>
@@ -565,35 +565,35 @@
           <span onClick="{{ tabGrupos }}" style="{{ prog.tabGru }}">Grupos</span>
         </div>
 
-        <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto">
-          <div style="padding:15px 22px;border-bottom:1px solid #F0EAE1;display:flex;align-items:center;gap:10px">
+        <div style="background:#13162A;border:1px solid #1E2240;border-radius:14px;overflow-x:auto">
+          <div style="padding:15px 22px;border-bottom:1px solid #191D35;display:flex;align-items:center;gap:10px">
             <h2 style="margin:0;font-size:16px;font-weight:600">{{ prog.tabTitulo }}</h2>
-            <span style="font-size:13px;color:#948B80">{{ prog.tabBajada }}</span>
-            <button style="margin-left:auto;background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:8px 13px;font-size:13.5px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2" onClick="{{ openAltaTab }}">{{ prog.tabAccion }}</button>
+            <span style="font-size:13px;color:#6670A0">{{ prog.tabBajada }}</span>
+            <button style="margin-left:auto;background:#13162A;color:#DDE1FF;border:1px solid #2D3260;border-radius:9px;padding:8px 13px;font-size:13.5px;font-weight:500;cursor:pointer" style-hover="background:#191D35" onClick="{{ openAltaTab }}">{{ prog.tabAccion }}</button>
           </div>
           <table style="width:100%;min-width:700px;border-collapse:collapse;font-size:14.5px">
             <thead>
               <tr style="text-align:left">
-                <th style="padding:10px 22px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#948B80;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ prog.colA }}</th>
-                <th style="padding:10px 16px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#948B80;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ prog.colB }}</th>
-                <th style="padding:10px 22px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#948B80;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ prog.colC }}</th>
+                <th style="padding:10px 22px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#6670A0;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ prog.colA }}</th>
+                <th style="padding:10px 16px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#6670A0;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ prog.colB }}</th>
+                <th style="padding:10px 22px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#6670A0;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ prog.colC }}</th>
               </tr>
             </thead>
             <tbody>
               <sc-for list="{{ prog.filas }}" as="r" hint-placeholder-count="3">
-                <tr style="border-top:1px solid #F5F0E9">
+                <tr style="border-top:1px solid #191D35">
                   <td style="padding:12px 22px;font-weight:500;font-family:'IBM Plex Mono',monospace">{{ r.a }}</td>
-                  <td style="padding:12px 16px;color:#3E3833">{{ r.b }}</td>
-                  <td style="padding:12px 22px;color:#6F675E;font-size:13.5px">{{ r.c }}</td>
+                  <td style="padding:12px 16px;color:#C8CCF0">{{ r.b }}</td>
+                  <td style="padding:12px 22px;color:#8890C0;font-size:13.5px">{{ r.c }}</td>
                 </tr>
               </sc-for>
             </tbody>
           </table>
           <sc-if value="{{ prog.vacio }}" hint-placeholder-val="{{ false }}">
             <div style="padding:52px 22px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">
-              <div style="width:42px;height:42px;border-radius:12px;background:#FAF7F2;border:1px dashed #D6CBBB"></div>
+              <div style="width:42px;height:42px;border-radius:12px;background:#191D35;border:1px dashed #2D3260"></div>
               <span style="font-size:15px;font-weight:600">{{ prog.vacioTitulo }}</span>
-              <span style="font-size:13.5px;color:#6F675E;max-width:40ch;line-height:1.5">{{ prog.vacioTexto }}</span>
+              <span style="font-size:13.5px;color:#8890C0;max-width:40ch;line-height:1.5">{{ prog.vacioTexto }}</span>
             </div>
           </sc-if>
         </div>
@@ -606,36 +606,36 @@
         <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
           <div style="display:flex;flex-direction:column;gap:5px">
             <h1 style="margin:0;font-size:30px;font-weight:600;letter-spacing:-.025em">Instituciones</h1>
-            <span style="font-size:14px;color:#6F675E">Soporte de la rama escolar: cada programa escolar pertenece a una institución.</span>
+            <span style="font-size:14px;color:#8890C0">Soporte de la rama escolar: cada programa escolar pertenece a una institución.</span>
           </div>
-          <button style="margin-left:auto;background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E" onClick="{{ openAltaInstitucion }}">Nueva institución</button>
+          <button style="margin-left:auto;background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#BB78F7" onClick="{{ openAltaInstitucion }}">Nueva institución</button>
         </div>
-        <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto">
+        <div style="background:#13162A;border:1px solid #1E2240;border-radius:14px;overflow-x:auto">
           <sc-for list="{{ instituciones }}" as="ins" hint-placeholder-count="2">
-            <div style="border-bottom:1px solid #F0EAE1">
-              <div onClick="{{ ins.toggle }}" style="padding:16px 22px;display:flex;align-items:center;gap:14px;cursor:pointer" style-hover="background:#FAF7F2">
-                <div style="width:34px;height:34px;border-radius:10px;background:#EDF3F7;color:#31546B;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600">{{ ins.iniciales }}</div>
+            <div style="border-bottom:1px solid #191D35">
+              <div onClick="{{ ins.toggle }}" style="padding:16px 22px;display:flex;align-items:center;gap:14px;cursor:pointer" style-hover="background:#191D35">
+                <div style="width:34px;height:34px;border-radius:10px;background:rgba(125,207,182,.11);color:#7DCFB6;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600">{{ ins.iniciales }}</div>
                 <div style="display:flex;flex-direction:column;gap:2px">
                   <span style="font-size:15px;font-weight:500">{{ ins.nombre }}</span>
-                  <span style="font-size:13px;color:#948B80">{{ ins.programas }}</span>
+                  <span style="font-size:13px;color:#6670A0">{{ ins.programas }}</span>
                 </div>
                 <div style="margin-left:auto;display:flex;align-items:center;gap:18px">
-                  <span style="font-size:13px;color:#6F675E">{{ ins.resumen }}</span>
+                  <span style="font-size:13px;color:#8890C0">{{ ins.resumen }}</span>
                   <span style="{{ ins.chevron }}">⌄</span>
                 </div>
               </div>
               <sc-if value="{{ ins.abierta }}" hint-placeholder-val="{{ false }}">
-                <div style="background:#FCFAF7;border-top:1px solid #F0EAE1;padding:18px 22px 20px;display:flex;flex-direction:column;gap:14px">
-                  <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#948B80">Programas de la institución</span>
+                <div style="background:#14172A;border-top:1px solid #191D35;padding:18px 22px 20px;display:flex;flex-direction:column;gap:14px">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#6670A0">Programas de la institución</span>
                   <sc-for list="{{ ins.detalle }}" as="d" hint-placeholder-count="2">
-                    <div onClick="{{ d.abrir }}" style="background:#fff;border:1px solid #E6DED2;border-radius:12px;padding:14px 18px;display:grid;grid-template-columns:minmax(0,1.5fr) repeat(3,minmax(0,1fr));gap:16px;align-items:center;cursor:pointer" style-hover="border-color:#C9BFDD;background:#FCFBFE">
+                    <div onClick="{{ d.abrir }}" style="background:#13162A;border:1px solid #1E2240;border-radius:12px;padding:14px 18px;display:grid;grid-template-columns:minmax(0,1.5fr) repeat(3,minmax(0,1fr));gap:16px;align-items:center;cursor:pointer" style-hover="border-color:#7A6FD0;background:#1A1830">
                       <div style="display:flex;flex-direction:column;gap:3px">
                         <span style="font-size:14.5px;font-weight:500">{{ d.nombre }}</span>
-                        <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#4A3A6E">{{ d.estrategia }}</span>
+                        <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#BB78F7">{{ d.estrategia }}</span>
                       </div>
-                      <span style="font-size:13.5px;color:#6F675E">{{ d.modulos }}</span>
-                      <span style="font-size:13.5px;color:#6F675E">{{ d.grupos }}</span>
-                      <span style="font-size:13.5px;color:#3E3833">{{ d.alumnos }}</span>
+                      <span style="font-size:13.5px;color:#8890C0">{{ d.modulos }}</span>
+                      <span style="font-size:13.5px;color:#8890C0">{{ d.grupos }}</span>
+                      <span style="font-size:13.5px;color:#C8CCF0">{{ d.alumnos }}</span>
                     </div>
                   </sc-for>
                 </div>
@@ -647,11 +647,11 @@
     </sc-if>
 
         <sc-if value="{{ vacioInstituciones }}" hint-placeholder-val="{{ false }}">
-          <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;padding:60px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
-            <div style="width:44px;height:44px;border-radius:12px;background:#FAF7F2;border:1px dashed #D6CBBB"></div>
+          <div style="background:#13162A;border:1px solid #1E2240;border-radius:14px;padding:60px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
+            <div style="width:44px;height:44px;border-radius:12px;background:#191D35;border:1px dashed #2D3260"></div>
             <span style="font-size:16px;font-weight:600">Todavía no hay instituciones</span>
-            <span style="font-size:14px;color:#6F675E;max-width:44ch;line-height:1.55">Cada programa escolar pertenece a una institución. Creá la primera y después colgale sus programas, módulos y grupos.</span>
-            <button onClick="{{ openAltaInstitucion }}" style="margin-top:8px;background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Nueva institución</button>
+            <span style="font-size:14px;color:#8890C0;max-width:44ch;line-height:1.55">Cada programa escolar pertenece a una institución. Creá la primera y después colgale sus programas, módulos y grupos.</span>
+            <button onClick="{{ openAltaInstitucion }}" style="margin-top:8px;background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#BB78F7">Nueva institución</button>
           </div>
         </sc-if>
 
@@ -661,28 +661,28 @@
         <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
           <div style="display:flex;flex-direction:column;gap:5px">
             <h1 style="margin:0;font-size:30px;font-weight:600;letter-spacing:-.025em">Contratos</h1>
-            <span style="font-size:14px;color:#6F675E">Individuales y de empresa. El pool de una empresa es compartido: cualquier empleado consume del mismo total.</span>
+            <span style="font-size:14px;color:#8890C0">Individuales y de empresa. El pool de una empresa es compartido: cualquier empleado consume del mismo total.</span>
           </div>
           <div style="margin-left:auto;display:flex;gap:10px">
-            <button onClick="{{ openContratoIndividual }}" style="background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2">Contrato individual</button>
-            <button onClick="{{ openContratoEmpresa }}" style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Contrato de empresa</button>
+            <button onClick="{{ openContratoIndividual }}" style="background:#13162A;color:#DDE1FF;border:1px solid #2D3260;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#191D35">Contrato individual</button>
+            <button onClick="{{ openContratoEmpresa }}" style="background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#BB78F7">Contrato de empresa</button>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:18px">
           <sc-for list="{{ contratosLista }}" as="ct" hint-placeholder-count="2">
-            <div onClick="{{ ct.abrir }}" style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto;cursor:pointer;transition:border-color .12s,box-shadow .12s" style-hover="border-color:#CDBFE5;box-shadow:0 4px 14px rgba(43,39,36,.07)">
-              <div style="padding:15px 20px;border-bottom:1px solid #F0EAE1;display:flex;align-items:center;gap:10px">
+            <div onClick="{{ ct.abrir }}" style="background:#13162A;border:1px solid #1E2240;border-radius:14px;overflow-x:auto;cursor:pointer;transition:border-color .12s,box-shadow .12s" style-hover="border-color:#7A6FD0;box-shadow:0 4px 14px rgba(0,0,0,.30)">
+              <div style="padding:15px 20px;border-bottom:1px solid #191D35;display:flex;align-items:center;gap:10px">
                 <span style="font-size:15px;font-weight:600">{{ ct.titulo }}</span>
-                <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#4A3A6E;background:#F0ECF7;padding:3px 8px;border-radius:6px">{{ ct.tipoFacturacion }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#BB78F7;background:#241F3F;padding:3px 8px;border-radius:6px">{{ ct.tipoFacturacion }}</span>
                 <span style="{{ ct.badge }}">{{ ct.estado }}</span>
               </div>
               <div style="padding:16px 20px;display:flex;flex-direction:column;gap:12px">
                 <div style="display:flex;align-items:baseline;gap:8px">
-                  <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#948B80">Pool de clases</span>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#6670A0">Pool de clases</span>
                   <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums">{{ ct.clasesTexto }}</span>
                 </div>
-                <div style="height:9px;border-radius:999px;background:#F0EAE1;overflow:hidden"><div style="{{ ct.barra }}"></div></div>
-                <span style="font-size:13px;color:#6F675E">{{ ct.cubre }}</span>
+                <div style="height:9px;border-radius:999px;background:#191D35;overflow:hidden"><div style="{{ ct.barra }}"></div></div>
+                <span style="font-size:13px;color:#8890C0">{{ ct.cubre }}</span>
               </div>
             </div>
           </sc-for>
@@ -691,11 +691,11 @@
     </sc-if>
 
         <sc-if value="{{ vacioContratos }}" hint-placeholder-val="{{ false }}">
-          <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;padding:60px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
-            <div style="width:44px;height:44px;border-radius:12px;background:#FAF7F2;border:1px dashed #D6CBBB"></div>
+          <div style="background:#13162A;border:1px solid #1E2240;border-radius:14px;padding:60px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
+            <div style="width:44px;height:44px;border-radius:12px;background:#191D35;border:1px dashed #2D3260"></div>
             <span style="font-size:16px;font-weight:600">Todavía no hay contratos</span>
-            <span style="font-size:14px;color:#6F675E;max-width:44ch;line-height:1.55">Sin contrato, una inscripción particular no puede registrar clases consumidas. Empezá por un contrato individual o armá el pool de una empresa.</span>
-            <button onClick="{{ openContratoIndividual }}" style="margin-top:8px;background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Contrato individual</button>
+            <span style="font-size:14px;color:#8890C0;max-width:44ch;line-height:1.55">Sin contrato, una inscripción particular no puede registrar clases consumidas. Empezá por un contrato individual o armá el pool de una empresa.</span>
+            <button onClick="{{ openContratoIndividual }}" style="margin-top:8px;background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#BB78F7">Contrato individual</button>
           </div>
         </sc-if>
 
@@ -705,47 +705,47 @@
         <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
           <div style="display:flex;flex-direction:column;gap:5px">
             <h1 style="margin:0;font-size:30px;font-weight:600;letter-spacing:-.025em">Empresas</h1>
-            <span style="font-size:14px;color:#6F675E">Pagadores corporativos: una empresa cubre a varios empleados bajo un único contrato.</span>
+            <span style="font-size:14px;color:#8890C0">Pagadores corporativos: una empresa cubre a varios empleados bajo un único contrato.</span>
           </div>
-          <button style="margin-left:auto;background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E" onClick="{{ openAltaEmpresa }}">Nueva empresa</button>
+          <button style="margin-left:auto;background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#BB78F7" onClick="{{ openAltaEmpresa }}">Nueva empresa</button>
         </div>
-        <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;overflow-x:auto">
+        <div style="background:#13162A;border:1px solid #1E2240;border-radius:14px;overflow-x:auto">
           <sc-for list="{{ empresas }}" as="em" hint-placeholder-count="2">
-            <div style="border-bottom:1px solid #F0EAE1">
-              <div onClick="{{ em.toggle }}" style="padding:18px 22px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr) 20px;gap:18px;align-items:center;cursor:pointer" style-hover="background:#FAF7F2">
+            <div style="border-bottom:1px solid #191D35">
+              <div onClick="{{ em.toggle }}" style="padding:18px 22px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr) 20px;gap:18px;align-items:center;cursor:pointer" style-hover="background:#191D35">
                 <div style="display:flex;align-items:center;gap:13px">
-                  <div style="width:34px;height:34px;border-radius:10px;background:#F7F0E3;color:#7E5A20;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600">{{ em.iniciales }}</div>
+                  <div style="width:34px;height:34px;border-radius:10px;background:rgba(240,136,62,.12);color:#F0883E;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600">{{ em.iniciales }}</div>
                   <span style="font-size:15px;font-weight:500">{{ em.nombre }}</span>
                 </div>
-                <span style="font-size:13.5px;color:#6F675E;font-family:'IBM Plex Mono',monospace">{{ em.contacto }}</span>
-                <span style="font-size:13.5px;color:#3E3833">{{ em.contratos }}</span>
-                <span style="font-size:13.5px;color:#6F675E">{{ em.empleados }}</span>
+                <span style="font-size:13.5px;color:#8890C0;font-family:'IBM Plex Mono',monospace">{{ em.contacto }}</span>
+                <span style="font-size:13.5px;color:#C8CCF0">{{ em.contratos }}</span>
+                <span style="font-size:13.5px;color:#8890C0">{{ em.empleados }}</span>
                 <span style="{{ em.chevron }}">⌄</span>
               </div>
               <sc-if value="{{ em.abierta }}" hint-placeholder-val="{{ false }}">
-                <div style="background:#FCFAF7;border-top:1px solid #F0EAE1;padding:18px 22px 20px;display:flex;flex-direction:column;gap:14px">
-                  <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#948B80">Contratos y empleados cubiertos</span>
+                <div style="background:#14172A;border-top:1px solid #191D35;padding:18px 22px 20px;display:flex;flex-direction:column;gap:14px">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#6670A0">Contratos y empleados cubiertos</span>
                   <sc-for list="{{ em.detalle }}" as="ct" hint-placeholder-count="1">
-                    <div style="background:#fff;border:1px solid #E6DED2;border-radius:12px;overflow:hidden">
-                      <div style="padding:13px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #F5F0E9">
+                    <div style="background:#13162A;border:1px solid #1E2240;border-radius:12px;overflow:hidden">
+                      <div style="padding:13px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #191D35">
                         <span style="font-size:14.5px;font-weight:600">{{ ct.titulo }}</span>
-                        <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#4A3A6E;background:#F0ECF7;padding:3px 8px;border-radius:6px">{{ ct.tipoFacturacion }}</span>
+                        <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#BB78F7;background:#241F3F;padding:3px 8px;border-radius:6px">{{ ct.tipoFacturacion }}</span>
                         <span style="{{ ct.badge }}">{{ ct.estado }}</span>
                       </div>
                       <div style="padding:14px 18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:22px;align-items:center">
                         <div style="display:flex;flex-direction:column;gap:7px">
                           <div style="display:flex;align-items:baseline;gap:8px">
-                            <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#948B80">Pool</span>
+                            <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#6670A0">Pool</span>
                             <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:14.5px;font-weight:600;font-variant-numeric:tabular-nums">{{ ct.clasesTexto }}</span>
                           </div>
-                          <div style="height:8px;border-radius:999px;background:#F0EAE1;overflow:hidden"><div style="{{ ct.barra }}"></div></div>
+                          <div style="height:8px;border-radius:999px;background:#191D35;overflow:hidden"><div style="{{ ct.barra }}"></div></div>
                         </div>
                         <div style="display:flex;flex-direction:column;gap:7px">
                           <sc-for list="{{ ct.empleados }}" as="p" hint-placeholder-count="2">
-                            <div onClick="{{ p.abrir }}" style="display:flex;align-items:center;gap:10px;cursor:pointer;width:fit-content" style-hover="color:#5D4A87">
-                              <span style="width:8px;height:8px;border-radius:3px;background:#A8762B"></span>
+                            <div onClick="{{ p.abrir }}" style="display:flex;align-items:center;gap:10px;cursor:pointer;width:fit-content" style-hover="color:#9D8FF7">
+                              <span style="width:8px;height:8px;border-radius:3px;background:#F0883E"></span>
                               <span style="font-size:14px;font-weight:500">{{ p.nombre }}</span>
-                              <span style="font-size:13px;color:#948B80">{{ p.programaNombre }}</span>
+                              <span style="font-size:13px;color:#6670A0">{{ p.programaNombre }}</span>
                               <span style="{{ p.badge }}">{{ p.estado }}</span>
                             </div>
                           </sc-for>
@@ -762,11 +762,11 @@
     </sc-if>
 
         <sc-if value="{{ vacioEmpresas }}" hint-placeholder-val="{{ false }}">
-          <div style="background:#fff;border:1px solid #E6DED2;border-radius:14px;padding:60px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
-            <div style="width:44px;height:44px;border-radius:12px;background:#FAF7F2;border:1px dashed #D6CBBB"></div>
+          <div style="background:#13162A;border:1px solid #1E2240;border-radius:14px;padding:60px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
+            <div style="width:44px;height:44px;border-radius:12px;background:#191D35;border:1px dashed #2D3260"></div>
             <span style="font-size:16px;font-weight:600">Todavía no hay empresas</span>
-            <span style="font-size:14px;color:#6F675E;max-width:44ch;line-height:1.55">Una empresa agrupa a varios empleados bajo un único pool de clases. Cargala primero y después creá su contrato desde Contratos.</span>
-            <button onClick="{{ openAltaEmpresa }}" style="margin-top:8px;background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Nueva empresa</button>
+            <span style="font-size:14px;color:#8890C0;max-width:44ch;line-height:1.55">Una empresa agrupa a varios empleados bajo un único pool de clases. Cargala primero y después creá su contrato desde Contratos.</span>
+            <button onClick="{{ openAltaEmpresa }}" style="margin-top:8px;background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#BB78F7">Nueva empresa</button>
           </div>
         </sc-if>
 
@@ -774,38 +774,38 @@
 
   <!-- ═══ MODAL DETALLE DE CONTRATO ═══ -->
   <sc-if value="{{ modalContrato }}" hint-placeholder-val="{{ false }}">
-    <div onClick="{{ cerrarModal }}" style="position:fixed;inset:0;background:rgba(43,39,36,.42);display:flex;align-items:center;justify-content:center;z-index:60;padding:24px;box-sizing:border-box">
-      <div onClick="{{ stop }}" style="width:580px;max-height:100%;overflow:auto;background:#fff;border-radius:16px;box-shadow:0 22px 54px rgba(43,39,36,.28)">
-        <div style="padding:22px 24px 18px;border-bottom:1px solid #F0EAE1;display:flex;flex-direction:column;gap:11px">
+    <div onClick="{{ cerrarModal }}" style="position:fixed;inset:0;background:rgba(0,0,0,.60);display:flex;align-items:center;justify-content:center;z-index:60;padding:24px;box-sizing:border-box">
+      <div onClick="{{ stop }}" style="width:580px;max-height:100%;overflow:auto;background:#13162A;border-radius:16px;box-shadow:0 22px 54px rgba(0,0,0,.55)">
+        <div style="padding:22px 24px 18px;border-bottom:1px solid #191D35;display:flex;flex-direction:column;gap:11px">
           <div style="display:flex;align-items:center;gap:10px">
-            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#948B80">{{ ctd.idMono }}</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6670A0">{{ ctd.idMono }}</span>
             <span style="{{ ctd.badge }}">{{ ctd.estado }}</span>
-            <span onClick="{{ cerrarModal }}" style="margin-left:auto;font-size:17px;color:#948B80;cursor:pointer;line-height:1" style-hover="color:#2B2724">×</span>
+            <span onClick="{{ cerrarModal }}" style="margin-left:auto;font-size:17px;color:#6670A0;cursor:pointer;line-height:1" style-hover="color:#DDE1FF">×</span>
           </div>
           <div style="display:flex;align-items:center;gap:10px">
             <h3 style="margin:0;font-size:20px;font-weight:600;letter-spacing:-.015em">{{ ctd.titulo }}</h3>
-            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#4A3A6E;background:#F0ECF7;padding:3px 8px;border-radius:6px">{{ ctd.tipoFacturacion }}</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#BB78F7;background:#241F3F;padding:3px 8px;border-radius:6px">{{ ctd.tipoFacturacion }}</span>
           </div>
-          <span style="font-size:13.5px;color:#6F675E;line-height:1.5">{{ ctd.subtitulo }}</span>
+          <span style="font-size:13.5px;color:#8890C0;line-height:1.5">{{ ctd.subtitulo }}</span>
         </div>
 
-        <div style="padding:20px 24px;display:flex;flex-direction:column;gap:14px;border-bottom:1px solid #F0EAE1">
+        <div style="padding:20px 24px;display:flex;flex-direction:column;gap:14px;border-bottom:1px solid #191D35">
           <div style="display:flex;align-items:baseline;gap:8px">
-            <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#948B80">Pool de clases</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#6670A0">Pool de clases</span>
             <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600;font-variant-numeric:tabular-nums">{{ ctd.clasesTexto }}</span>
           </div>
-          <div style="height:9px;border-radius:999px;background:#F0EAE1;overflow:hidden"><div style="{{ ctd.barra }}"></div></div>
-          <span style="font-size:13px;color:#6F675E;line-height:1.5">{{ ctd.restanteTexto }}</span>
+          <div style="height:9px;border-radius:999px;background:#191D35;overflow:hidden"><div style="{{ ctd.barra }}"></div></div>
+          <span style="font-size:13px;color:#8890C0;line-height:1.5">{{ ctd.restanteTexto }}</span>
         </div>
 
-        <div style="padding:20px 24px;display:flex;flex-direction:column;gap:12px;border-bottom:1px solid #F0EAE1">
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#948B80">{{ ctd.labelCubre }}</span>
+        <div style="padding:20px 24px;display:flex;flex-direction:column;gap:12px;border-bottom:1px solid #191D35">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#6670A0">{{ ctd.labelCubre }}</span>
           <div style="display:flex;flex-direction:column;gap:2px">
             <sc-for list="{{ ctd.empleados }}" as="ce" hint-placeholder-count="2">
-              <div onClick="{{ ce.abrir }}" style="display:flex;align-items:center;gap:11px;padding:10px 12px;margin:0 -12px;border-radius:9px;cursor:pointer" style-hover="background:#FAF7F2">
-                <span style="width:8px;height:8px;border-radius:3px;background:#C79240;flex:none"></span>
+              <div onClick="{{ ce.abrir }}" style="display:flex;align-items:center;gap:11px;padding:10px 12px;margin:0 -12px;border-radius:9px;cursor:pointer" style-hover="background:#191D35">
+                <span style="width:8px;height:8px;border-radius:3px;background:#F0883E;flex:none"></span>
                 <span style="font-size:14.5px;font-weight:500">{{ ce.nombre }}</span>
-                <span style="font-size:13px;color:#6F675E">{{ ce.programaNombre }}</span>
+                <span style="font-size:13px;color:#8890C0">{{ ce.programaNombre }}</span>
                 <span style="{{ ce.badge }}">{{ ce.estado }}</span>
               </div>
             </sc-for>
@@ -823,17 +823,17 @@
 
   <!-- ═══ MODAL 422 ═══ -->
   <sc-if value="{{ modal422 }}" hint-placeholder-val="{{ false }}">
-    <div onClick="{{ cerrarModal }}" style="position:fixed;inset:0;background:rgba(43,39,36,.42);display:flex;align-items:center;justify-content:center;z-index:60">
-      <div style="width:460px;background:#fff;border-radius:16px;box-shadow:0 22px 54px rgba(43,39,36,.28);overflow:hidden">
+    <div onClick="{{ cerrarModal }}" style="position:fixed;inset:0;background:rgba(0,0,0,.60);display:flex;align-items:center;justify-content:center;z-index:60">
+      <div style="width:460px;background:#13162A;border-radius:16px;box-shadow:0 22px 54px rgba(0,0,0,.55);overflow:hidden">
         <div style="padding:22px 24px 0;display:flex;flex-direction:column;gap:8px">
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8F6414">422 · Regla de negocio</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#E8A24A">422 · Regla de negocio</span>
           <h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-.01em">No se puede finalizar la inscripción</h3>
-          <p style="margin:0;font-size:14.5px;line-height:1.55;color:#6F675E">{{ modal422texto }}</p>
-          <div style="background:#FAF7F2;border:1px solid #EDE5D9;border-radius:10px;padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#6F675E">{{ modal422message }}</div>
+          <p style="margin:0;font-size:14.5px;line-height:1.55;color:#8890C0">{{ modal422texto }}</p>
+          <div style="background:#191D35;border:1px solid #1E2240;border-radius:10px;padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8890C0">{{ modal422message }}</div>
         </div>
         <div style="padding:18px 24px 22px;display:flex;gap:10px;justify-content:flex-end">
-          <button onClick="{{ cerrarModal }}" style="background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2">Cerrar</button>
-          <button onClick="{{ cerrarModal }}" style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Ver evaluaciones</button>
+          <button onClick="{{ cerrarModal }}" style="background:#13162A;color:#DDE1FF;border:1px solid #2D3260;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#191D35">Cerrar</button>
+          <button onClick="{{ cerrarModal }}" style="background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#BB78F7">Ver evaluaciones</button>
         </div>
       </div>
     </div>
@@ -841,18 +841,18 @@
 
   <!-- ═══ MODAL NUEVA PERSONA ═══ -->
   <sc-if value="{{ modalPersona }}" hint-placeholder-val="{{ false }}">
-    <div onClick="{{ cerrarModal }}" style="position:fixed;inset:0;background:rgba(43,39,36,.42);display:flex;align-items:center;justify-content:center;z-index:60">
-      <div onClick="{{ stop }}" style="width:520px;background:#fff;border-radius:16px;box-shadow:0 22px 54px rgba(43,39,36,.28);overflow:hidden">
+    <div onClick="{{ cerrarModal }}" style="position:fixed;inset:0;background:rgba(0,0,0,.60);display:flex;align-items:center;justify-content:center;z-index:60">
+      <div onClick="{{ stop }}" style="width:520px;background:#13162A;border-radius:16px;box-shadow:0 22px 54px rgba(0,0,0,.55);overflow:hidden">
         <div style="padding:22px 24px 4px"><h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-.01em">Nueva persona</h3></div>
         <div style="padding:16px 24px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
-          <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#3E3833">Nombre *</span><input value="{{ formNombre }}" onInput="{{ onFormNombre }}" placeholder="Nombre y apellido" style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"></label>
-          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">Documento</span><input placeholder="00.000.000" style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"></label>
-          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">Teléfono</span><input placeholder="351 000 0000" style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"></label>
-          <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#3E3833">Email</span><input placeholder="nombre@correo.com" style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"><span style="font-size:12px;color:#948B80">Opcional. Si viene, la API valida el formato (400 inline).</span></label>
+          <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#C8CCF0">Nombre *</span><input value="{{ formNombre }}" onInput="{{ onFormNombre }}" placeholder="Nombre y apellido" style="font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;outline:none" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F"></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#C8CCF0">Documento</span><input placeholder="00.000.000" style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;outline:none" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F"></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#C8CCF0">Teléfono</span><input placeholder="351 000 0000" style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;outline:none" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#C8CCF0">Email</span><input placeholder="nombre@correo.com" style="font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;outline:none" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F"><span style="font-size:12px;color:#6670A0">Opcional. Si viene, la API valida el formato (400 inline).</span></label>
         </div>
         <div style="padding:6px 24px 22px;display:flex;gap:10px;justify-content:flex-end">
-          <button onClick="{{ cerrarModal }}" style="background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2">Cancelar</button>
-          <button onClick="{{ guardarPersona }}" style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Crear persona</button>
+          <button onClick="{{ cerrarModal }}" style="background:#13162A;color:#DDE1FF;border:1px solid #2D3260;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#191D35">Cancelar</button>
+          <button onClick="{{ guardarPersona }}" style="background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#BB78F7">Crear persona</button>
         </div>
       </div>
     </div>
@@ -860,30 +860,30 @@
 
   <!-- ═══ MODAL NUEVA INSCRIPCIÓN ═══ -->
   <sc-if value="{{ modalInscripcion }}" hint-placeholder-val="{{ false }}">
-    <div onClick="{{ cerrarModal }}" style="position:fixed;inset:0;background:rgba(43,39,36,.42);display:flex;align-items:center;justify-content:center;z-index:60">
-      <div onClick="{{ stop }}" style="width:560px;background:#fff;border-radius:16px;box-shadow:0 22px 54px rgba(43,39,36,.28);overflow:hidden">
-        <div style="padding:22px 24px 4px"><h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-.01em">Nueva inscripción</h3><p style="margin:6px 0 0;font-size:13.5px;color:#6F675E">Los campos de Plan y Grupo aparecen solo si el programa elegido los define.</p></div>
+    <div onClick="{{ cerrarModal }}" style="position:fixed;inset:0;background:rgba(0,0,0,.60);display:flex;align-items:center;justify-content:center;z-index:60">
+      <div onClick="{{ stop }}" style="width:560px;background:#13162A;border-radius:16px;box-shadow:0 22px 54px rgba(0,0,0,.55);overflow:hidden">
+        <div style="padding:22px 24px 4px"><h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-.01em">Nueva inscripción</h3><p style="margin:6px 0 0;font-size:13.5px;color:#8890C0">Los campos de Plan y Grupo aparecen solo si el programa elegido los define.</p></div>
         <div style="padding:16px 24px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
-          <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#3E3833">Persona *</span><select style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;background:#fff;outline:none"><option>Lucía Ferreyra</option><option>Marcos Ibarra</option><option>Rocío Paz</option></select></label>
-          <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#3E3833">Programa *</span><select value="{{ formPrograma }}" onChange="{{ onFormPrograma }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"><option value="sede">CENMA Bº SMATA — Sede · ESCOLAR · CENMA_SEDE</option><option value="base">CENMA Bº SMATA — Base · ESCOLAR · CENMA_BASE</option><option value="ingles">Inglés IT — Empresa · PARTICULAR</option><option value="consultoria">Consultoría IA educativa · PARTICULAR</option></select><span style="font-size:12px;color:#948B80;line-height:1.45">{{ formEstrategiaHint }}</span></label>
+          <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#C8CCF0">Persona *</span><select style="font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;background:#13162A;outline:none"><option>Lucía Ferreyra</option><option>Marcos Ibarra</option><option>Rocío Paz</option></select></label>
+          <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#C8CCF0">Programa *</span><select value="{{ formPrograma }}" onChange="{{ onFormPrograma }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;outline:none;background:#13162A" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F"><option value="sede">CENMA Bº SMATA — Sede · ESCOLAR · CENMA_SEDE</option><option value="base">CENMA Bº SMATA — Base · ESCOLAR · CENMA_BASE</option><option value="ingles">Inglés IT — Empresa · PARTICULAR</option><option value="consultoria">Consultoría IA educativa · PARTICULAR</option></select><span style="font-size:12px;color:#6670A0;line-height:1.45">{{ formEstrategiaHint }}</span></label>
           <sc-if value="{{ formSede }}" hint-placeholder-val="{{ true }}">
-            <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">Plan *</span><select style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"><option>A — desde el módulo 1</option><option>B — desde el módulo 4</option><option>C — desde el módulo 6</option></select><span style="font-size:12px;color:#948B80;line-height:1.45">Exime los módulos anteriores al de inicio.</span></label>
+            <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#C8CCF0">Plan *</span><select style="font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;outline:none;background:#13162A" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F"><option>A — desde el módulo 1</option><option>B — desde el módulo 4</option><option>C — desde el módulo 6</option></select><span style="font-size:12px;color:#6670A0;line-height:1.45">Exime los módulos anteriores al de inicio.</span></label>
           </sc-if>
           <sc-if value="{{ formEscolar }}" hint-placeholder-val="{{ true }}">
-            <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">Grupo</span><select style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"><sc-for list="{{ formGrupos }}" as="g" hint-placeholder-count="2"><option>{{ g.v }}</option></sc-for></select><span style="font-size:12px;color:#948B80;line-height:1.45">{{ formGrupoHint }}</span></label>
+            <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#C8CCF0">Grupo</span><select style="font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;outline:none;background:#13162A" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F"><sc-for list="{{ formGrupos }}" as="g" hint-placeholder-count="2"><option>{{ g.v }}</option></sc-for></select><span style="font-size:12px;color:#6670A0;line-height:1.45">{{ formGrupoHint }}</span></label>
           </sc-if>
           <sc-if value="{{ formBase }}" hint-placeholder-val="{{ false }}">
-            <div style="grid-column:span 2;display:flex;gap:10px;align-items:flex-start;background:#FAF7F2;border:1px solid #EDE5D9;border-radius:10px;padding:11px 13px">
-              <span style="width:18px;height:18px;border-radius:999px;flex:none;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:#F0EAE1;color:#6F675E;margin-top:1px">i</span>
-              <span style="font-size:13px;line-height:1.5;color:#6F675E">Base no usa planes: se cursan los 2 módulos del ciclo lectivo completos. El campo <strong style="font-weight:600">planId</strong> se manda vacío.</span>
+            <div style="grid-column:span 2;display:flex;gap:10px;align-items:flex-start;background:#191D35;border:1px solid #1E2240;border-radius:10px;padding:11px 13px">
+              <span style="width:18px;height:18px;border-radius:999px;flex:none;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:#191D35;color:#8890C0;margin-top:1px">i</span>
+              <span style="font-size:13px;line-height:1.5;color:#8890C0">Base no usa planes: se cursan los 2 módulos del ciclo lectivo completos. El campo <strong style="font-weight:600">planId</strong> se manda vacío.</span>
             </div>
           </sc-if>
-          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">Fecha de inicio *</span><input value="2026-09-02" style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#C8CCF0">Fecha de inicio *</span><input value="2026-09-02" style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;outline:none" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F"></label>
         </div>
-        <div style="margin:0 24px 18px;background:#F4F1FA;border:1px solid #E3DCEF;border-radius:10px;padding:11px 13px;font-size:13px;line-height:1.5;color:#4A3A6E">{{ formAviso }}</div>
+        <div style="margin:0 24px 18px;background:#1A1830;border:1px solid #241F3F;border-radius:10px;padding:11px 13px;font-size:13px;line-height:1.5;color:#BB78F7">{{ formAviso }}</div>
         <div style="padding:0 24px 22px;display:flex;gap:10px;justify-content:flex-end">
-          <button onClick="{{ cerrarModal }}" style="background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2">Cancelar</button>
-          <button onClick="{{ guardarInscripcion }}" style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Crear inscripción</button>
+          <button onClick="{{ cerrarModal }}" style="background:#13162A;color:#DDE1FF;border:1px solid #2D3260;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#191D35">Cancelar</button>
+          <button onClick="{{ guardarInscripcion }}" style="background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#BB78F7">Crear inscripción</button>
         </div>
       </div>
     </div>
@@ -891,36 +891,36 @@
 
   <!-- ═══ MODAL CONTRATO INDIVIDUAL ═══ -->
   <sc-if value="{{ modalIndividual }}" hint-placeholder-val="{{ false }}">
-    <div onClick="{{ cerrarModal }}" style="position:fixed;inset:0;background:rgba(43,39,36,.42);display:flex;align-items:center;justify-content:center;z-index:60">
-      <div onClick="{{ stop }}" style="width:560px;background:#fff;border-radius:16px;box-shadow:0 22px 54px rgba(43,39,36,.28);overflow:hidden">
+    <div onClick="{{ cerrarModal }}" style="position:fixed;inset:0;background:rgba(0,0,0,.60);display:flex;align-items:center;justify-content:center;z-index:60">
+      <div onClick="{{ stop }}" style="width:560px;background:#13162A;border-radius:16px;box-shadow:0 22px 54px rgba(0,0,0,.55);overflow:hidden">
         <div style="padding:22px 24px 4px">
           <h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-.01em">Nuevo contrato individual</h3>
-          <p style="margin:6px 0 0;font-size:13.5px;color:#6F675E">Una inscripción, un contrato. Si la inscripción ya tiene uno, la API responde 409.</p>
+          <p style="margin:6px 0 0;font-size:13.5px;color:#8890C0">Una inscripción, un contrato. Si la inscripción ya tiene uno, la API responde 409.</p>
         </div>
         <div style="padding:16px 24px 6px;display:flex;flex-direction:column;gap:8px">
-          <span style="font-size:13px;font-weight:600;color:#3E3833">Inscripción *</span>
-          <div style="border:1px solid #E6DED2;border-radius:10px;overflow:hidden;max-height:170px;overflow-y:auto">
+          <span style="font-size:13px;font-weight:600;color:#C8CCF0">Inscripción *</span>
+          <div style="border:1px solid #1E2240;border-radius:10px;overflow:hidden;max-height:170px;overflow-y:auto">
             <sc-for list="{{ elegiblesIndividual }}" as="e" hint-placeholder-count="2">
               <div onClick="{{ e.elegir }}" style="{{ e.fila }}">
                 <span style="{{ e.radio }}"></span>
                 <span style="font-size:14px;font-weight:500">{{ e.personaNombre }}</span>
-                <span style="font-size:13px;color:#948B80">{{ e.programaNombre }}</span>
-                <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#948B80">{{ e.fechaInicio }}</span>
+                <span style="font-size:13px;color:#6670A0">{{ e.programaNombre }}</span>
+                <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#6670A0">{{ e.fechaInicio }}</span>
               </div>
             </sc-for>
           </div>
           <sc-if value="{{ sinElegibles }}" hint-placeholder-val="{{ false }}">
-            <div style="padding:26px 14px;text-align:center;font-size:13.5px;color:#6F675E;line-height:1.5">Todas las inscripciones particulares ya tienen contrato. Creá primero la inscripción del cliente.</div>
+            <div style="padding:26px 14px;text-align:center;font-size:13.5px;color:#8890C0;line-height:1.5">Todas las inscripciones particulares ya tienen contrato. Creá primero la inscripción del cliente.</div>
           </sc-if>
         </div>
         <div style="padding:14px 24px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
-          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">Facturación *</span><select onChange="{{ onTipoFact }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;background:#fff;outline:none"><option value="PAQUETE">PAQUETE</option><option value="MENSUAL">MENSUAL</option><option value="POR_CLASE">POR_CLASE</option></select></label>
-          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">Clases contratadas</span><input value="{{ contratoClases }}" onInput="{{ onClases }}" style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#C8CCF0">Facturación *</span><select onChange="{{ onTipoFact }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;background:#13162A;outline:none"><option value="PAQUETE">PAQUETE</option><option value="MENSUAL">MENSUAL</option><option value="POR_CLASE">POR_CLASE</option></select></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#C8CCF0">Clases contratadas</span><input value="{{ contratoClases }}" onInput="{{ onClases }}" style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;outline:none" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F"></label>
         </div>
-        <div style="margin:0 24px 18px;background:#F4F1FA;border:1px solid #E3DCEF;border-radius:10px;padding:11px 13px;font-size:13px;line-height:1.5;color:#4A3A6E">{{ avisoFacturacion }}</div>
+        <div style="margin:0 24px 18px;background:#1A1830;border:1px solid #241F3F;border-radius:10px;padding:11px 13px;font-size:13px;line-height:1.5;color:#BB78F7">{{ avisoFacturacion }}</div>
         <div style="padding:0 24px 22px;display:flex;gap:10px;justify-content:flex-end">
-          <button onClick="{{ cerrarModal }}" style="background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2">Cancelar</button>
-          <button onClick="{{ guardarContratoIndividual }}" style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Crear contrato</button>
+          <button onClick="{{ cerrarModal }}" style="background:#13162A;color:#DDE1FF;border:1px solid #2D3260;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#191D35">Cancelar</button>
+          <button onClick="{{ guardarContratoIndividual }}" style="background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#BB78F7">Crear contrato</button>
         </div>
       </div>
     </div>
@@ -928,35 +928,35 @@
 
   <!-- ═══ MODAL CONTRATO DE EMPRESA ═══ -->
   <sc-if value="{{ modalEmpresa }}" hint-placeholder-val="{{ false }}">
-    <div onClick="{{ cerrarModal }}" style="position:fixed;inset:0;background:rgba(43,39,36,.42);display:flex;align-items:center;justify-content:center;z-index:60">
-      <div onClick="{{ stop }}" style="width:600px;background:#fff;border-radius:16px;box-shadow:0 22px 54px rgba(43,39,36,.28);overflow:hidden">
+    <div onClick="{{ cerrarModal }}" style="position:fixed;inset:0;background:rgba(0,0,0,.60);display:flex;align-items:center;justify-content:center;z-index:60">
+      <div onClick="{{ stop }}" style="width:600px;background:#13162A;border-radius:16px;box-shadow:0 22px 54px rgba(0,0,0,.55);overflow:hidden">
         <div style="padding:22px 24px 4px">
           <h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-.01em">Nuevo contrato de empresa</h3>
-          <p style="margin:6px 0 0;font-size:13.5px;color:#6F675E">Un solo pool de clases compartido entre todas las inscripciones seleccionadas.</p>
+          <p style="margin:6px 0 0;font-size:13.5px;color:#8890C0">Un solo pool de clases compartido entre todas las inscripciones seleccionadas.</p>
         </div>
         <div style="padding:16px 24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
-          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">Empresa *</span><select style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;background:#fff;outline:none"><option>Alcor S.A.</option></select></label>
-          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">Facturación *</span><select style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;background:#fff;outline:none"><option>PAQUETE</option><option>MENSUAL</option><option>POR_CLASE</option></select></label>
-          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">Clases del pool *</span><input value="20" style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#C8CCF0">Empresa *</span><select style="font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;background:#13162A;outline:none"><option>Alcor S.A.</option></select></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#C8CCF0">Facturación *</span><select style="font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;background:#13162A;outline:none"><option>PAQUETE</option><option>MENSUAL</option><option>POR_CLASE</option></select></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#C8CCF0">Clases del pool *</span><input value="20" style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;outline:none" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F"></label>
         </div>
         <div style="padding:0 24px 6px;display:flex;flex-direction:column;gap:8px">
-          <span style="font-size:13px;font-weight:600;color:#3E3833">Inscripciones cubiertas *</span>
-          <div style="border:1px solid #E6DED2;border-radius:10px;overflow:hidden;max-height:190px;overflow-y:auto">
+          <span style="font-size:13px;font-weight:600;color:#C8CCF0">Inscripciones cubiertas *</span>
+          <div style="border:1px solid #1E2240;border-radius:10px;overflow:hidden;max-height:190px;overflow-y:auto">
             <sc-for list="{{ inscripcionesElegibles }}" as="e" hint-placeholder-count="3">
-              <div onClick="{{ e.toggle }}" style="padding:11px 14px;border-bottom:1px solid #F5F0E9;display:flex;align-items:center;gap:11px;cursor:pointer" style-hover="background:#FAF7F2">
+              <div onClick="{{ e.toggle }}" style="padding:11px 14px;border-bottom:1px solid #191D35;display:flex;align-items:center;gap:11px;cursor:pointer" style-hover="background:#191D35">
                 <span style="{{ e.check }}">{{ e.tick }}</span>
                 <span style="font-size:14px;font-weight:500">{{ e.personaNombre }}</span>
-                <span style="font-size:13px;color:#948B80">{{ e.programaNombre }}</span>
-                <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#948B80">{{ e.fechaInicio }}</span>
+                <span style="font-size:13px;color:#6670A0">{{ e.programaNombre }}</span>
+                <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#6670A0">{{ e.fechaInicio }}</span>
               </div>
             </sc-for>
           </div>
-          <span style="font-size:12.5px;color:#948B80">{{ elegiblesNota }}</span>
+          <span style="font-size:12.5px;color:#6670A0">{{ elegiblesNota }}</span>
         </div>
         <div style="padding:18px 24px 22px;display:flex;gap:10px;justify-content:flex-end;align-items:center">
-          <span style="margin-right:auto;font-size:13px;color:#6F675E">{{ seleccionResumen }}</span>
-          <button onClick="{{ cerrarModal }}" style="background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2">Cancelar</button>
-          <button onClick="{{ guardarContratoEmpresa }}" style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Crear contrato</button>
+          <span style="margin-right:auto;font-size:13px;color:#8890C0">{{ seleccionResumen }}</span>
+          <button onClick="{{ cerrarModal }}" style="background:#13162A;color:#DDE1FF;border:1px solid #2D3260;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#191D35">Cancelar</button>
+          <button onClick="{{ guardarContratoEmpresa }}" style="background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#BB78F7">Crear contrato</button>
         </div>
       </div>
     </div>
@@ -965,60 +965,60 @@
 
   <!-- ═══ MODAL CARGAR NOTA ═══ -->
   <sc-if value="{{ modalNota }}" hint-placeholder-val="{{ false }}">
-    <div onClick="{{ cerrarModal }}" style="position:fixed;inset:0;background:rgba(43,39,36,.42);display:flex;align-items:center;justify-content:center;z-index:60;padding:24px;box-sizing:border-box">
-      <div onClick="{{ stop }}" style="width:520px;background:#fff;border-radius:16px;box-shadow:0 22px 54px rgba(43,39,36,.28);overflow:hidden;max-height:100%;overflow-y:auto">
+    <div onClick="{{ cerrarModal }}" style="position:fixed;inset:0;background:rgba(0,0,0,.60);display:flex;align-items:center;justify-content:center;z-index:60;padding:24px;box-sizing:border-box">
+      <div onClick="{{ stop }}" style="width:520px;background:#13162A;border-radius:16px;box-shadow:0 22px 54px rgba(0,0,0,.55);overflow:hidden;max-height:100%;overflow-y:auto">
         <div style="padding:22px 24px 4px">
           <h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-.01em">Cargar nota</h3>
-          <p style="margin:6px 0 0;font-size:13.5px;color:#6F675E;line-height:1.5">{{ notaBajada }}</p>
+          <p style="margin:6px 0 0;font-size:13.5px;color:#8890C0;line-height:1.5">{{ notaBajada }}</p>
         </div>
         <div style="padding:16px 24px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
-          <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#3E3833">Módulo *</span>
-            <select value="{{ notaModulo }}" onChange="{{ onNotaModulo }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1">
+          <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#C8CCF0">Módulo *</span>
+            <select value="{{ notaModulo }}" onChange="{{ onNotaModulo }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;outline:none;background:#13162A" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F">
               <sc-for list="{{ notaModulos }}" as="nm" hint-placeholder-count="2"><option value="{{ nm.v }}">{{ nm.v }}</option></sc-for>
             </select>
           </label>
           <sc-if value="{{ notaEsSede }}" hint-placeholder-val="{{ true }}">
-            <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#3E3833">Tipo *</span>
-              <select value="{{ notaTipo }}" onChange="{{ onNotaTipo }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1">
+            <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#C8CCF0">Tipo *</span>
+              <select value="{{ notaTipo }}" onChange="{{ onNotaTipo }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;outline:none;background:#13162A" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F">
                 <option value="TP_INTEGRADOR">TP_INTEGRADOR — gate, aprobado / no aprobado</option>
                 <option value="EVALUACION_FINAL">EVALUACION_FINAL — es la nota del módulo</option>
               </select>
-              <span style="font-size:12px;color:#948B80;line-height:1.45">Sede: el TP habilita la final, y la final no se promedia con el TP.</span>
+              <span style="font-size:12px;color:#6670A0;line-height:1.45">Sede: el TP habilita la final, y la final no se promedia con el TP.</span>
             </label>
           </sc-if>
           <sc-if value="{{ notaEsBase }}" hint-placeholder-val="{{ false }}">
-            <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#3E3833">Tipo *</span>
-              <select value="{{ notaTipo }}" onChange="{{ onNotaTipo }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1">
+            <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#C8CCF0">Tipo *</span>
+              <select value="{{ notaTipo }}" onChange="{{ onNotaTipo }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;outline:none;background:#13162A" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F">
                 <option value="NOTA">NOTA — promedia (mínimo 3 por módulo)</option>
                 <option value="INTEGRADOR">INTEGRADOR — interdisciplinario, no promedia</option>
               </select>
-              <span style="font-size:12px;color:#948B80;line-height:1.45">{{ notaConteoBase }}</span>
+              <span style="font-size:12px;color:#6670A0;line-height:1.45">{{ notaConteoBase }}</span>
             </label>
           </sc-if>
-          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">Fecha *</span><input value="{{ notaFecha }}" onInput="{{ onNotaFecha }}" style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"></label>
-          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">{{ notaLabelValor }}</span>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#C8CCF0">Fecha *</span><input value="{{ notaFecha }}" onInput="{{ onNotaFecha }}" style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;outline:none;background:#13162A" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F"></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#C8CCF0">{{ notaLabelValor }}</span>
             <sc-if value="{{ notaEsGate }}" hint-placeholder-val="{{ false }}">
-              <select value="{{ notaValor }}" onChange="{{ onNotaValor }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"><option value="Aprobado">Aprobado</option><option value="No aprobado">No aprobado</option></select>
+              <select value="{{ notaValor }}" onChange="{{ onNotaValor }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;outline:none;background:#13162A" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F"><option value="Aprobado">Aprobado</option><option value="No aprobado">No aprobado</option></select>
             </sc-if>
             <sc-if value="{{ notaEsNumero }}" hint-placeholder-val="{{ true }}">
-              <input value="{{ notaValor }}" onInput="{{ onNotaValor }}" placeholder="0.00 – 10.00" style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1">
+              <input value="{{ notaValor }}" onInput="{{ onNotaValor }}" placeholder="0.00 – 10.00" style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;outline:none;background:#13162A" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F">
             </sc-if>
           </label>
         </div>
         <sc-if value="{{ notaRecuperable }}" hint-placeholder-val="{{ false }}">
           <div style="padding:0 24px 16px">
-            <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">Recupera a</span>
-              <select value="{{ notaRecupera }}" onChange="{{ onNotaRecupera }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1">
+            <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#C8CCF0">Recupera a</span>
+              <select value="{{ notaRecupera }}" onChange="{{ onNotaRecupera }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;outline:none;background:#13162A" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F">
                 <sc-for list="{{ notaRecuperables }}" as="rc" hint-placeholder-count="2"><option value="{{ rc.v }}">{{ rc.label }}</option></sc-for>
               </select>
-              <span style="font-size:12px;color:#948B80;line-height:1.45">La nota recuperada deja de promediar, pero queda visible en la tabla vía <strong style="font-weight:600">recuperaAId</strong>.</span>
+              <span style="font-size:12px;color:#6670A0;line-height:1.45">La nota recuperada deja de promediar, pero queda visible en la tabla vía <strong style="font-weight:600">recuperaAId</strong>.</span>
             </label>
           </div>
         </sc-if>
-        <div style="margin:0 24px 18px;background:#F4F1FA;border:1px solid #E3DCEF;border-radius:10px;padding:11px 13px;font-size:13px;line-height:1.5;color:#4A3A6E">{{ notaAviso }}</div>
+        <div style="margin:0 24px 18px;background:#1A1830;border:1px solid #241F3F;border-radius:10px;padding:11px 13px;font-size:13px;line-height:1.5;color:#BB78F7">{{ notaAviso }}</div>
         <div style="padding:0 24px 22px;display:flex;gap:10px;justify-content:flex-end">
-          <button onClick="{{ cerrarModal }}" style="background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2">Cancelar</button>
-          <button onClick="{{ guardarNota }}" style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Cargar nota</button>
+          <button onClick="{{ cerrarModal }}" style="background:#13162A;color:#DDE1FF;border:1px solid #2D3260;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#191D35">Cancelar</button>
+          <button onClick="{{ guardarNota }}" style="background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#BB78F7">Cargar nota</button>
         </div>
       </div>
     </div>
@@ -1026,21 +1026,21 @@
 
   <!-- ═══ MODAL EDITAR PERSONA ═══ -->
   <sc-if value="{{ modalEditarPersona }}" hint-placeholder-val="{{ false }}">
-    <div onClick="{{ cerrarModal }}" style="position:fixed;inset:0;background:rgba(43,39,36,.42);display:flex;align-items:center;justify-content:center;z-index:60;padding:24px;box-sizing:border-box">
-      <div onClick="{{ stop }}" style="width:520px;background:#fff;border-radius:16px;box-shadow:0 22px 54px rgba(43,39,36,.28);overflow:hidden;max-height:100%;overflow-y:auto">
+    <div onClick="{{ cerrarModal }}" style="position:fixed;inset:0;background:rgba(0,0,0,.60);display:flex;align-items:center;justify-content:center;z-index:60;padding:24px;box-sizing:border-box">
+      <div onClick="{{ stop }}" style="width:520px;background:#13162A;border-radius:16px;box-shadow:0 22px 54px rgba(0,0,0,.55);overflow:hidden;max-height:100%;overflow-y:auto">
         <div style="padding:22px 24px 4px">
           <h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-.01em">Editar datos</h3>
-          <p style="margin:6px 0 0;font-size:13.5px;color:#6F675E;line-height:1.5">Reemplaza el registro completo de la persona. No toca sus inscripciones ni su historial.</p>
+          <p style="margin:6px 0 0;font-size:13.5px;color:#8890C0;line-height:1.5">Reemplaza el registro completo de la persona. No toca sus inscripciones ni su historial.</p>
         </div>
         <div style="padding:16px 24px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
-          <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#3E3833">Nombre *</span><input value="{{ edNombre }}" onInput="{{ onEdNombre }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"></label>
-          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">Documento</span><input value="{{ edDocumento }}" onInput="{{ onEdDocumento }}" style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"></label>
-          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#3E3833">Teléfono</span><input value="{{ edTelefono }}" onInput="{{ onEdTelefono }}" style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"></label>
-          <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#3E3833">Email</span><input value="{{ edEmail }}" onInput="{{ onEdEmail }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"><span style="font-size:12px;color:#948B80">Si viene, la API valida el formato (400 inline).</span></label>
+          <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#C8CCF0">Nombre *</span><input value="{{ edNombre }}" onInput="{{ onEdNombre }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;outline:none;background:#13162A" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F"></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#C8CCF0">Documento</span><input value="{{ edDocumento }}" onInput="{{ onEdDocumento }}" style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;outline:none;background:#13162A" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F"></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#C8CCF0">Teléfono</span><input value="{{ edTelefono }}" onInput="{{ onEdTelefono }}" style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;outline:none;background:#13162A" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:13px;font-weight:600;color:#C8CCF0">Email</span><input value="{{ edEmail }}" onInput="{{ onEdEmail }}" style="font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;outline:none;background:#13162A" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F"><span style="font-size:12px;color:#6670A0">Si viene, la API valida el formato (400 inline).</span></label>
         </div>
         <div style="padding:6px 24px 22px;display:flex;gap:10px;justify-content:flex-end">
-          <button onClick="{{ cerrarModal }}" style="background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2">Cancelar</button>
-          <button onClick="{{ guardarEdicionPersona }}" style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">Guardar cambios</button>
+          <button onClick="{{ cerrarModal }}" style="background:#13162A;color:#DDE1FF;border:1px solid #2D3260;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#191D35">Cancelar</button>
+          <button onClick="{{ guardarEdicionPersona }}" style="background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#BB78F7">Guardar cambios</button>
         </div>
       </div>
     </div>
@@ -1048,32 +1048,32 @@
 
   <!-- ═══ MODAL DE ALTA GENÉRICO (programa · institución · empresa · módulo · plan · grupo) ═══ -->
   <sc-if value="{{ modalAlta }}" hint-placeholder-val="{{ false }}">
-    <div onClick="{{ cerrarModal }}" style="position:fixed;inset:0;background:rgba(43,39,36,.42);display:flex;align-items:center;justify-content:center;z-index:60;padding:24px;box-sizing:border-box">
-      <div onClick="{{ stop }}" style="width:540px;background:#fff;border-radius:16px;box-shadow:0 22px 54px rgba(43,39,36,.28);overflow:hidden;max-height:100%;overflow-y:auto">
+    <div onClick="{{ cerrarModal }}" style="position:fixed;inset:0;background:rgba(0,0,0,.60);display:flex;align-items:center;justify-content:center;z-index:60;padding:24px;box-sizing:border-box">
+      <div onClick="{{ stop }}" style="width:540px;background:#13162A;border-radius:16px;box-shadow:0 22px 54px rgba(0,0,0,.55);overflow:hidden;max-height:100%;overflow-y:auto">
         <div style="padding:22px 24px 4px">
           <h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-.01em">{{ alta.titulo }}</h3>
-          <p style="margin:6px 0 0;font-size:13.5px;color:#6F675E;line-height:1.5">{{ alta.bajada }}</p>
+          <p style="margin:6px 0 0;font-size:13.5px;color:#8890C0;line-height:1.5">{{ alta.bajada }}</p>
         </div>
         <div style="padding:16px 24px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
           <sc-for list="{{ altaCampos }}" as="c" hint-placeholder-count="3">
             <label style="{{ c.wrap }}">
-              <span style="font-size:13px;font-weight:600;color:#3E3833">{{ c.label }}</span>
+              <span style="font-size:13px;font-weight:600;color:#C8CCF0">{{ c.label }}</span>
               <sc-if value="{{ c.esSelect }}" hint-placeholder-val="{{ false }}">
-                <select style="{{ c.inputStyle }}" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1"><sc-for list="{{ c.opciones }}" as="o" hint-placeholder-count="2"><option>{{ o.v }}</option></sc-for></select>
+                <select style="{{ c.inputStyle }}" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F"><sc-for list="{{ c.opciones }}" as="o" hint-placeholder-count="2"><option>{{ o.v }}</option></sc-for></select>
               </sc-if>
               <sc-if value="{{ c.esInput }}" hint-placeholder-val="{{ true }}">
-                <input placeholder="{{ c.placeholder }}" style="{{ c.inputStyle }}" style-focus="border-color:#5D4A87;box-shadow:0 0 0 3px #E6E0F1">
+                <input placeholder="{{ c.placeholder }}" style="{{ c.inputStyle }}" style-focus="border-color:#9D8FF7;box-shadow:0 0 0 3px #241F3F">
               </sc-if>
               <sc-if value="{{ c.tieneHint }}" hint-placeholder-val="{{ false }}">
-                <span style="font-size:12px;color:#948B80;line-height:1.45">{{ c.hint }}</span>
+                <span style="font-size:12px;color:#6670A0;line-height:1.45">{{ c.hint }}</span>
               </sc-if>
             </label>
           </sc-for>
         </div>
-        <div style="margin:0 24px 18px;background:#F4F1FA;border:1px solid #E3DCEF;border-radius:10px;padding:11px 13px;font-size:13px;line-height:1.5;color:#4A3A6E">{{ alta.aviso }}</div>
+        <div style="margin:0 24px 18px;background:#1A1830;border:1px solid #241F3F;border-radius:10px;padding:11px 13px;font-size:13px;line-height:1.5;color:#BB78F7">{{ alta.aviso }}</div>
         <div style="padding:0 24px 22px;display:flex;gap:10px;justify-content:flex-end">
-          <button onClick="{{ cerrarModal }}" style="background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2">Cancelar</button>
-          <button onClick="{{ guardarAlta }}" style="background:#5D4A87;color:#fff;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#4A3A6E">{{ alta.boton }}</button>
+          <button onClick="{{ cerrarModal }}" style="background:#13162A;color:#DDE1FF;border:1px solid #2D3260;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#191D35">Cancelar</button>
+          <button onClick="{{ guardarAlta }}" style="background:#9D8FF7;color:#0D0F18;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#BB78F7">{{ alta.boton }}</button>
         </div>
       </div>
     </div>
@@ -1081,17 +1081,17 @@
 
   <!-- ═══ MODAL CONFIRMACIÓN DESTRUCTIVA ═══ -->
   <sc-if value="{{ modalConfirm }}" hint-placeholder-val="{{ false }}">
-    <div onClick="{{ cerrarConfirm }}" style="position:fixed;inset:0;background:rgba(43,39,36,.42);display:flex;align-items:center;justify-content:center;z-index:60;padding:24px;box-sizing:border-box;z-index:80">
-      <div onClick="{{ stop }}" style="width:470px;background:#fff;border-radius:16px;box-shadow:0 22px 54px rgba(43,39,36,.28);overflow:hidden;max-height:100%;overflow-y:auto">
+    <div onClick="{{ cerrarConfirm }}" style="position:fixed;inset:0;background:rgba(0,0,0,.60);display:flex;align-items:center;justify-content:center;z-index:60;padding:24px;box-sizing:border-box;z-index:80">
+      <div onClick="{{ stop }}" style="width:470px;background:#13162A;border-radius:16px;box-shadow:0 22px 54px rgba(0,0,0,.55);overflow:hidden;max-height:100%;overflow-y:auto">
         <div style="padding:22px 24px 0;display:flex;flex-direction:column;gap:8px">
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#9E3A38">{{ cfm.kicker }}</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#E87A7A">{{ cfm.kicker }}</span>
           <h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-.01em">{{ cfm.titulo }}</h3>
-          <p style="margin:0;font-size:14.5px;line-height:1.55;color:#6F675E">{{ cfm.texto }}</p>
-          <div style="background:#FAF7F2;border:1px solid #EDE5D9;border-radius:10px;padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#6F675E">{{ cfm.detalle }}</div>
+          <p style="margin:0;font-size:14.5px;line-height:1.55;color:#8890C0">{{ cfm.texto }}</p>
+          <div style="background:#191D35;border:1px solid #1E2240;border-radius:10px;padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8890C0">{{ cfm.detalle }}</div>
         </div>
         <div style="padding:18px 24px 22px;display:flex;gap:10px;justify-content:flex-end">
-          <button onClick="{{ cerrarConfirm }}" style="background:#fff;color:#2B2724;border:1px solid #D6CBBB;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#FAF7F2">Volver</button>
-          <button onClick="{{ confirmar }}" style="background:#9E3A38;color:#fff;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#872F2D">{{ cfm.label }}</button>
+          <button onClick="{{ cerrarConfirm }}" style="background:#13162A;color:#DDE1FF;border:1px solid #2D3260;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:#191D35">Volver</button>
+          <button onClick="{{ confirmar }}" style="background:#E87A7A;color:#0D0F18;border:none;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#F09A9A">{{ cfm.label }}</button>
         </div>
       </div>
     </div>
@@ -1104,9 +1104,9 @@
         <div style="{{ toastIconStyle }}">{{ toast.icono }}</div>
         <div style="display:flex;flex-direction:column;gap:2px">
           <span style="font-size:14px;font-weight:600">{{ toast.titulo }}</span>
-          <span style="font-size:13px;color:#6F675E;line-height:1.45">{{ toast.texto }}</span>
+          <span style="font-size:13px;color:#8890C0;line-height:1.45">{{ toast.texto }}</span>
         </div>
-        <span onClick="{{ cerrarToast }}" style="margin-left:14px;font-size:16px;color:#948B80;cursor:pointer;line-height:1" style-hover="color:#2B2724">×</span>
+        <span onClick="{{ cerrarToast }}" style="margin-left:14px;font-size:16px;color:#6670A0;cursor:pointer;line-height:1" style-hover="color:#DDE1FF">×</span>
       </div>
     </div>
   </sc-if>
@@ -1117,16 +1117,16 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;estadoDemo&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;datos&quot;,&quot;cargando&quot;,&quot;vacio&quot;,&quot;error&quot;],&quot;default&quot;:&quot;datos&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Estados de demo&quot;},&quot;avisoSecuencia&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Estados de demo&quot;}}">
 const BADGE = {
-  ACTIVA: 'background:#E2F1E7;color:#2F7A4E;border:1px solid #C3E2CE',
-  PAUSADA: 'background:#FBEFD8;color:#8F6414;border:1px solid #EEDCB4',
-  FINALIZADA: 'background:#E4EDF4;color:#3F6183;border:1px solid #C9DCEA',
-  CANCELADA: 'background:#F8E3E1;color:#9E3A38;border:1px solid #EDC9C6'
+  ACTIVA: 'background:rgba(94,201,126,.13);color:#5EC97E;border:1px solid rgba(94,201,126,.30)',
+  PAUSADA: 'background:rgba(232,162,74,.14);color:#E8A24A;border:1px solid rgba(232,162,74,.30)',
+  FINALIZADA: 'background:rgba(122,180,247,.13);color:#7AB4F7;border:1px solid rgba(122,180,247,.30)',
+  CANCELADA: 'background:rgba(232,122,122,.12);color:#E87A7A;border:1px solid rgba(232,122,122,.30)'
 };
 const badge = (e) => (BADGE[e] || BADGE.FINALIZADA) + ';font-size:11.5px;font-weight:600;letter-spacing:.03em;padding:4px 9px;border-radius:999px;width:fit-content;display:inline-block';
-const punto = (cat) => 'width:9px;height:9px;border-radius:3px;display:inline-block;background:' + (cat === 'ESCOLAR' ? '#3E6C8A' : '#A8762B');
+const punto = (cat) => 'width:9px;height:9px;border-radius:3px;display:inline-block;background:' + (cat === 'ESCOLAR' ? '#7DCFB6' : '#F0883E');
 const BADGE_CT = {
-  ACTIVO: 'background:#E2F1E7;color:#2F7A4E;border:1px solid #C3E2CE',
-  FINALIZADO: 'background:#E4EDF4;color:#3F6183;border:1px solid #C9DCEA'
+  ACTIVO: 'background:rgba(94,201,126,.13);color:#5EC97E;border:1px solid rgba(94,201,126,.30)',
+  FINALIZADO: 'background:rgba(122,180,247,.13);color:#7AB4F7;border:1px solid rgba(122,180,247,.30)'
 };
 const badgeCt = (e) => (BADGE_CT[e] || BADGE_CT.FINALIZADO) + ';font-size:11.5px;font-weight:600;letter-spacing:.03em;padding:3px 9px;border-radius:999px;width:fit-content;display:inline-block';
 /** El backend solo topea el pool cuando tipoFacturacion === PAQUETE. */
@@ -1134,11 +1134,11 @@ const poolTopeado = (c) => c.tipoFacturacion === 'PAQUETE';
 const agotado = (c) => poolTopeado(c) && c.clasesConsumidas >= c.clasesContratadas;
 
 const NAV_BASE = 'display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;font-size:14px;cursor:pointer;transition:background .12s;';
-const nav = (on) => NAV_BASE + (on ? 'background:#5D4A87;color:#fff;font-weight:600' : 'color:#D3CBC1');
+const nav = (on) => NAV_BASE + (on ? 'background:#9D8FF7;color:#0D0F18;font-weight:600' : 'color:#C8CCF0');
 
-const BTN_ON = 'border-radius:9px;padding:9px 14px;font-size:14px;font-weight:600;cursor:pointer;background:#fff;color:#2B2724;border:1px solid #D6CBBB';
-const BTN_OFF = 'border-radius:9px;padding:9px 14px;font-size:14px;font-weight:600;cursor:not-allowed;background:#F0EAE1;color:#B3A99C;border:1px solid transparent';
-const BTN_DANGER = 'border-radius:9px;padding:9px 14px;font-size:14px;font-weight:600;cursor:pointer;background:#fff;color:#9E3A38;border:1px solid #EDC9C6';
+const BTN_ON = 'border-radius:9px;padding:9px 14px;font-size:14px;font-weight:600;cursor:pointer;background:#13162A;color:#DDE1FF;border:1px solid #2D3260';
+const BTN_OFF = 'border-radius:9px;padding:9px 14px;font-size:14px;font-weight:600;cursor:not-allowed;background:#191D35;color:#4A5280;border:1px solid transparent';
+const BTN_DANGER = 'border-radius:9px;padding:9px 14px;font-size:14px;font-weight:600;cursor:pointer;background:#13162A;color:#E87A7A;border:1px solid rgba(232,122,122,.30)';
 
 class Component extends DCLogic {
   state = {
@@ -1380,13 +1380,13 @@ class Component extends DCLogic {
         const faltan = Math.max(0, 3 - notas);
         return {
         titulo: m.titulo, promedio: m.promedio, instancias: m.instancias.map(n => Object.assign({}, n, {
-          notaStyle: n.ok ? 'color:#2B2724' : 'color:#9E3A38'
+          notaStyle: n.ok ? 'color:#DDE1FF' : 'color:#E87A7A'
         })),
         labelNota: sede ? 'Nota del módulo' : 'Promedio',
         tieneExtra: base,
         extra: base ? (faltan === 0 ? notas + ' notas · mínimo cumplido' : notas + ' de 3 notas mínimas') : '',
-        extraStyle: 'font-family:IBM Plex Mono,monospace;font-size:11px;font-weight:600;letter-spacing:.04em;padding:3px 8px;border-radius:6px;' + (base && faltan === 0 ? 'background:#F0EAE1;color:#6F675E' : 'background:#FBEFD8;color:#8F6414'),
-        chip: 'font-family:IBM Plex Mono,monospace;font-size:11px;font-weight:600;letter-spacing:.04em;padding:3px 8px;border-radius:6px;' + (m.aprobado ? 'background:#E2F1E7;color:#2F7A4E' : 'background:#FBEFD8;color:#8F6414'),
+        extraStyle: 'font-family:IBM Plex Mono,monospace;font-size:11px;font-weight:600;letter-spacing:.04em;padding:3px 8px;border-radius:6px;' + (base && faltan === 0 ? 'background:#191D35;color:#8890C0' : 'background:rgba(232,162,74,.14);color:#E8A24A'),
+        chip: 'font-family:IBM Plex Mono,monospace;font-size:11px;font-weight:600;letter-spacing:.04em;padding:3px 8px;border-radius:6px;' + (m.aprobado ? 'background:rgba(94,201,126,.13);color:#5EC97E' : 'background:rgba(232,162,74,.14);color:#E8A24A'),
         chipTexto: m.aprobado ? 'APROBADO' : 'EN CURSO',
         aviso: !!m.avisoTexto && (this.props.avisoSecuencia !== false),
         avisoTexto: m.avisoTexto || ''
@@ -1432,12 +1432,12 @@ class Component extends DCLogic {
                   ? (rest > 0 ? rest + ' clases disponibles en el pool' : 'Pool agotado — consumir devuelve 409')
                   : 'POR_CLASE — sin tope en el backend'))
           : '',
-        barra: 'height:100%;width:' + pct + '%;border-radius:999px;background:' + (c && agotado(c) ? '#9E3A38' : '#5D4A87'),
+        barra: 'height:100%;width:' + pct + '%;border-radius:999px;background:' + (c && agotado(c) ? '#E87A7A' : '#9D8FF7'),
         tieneEmpresa: !!(c && c.empresaNombre),
         cubiertos: c ? c.cubiertos.map(n => ({ nombre: n })) : [],
         seguimientos: segs, sinSeguimientos: segs.length === 0,
         sinContrato: !c,
-        accionesContrato: 'display:' + (c ? 'flex' : 'none') + ';gap:9px;border-top:1px solid #F0EAE1;padding-top:14px',
+        accionesContrato: 'display:' + (c ? 'flex' : 'none') + ';gap:9px;border-top:1px solid #191D35;padding-top:14px',
         onCrearContrato: () => this.setState({ modal: 'contratoIndividual', contratoInsc: i.id, contratoTipo: 'PAQUETE', contratoClases: '8' }),
         onConsumir: () => this.consumirClase(i.contratoId),
         onAmpliar: () => this.ampliarCupo(i.contratoId),
@@ -1455,8 +1455,8 @@ class Component extends DCLogic {
         cantidad: cuenta(p.id, p.nombre),
         abrir: () => this.setState({ screen: 'programa', selProgId: p.id, tabProg: 'modulos' })
       }));
-    const segTab = (on) => 'padding:7px 14px;border-radius:7px;font-size:13.5px;font-weight:' + (on ? '600' : '500') + ';cursor:pointer;' + (on ? 'background:#fff;color:#2B2724;box-shadow:0 1px 2px rgba(43,39,36,.1)' : 'color:#6F675E');
-    const tabSty = (on) => 'padding:10px 16px;font-size:14.5px;font-weight:' + (on ? '600' : '500') + ';cursor:pointer;border-bottom:2px solid ' + (on ? '#5D4A87' : 'transparent') + ';color:' + (on ? '#4A3A6E' : '#6F675E') + ';margin-bottom:-1px';
+    const segTab = (on) => 'padding:7px 14px;border-radius:7px;font-size:13.5px;font-weight:' + (on ? '600' : '500') + ';cursor:pointer;' + (on ? 'background:#13162A;color:#DDE1FF;box-shadow:0 1px 2px rgba(0,0,0,.30)' : 'color:#8890C0');
+    const tabSty = (on) => 'padding:10px 16px;font-size:14.5px;font-weight:' + (on ? '600' : '500') + ';cursor:pointer;border-bottom:2px solid ' + (on ? '#9D8FF7' : 'transparent') + ';color:' + (on ? '#BB78F7' : '#8890C0') + ';margin-bottom:-1px';
 
     let prog = {};
     if (screen === 'programa') {
@@ -1495,7 +1495,7 @@ class Component extends DCLogic {
         tipoFacturacion: c.tipoFacturacion, estado: c.estado,
         badge: 'margin-left:auto;' + badgeCt(c.estado),
         clasesTexto: c.clasesConsumidas + ' / ' + c.clasesContratadas,
-        barra: 'height:100%;width:' + pct + '%;border-radius:999px;background:' + (agotado(c) ? '#9E3A38' : '#5D4A87'),
+        barra: 'height:100%;width:' + pct + '%;border-radius:999px;background:' + (agotado(c) ? '#E87A7A' : '#9D8FF7'),
         cubre: 'Cubre a ' + c.cubiertos.join(', '),
         abrir: () => this.setState({ modal: 'contrato', selContratoId: c.id })
       };
@@ -1516,7 +1516,7 @@ class Component extends DCLogic {
           ? 'Pool compartido: cualquier empleado cubierto consume del mismo total.'
           : 'Cubre una única inscripción particular.',
         clasesTexto: c.clasesConsumidas + ' / ' + c.clasesContratadas,
-        barra: 'height:100%;width:' + pct + '%;border-radius:999px;background:' + (agotado(c) ? '#9E3A38' : '#5D4A87'),
+        barra: 'height:100%;width:' + pct + '%;border-radius:999px;background:' + (agotado(c) ? '#E87A7A' : '#9D8FF7'),
         restanteTexto: fin
           ? 'Contrato finalizado: consumir una clase devuelve 409 sin importar el cupo.'
           : (tope
@@ -1545,7 +1545,7 @@ class Component extends DCLogic {
       };
     }
 
-    const chev = (on) => 'font-size:15px;color:#948B80;transition:transform .16s;display:inline-block;transform:rotate(' + (on ? '180deg' : '0deg') + ')';
+    const chev = (on) => 'font-size:15px;color:#6670A0;transition:transform .16s;display:inline-block;transform:rotate(' + (on ? '180deg' : '0deg') + ')';
     const instituciones = s.instituciones.map(x => {
       const props = s.programas.filter(p => p.institucionNombre === x.nombre);
       const alumnos = s.inscripciones.filter(i => props.some(p => p.nombre === i.programaNombre) && i.estado === 'ACTIVA').length;
@@ -1582,7 +1582,7 @@ class Component extends DCLogic {
             titulo: 'Contrato #' + c.id, tipoFacturacion: c.tipoFacturacion, estado: c.estado,
             badge: 'margin-left:auto;' + badgeCt(c.estado),
             clasesTexto: c.clasesConsumidas + ' / ' + c.clasesContratadas,
-            barra: 'height:100%;width:' + pct + '%;border-radius:999px;background:' + (agotado(c) ? '#9E3A38' : '#5D4A87'),
+            barra: 'height:100%;width:' + pct + '%;border-radius:999px;background:' + (agotado(c) ? '#E87A7A' : '#9D8FF7'),
             empleados: s.inscripciones.filter(i => i.contratoId === c.id).map(i => ({
               nombre: i.personaNombre, programaNombre: i.programaNombre, estado: i.estado, badge: badge(i.estado),
               abrir: () => this.abrirInscripcion(i.id, 'lista')
@@ -1596,14 +1596,14 @@ class Component extends DCLogic {
       return {
         personaNombre: i.personaNombre, programaNombre: i.programaNombre, fechaInicio: i.fechaInicio,
         tick: on ? '✓' : '',
-        check: 'width:17px;height:17px;border-radius:5px;flex:none;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;background:' + (on ? '#5D4A87' : '#fff') + ';border:1px solid ' + (on ? '#5D4A87' : '#D6CBBB'),
+        check: 'width:17px;height:17px;border-radius:5px;flex:none;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#0D0F18;background:' + (on ? '#9D8FF7' : '#191D35') + ';border:1px solid ' + (on ? '#9D8FF7' : '#2D3260'),
         toggle: () => this.setState({ seleccion: on ? s.seleccion.filter(x => x !== i.id) : s.seleccion.concat([i.id]) })
       };
     });
 
     const t = s.toast || {};
-    const tint = { ok: '#2F7A4E', warn: '#8F6414', err: '#9E3A38' }[t.tipo] || '#2F7A4E';
-    const tbg = { ok: '#E2F1E7', warn: '#FBEFD8', err: '#F8E3E1' }[t.tipo] || '#E2F1E7';
+    const tint = { ok: '#5EC97E', warn: '#E8A24A', err: '#E87A7A' }[t.tipo] || '#5EC97E';
+    const tbg = { ok: 'rgba(94,201,126,.13)', warn: 'rgba(232,162,74,.14)', err: 'rgba(232,122,122,.12)' }[t.tipo] || 'rgba(94,201,126,.13)';
 
     // ── Inicio
     const act = s.inscripciones.filter(i => i.estado === 'ACTIVA');
@@ -1621,13 +1621,13 @@ class Component extends DCLogic {
     const ICO = (bg, fg) => 'width:20px;height:20px;border-radius:999px;flex:none;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-top:1px;background:' + bg + ';color:' + fg;
     const atencion = [];
     ctsAct.filter(agotado).forEach(c => atencion.push({
-      icono: ICO('#F8E3E1', '#9E3A38'), glifo: '×',
+      icono: ICO('rgba(232,122,122,.12)', '#E87A7A'), glifo: '×',
       titulo: 'Pool agotado — ' + (c.empresaNombre || 'Contrato individual #' + c.id),
       texto: 'Consumir otra clase devuelve 409. Ampliá el cupo desde el contrato.',
       ir: () => this.setState({ screen: 'contratos', modal: 'contrato', selContratoId: c.id })
     }));
     s.inscripciones.filter(i => i.categoria === 'PARTICULAR' && !i.contratoId).forEach(i => atencion.push({
-      icono: ICO('#FBEFD8', '#8F6414'), glifo: '!',
+      icono: ICO('rgba(232,162,74,.14)', '#E8A24A'), glifo: '!',
       titulo: 'Sin contrato — ' + i.personaNombre,
       texto: i.programaNombre + ' · no se pueden registrar clases hasta asociarla a un contrato.',
       ir: () => this.abrirInscripcion(i.id, 'lista')
@@ -1635,7 +1635,7 @@ class Component extends DCLogic {
     s.inscripciones.filter(i => i.categoria === 'ESCOLAR' && i.estado === 'ACTIVA').forEach(i => {
       const pend = (s.modulos[i.id] || []).filter(m => !m.aprobado);
       if (pend.length) atencion.push({
-        icono: ICO('#FBEFD8', '#8F6414'), glifo: '!',
+        icono: ICO('rgba(232,162,74,.14)', '#E8A24A'), glifo: '!',
         titulo: 'Módulos pendientes — ' + i.personaNombre,
         texto: pend.map(m => m.titulo).join(', ') + ' sin aprobar: finalizar la inscripción devuelve 422.',
         ir: () => this.abrirInscripcion(i.id, 'lista')
@@ -1707,7 +1707,7 @@ class Component extends DCLogic {
       label: c.label, placeholder: c.placeholder, hint: c.hint, tieneHint: !!c.hint,
       opciones: c.opciones, esSelect: c.esSelect, esInput: !c.esSelect,
       wrap: 'display:flex;flex-direction:column;gap:6px' + (c.span ? ';grid-column:span 2' : ''),
-      inputStyle: (c.mono ? "font-family:'IBM Plex Mono',monospace;" : '') + 'font-size:14.5px;padding:10px 12px;border:1px solid #D6CBBB;border-radius:9px;outline:none;background:#fff'
+      inputStyle: (c.mono ? "font-family:'IBM Plex Mono',monospace;" : '') + 'font-size:14.5px;padding:10px 12px;border:1px solid #2D3260;border-radius:9px;outline:none;background:#13162A'
     }));
 
     // ── Carga de nota
@@ -1771,8 +1771,8 @@ class Component extends DCLogic {
         const on = s.contratoInsc === i.id;
         return {
           personaNombre: i.personaNombre, programaNombre: i.programaNombre, fechaInicio: i.fechaInicio,
-          fila: 'padding:11px 14px;border-bottom:1px solid #F5F0E9;display:flex;align-items:center;gap:11px;cursor:pointer;background:' + (on ? '#F4F1FA' : 'transparent'),
-          radio: 'width:15px;height:15px;border-radius:999px;flex:none;box-sizing:border-box;border:' + (on ? '5px solid #5D4A87' : '1px solid #D6CBBB') + ';background:#fff',
+          fila: 'padding:11px 14px;border-bottom:1px solid #191D35;display:flex;align-items:center;gap:11px;cursor:pointer;background:' + (on ? '#1A1830' : 'transparent'),
+          radio: 'width:15px;height:15px;border-radius:999px;flex:none;box-sizing:border-box;border:' + (on ? '5px solid #9D8FF7' : '1px solid #2D3260') + ';background:#13162A',
           elegir: () => this.set({ contratoInsc: i.id })
         };
       }),
@@ -1969,7 +1969,7 @@ class Component extends DCLogic {
       },
 
       hayToast: !!s.toast, toast: Object.assign({ icono: t.tipo === 'ok' ? '✓' : (t.tipo === 'err' ? '×' : '!') }, t),
-      toastStyle: 'display:flex;align-items:flex-start;gap:12px;background:#fff;border:1px solid #E6DED2;border-left:3px solid ' + tint + ';border-radius:12px;padding:14px 16px;box-shadow:0 10px 26px rgba(43,39,36,.13);max-width:380px',
+      toastStyle: 'display:flex;align-items:flex-start;gap:12px;background:#13162A;border:1px solid #1E2240;border-left:3px solid ' + tint + ';border-radius:12px;padding:14px 16px;box-shadow:0 10px 26px rgba(0,0,0,.35);max-width:380px',
       toastIconStyle: 'width:20px;height:20px;border-radius:999px;flex:none;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:' + tbg + ';color:' + tint,
       cerrarToast: () => this.set({ toast: null })
     };
