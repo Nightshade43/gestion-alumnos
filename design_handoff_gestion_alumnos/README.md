@@ -125,19 +125,19 @@ Todo error de la API tiene el mismo shape (`web/ErrorResponse.java`):
 | 500 | `handleGeneral` | Toast genérico "Ocurrió un error, intentá de nuevo" |
 
 ## Design Tokens
-Valores completos en `tokens/tokens.css`. Resumen:
-- **Primario (Ciruela)**: `#5D4A87` (600), `#4A3A6E` (700 hover), `#E6E0F1` (100), `#F4F1FA` (50).
-- **Neutros cálidos**: canvas `#FAF7F2`, superficie `#FFFFFF`, líneas `#E6DED2` / `#F0EAE1` / `#D6CBBB`, tinta `#2B2724`, apagado `#6F675E` / `#948B80`.
-- **Sidebar**: `#2B2724`, hover `#3A3531`, texto `#D3CBC1`, etiquetas `#7C736A`.
-- **Estados**: ACTIVA `#2F7A4E`/`#E2F1E7`, PAUSADA `#8F6414`/`#FBEFD8`, FINALIZADA `#3F6183`/`#E4EDF4`, CANCELADA `#9E3A38`/`#F8E3E1`.
-- **Rama**: Escolar `#3E6C8A`, Particular `#A8762B` (nunca son el primario).
-- **Tipografía**: UI **Instrument Sans**; datos/números/ids/fechas **IBM Plex Mono** con `tabular-nums`. Escala 30 / 22 / 16 / 15 / 14.5 / 13 / 11px.
-- **Radios**: 6 / 9 / 12 / 14 / 16 / 999. **Sombras**: sm `0 1px 2px rgba(43,39,36,.12)`, md `0 6px 18px rgba(43,39,36,.07)`, lg `0 22px 54px rgba(43,39,36,.28)`. **Focus**: `0 0 0 3px #E6E0F1`.
+Valores completos en `tokens/tokens.css`. Resumen (tema **Dark CENMA**, migrado desde la paleta Ciruela original — ver historial de `tokens.css` para los valores previos):
+- **Primario (violeta CENMA)**: `#9D8FF7` (600), `#BB78F7` (700 hover), `#241F3F` (100), `#1A1830` (50). El texto sobre el primario va oscuro (`var(--ga-canvas)`), no blanco.
+- **Neutros fríos**: canvas `#0D0F18`, superficie `#13162A` / `#191D35` / `#1E2240`, líneas `#1E2240` / `#191D35` / `#2D3260`, tinta `#DDE1FF`, apagado `#8890C0` / `#6670A0`.
+- **Sidebar**: `#0A0C16`, hover `#191D35`, texto `#C8CCF0`, etiquetas `#4A5280`.
+- **Estados**: ACTIVA `#5EC97E`/`rgba(94,201,126,.13)`, PAUSADA `#E8A24A`/`rgba(232,162,74,.14)`, FINALIZADA `#7AB4F7`/`rgba(122,180,247,.13)`, CANCELADA `#E87A7A`/`rgba(232,122,122,.12)`.
+- **Rama**: Escolar `#7DCFB6`, Particular `#F0883E` (nunca son el primario).
+- **Tipografía**: UI **IBM Plex Sans**; datos/números/ids/fechas **IBM Plex Mono** con `tabular-nums`. Escala 30 / 22 / 16 / 15 / 14.5 / 13 / 11px.
+- **Radios**: 6 / 9 / 12 / 14 / 16 / 999. **Sombras** (más opacas por ser sobre fondo oscuro): sm `0 1px 2px rgba(0,0,0,.35)`, md `0 6px 18px rgba(0,0,0,.30)`, lg `0 22px 54px rgba(0,0,0,.55)`. **Focus**: `0 0 0 3px rgba(157,143,247,.35)`.
 - **Layout**: sidebar 248px, contenido máx. 1220px, padding `34px 40px 80px`.
 
 ## Assets
 Ninguno externo. Solo fuentes de Google Fonts:
-`Instrument+Sans:wght@400..700` e `IBM+Plex+Mono:wght@400;500;600`.
+`IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400` e `IBM+Plex+Mono:wght@400;500;600`.
 Los avatares son iniciales sobre tinte, no imágenes. No hay iconos de librería:
 los pocos glifos usados son texto (`✓`, `!`, `×`, `⌄`, `←`).
 
