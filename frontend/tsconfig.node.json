@@ -7,9 +7,9 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "strict": true,
-    "noEmit": true,
     "skipLibCheck": true,
     "composite": true,
+    "outDir": "./node_modules/.tsbuild-node",
     "types": [
       "node"
     ]
