@@ -26,7 +26,7 @@ const itemStyle = (active: boolean): React.CSSProperties => ({
   display: 'flex', alignItems: 'center', gap: 10, padding: '9px 11px',
   borderRadius: 'var(--ga-radius-sm)', fontSize: 14, cursor: 'pointer',
   background: active ? 'var(--ga-primary-600)' : 'transparent',
-  color: active ? '#fff' : 'var(--ga-nav-text)',
+  color: active ? 'var(--ga-canvas)' : 'var(--ga-nav-text)',
   fontWeight: active ? 600 : 400,
 });
 
@@ -50,28 +50,28 @@ export function AppShell({ route, onNavigate, onLogout, children }: {
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'var(--ga-sidebar-w) 1fr', minHeight: '100vh' }}>
-      <aside style={{ background: 'var(--ga-nav-bg)', padding: '18px 12px', display: 'flex', flexDirection: 'column', gap: 3, color: '#E8E1D8', position: 'sticky', top: 0, height: '100vh', boxSizing: 'border-box' }}>
+      <aside style={{ background: 'var(--ga-nav-bg)', padding: '18px 12px', display: 'flex', flexDirection: 'column', gap: 3, color: 'var(--ga-nav-text)', position: 'sticky', top: 0, height: '100vh', boxSizing: 'border-box' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 10px 18px' }}>
-          <div style={{ width: 26, height: 26, borderRadius: 8, background: 'var(--ga-primary-600)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 13, fontWeight: 700 }}>G</div>
+          <div style={{ width: 26, height: 26, borderRadius: 8, background: 'var(--ga-primary-600)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ga-canvas)', fontSize: 13, fontWeight: 700 }}>G</div>
           <span style={{ fontSize: 14.5, fontWeight: 600 }}>Gestión de Alumnos</span>
         </div>
 
         <div style={itemStyle(is('inicio'))} onClick={() => onNavigate({ name: 'inicio' })}>Inicio</div>
         <div style={itemStyle(is('personas') || is('persona'))} onClick={() => onNavigate({ name: 'personas' })}>Personas</div>
 
-        <div style={groupLabel}><span style={{ width: 7, height: 7, borderRadius: 2, background: '#5E90AF' }} />Escolar</div>
+        <div style={groupLabel}><span style={{ width: 7, height: 7, borderRadius: 2, background: 'var(--ga-escolar)' }} />Escolar</div>
         <div style={itemStyle(is('inscripciones', 'ESCOLAR'))} onClick={() => onNavigate({ name: 'inscripciones', rama: 'ESCOLAR' })}>Inscripciones</div>
         <div style={itemStyle(is('programas') || is('programa'))} onClick={() => onNavigate({ name: 'programas' })}>Programas</div>
         <div style={itemStyle(is('instituciones'))} onClick={() => onNavigate({ name: 'instituciones' })}>Instituciones</div>
 
-        <div style={groupLabel}><span style={{ width: 7, height: 7, borderRadius: 2, background: '#C79240' }} />Particular</div>
+        <div style={groupLabel}><span style={{ width: 7, height: 7, borderRadius: 2, background: 'var(--ga-particular)' }} />Particular</div>
         <div style={itemStyle(is('inscripciones', 'PARTICULAR'))} onClick={() => onNavigate({ name: 'inscripciones', rama: 'PARTICULAR' })}>Inscripciones</div>
         <div style={itemStyle(is('contratos'))} onClick={() => onNavigate({ name: 'contratos' })}>Contratos</div>
         <div style={itemStyle(is('empresas'))} onClick={() => onNavigate({ name: 'empresas' })}>Empresas</div>
 
         <div style={{ marginTop: 'auto', borderTop: '1px solid var(--ga-nav-hover)', paddingTop: 12, display: 'flex', alignItems: 'center', gap: 10, paddingLeft: 11 }}>
           <div style={{ width: 26, height: 26, borderRadius: 999, background: 'var(--ga-nav-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, color: 'var(--ga-nav-text)' }}>AD</div>
-          <span style={{ fontSize: 13, color: '#B7ADA1' }}>admin</span>
+          <span style={{ fontSize: 13, color: 'var(--ga-nav-label)' }}>admin</span>
           <span onClick={onLogout} style={{ marginLeft: 'auto', paddingRight: 11, fontSize: 12, color: 'var(--ga-nav-label)', cursor: 'pointer' }}>Salir</span>
         </div>
       </aside>

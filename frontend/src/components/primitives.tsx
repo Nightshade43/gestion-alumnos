@@ -5,10 +5,10 @@ import type { EstadoInscripcion, EstadoContrato, CategoriaPrograma, TipoFacturac
 /* ─────────────── Button ─────────────── */
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 const BTN: Record<ButtonVariant, React.CSSProperties> = {
-  primary:   { background: 'var(--ga-primary-600)', color: '#fff', border: 'none', boxShadow: 'var(--ga-shadow-sm)', fontWeight: 600 },
-  secondary: { background: '#fff', color: 'var(--ga-ink)', border: '1px solid var(--ga-line-strong)', fontWeight: 500 },
+  primary:   { background: 'var(--ga-primary-600)', color: 'var(--ga-canvas)', border: 'none', boxShadow: 'var(--ga-shadow-sm)', fontWeight: 600 },
+  secondary: { background: 'var(--ga-surface-2)', color: 'var(--ga-ink)', border: '1px solid var(--ga-line-strong)', fontWeight: 500 },
   ghost:     { background: 'transparent', color: 'var(--ga-muted)', border: 'none', fontWeight: 500 },
-  danger:    { background: '#fff', color: 'var(--ga-danger-fg)', border: '1px solid var(--ga-danger-line)', fontWeight: 600 },
+  danger:    { background: 'transparent', color: 'var(--ga-danger-fg)', border: '1px solid var(--ga-danger-line)', fontWeight: 600 },
 };
 
 export function Button({ variant = 'primary', children, ...rest }:
@@ -21,7 +21,7 @@ export function Button({ variant = 'primary', children, ...rest }:
         borderRadius: 'var(--ga-radius-sm)', padding: '10px 15px', fontSize: 14,
         fontFamily: 'inherit', cursor: disabled ? 'not-allowed' : 'pointer',
         ...BTN[variant],
-        ...(disabled ? { background: '#F0EAE1', color: '#B3A99C', border: '1px solid transparent', boxShadow: 'none' } : null),
+        ...(disabled ? { background: 'var(--ga-surface-2)', color: 'var(--ga-nav-label)', border: '1px solid transparent', boxShadow: 'none' } : null),
         ...rest.style,
       }}
     >
@@ -50,9 +50,9 @@ export function Field({ label, required, hint, error, children }: {
 
 export const inputStyle = (opts?: { invalid?: boolean; mono?: boolean }): React.CSSProperties => ({
   fontFamily: opts?.mono ? 'var(--ga-font-mono)' : 'inherit',
-  fontSize: 14.5, padding: '10px 12px', background: opts?.invalid ? '#FFFBFA' : '#fff',
+  fontSize: 14.5, padding: '10px 12px', background: opts?.invalid ? '#241418' : 'var(--ga-surface-2)',
   color: 'var(--ga-ink)', outline: 'none', borderRadius: 'var(--ga-radius-sm)',
-  border: `1px solid ${opts?.invalid ? '#DE9C95' : 'var(--ga-line-strong)'}`,
+  border: `1px solid ${opts?.invalid ? 'var(--ga-danger-fg)' : 'var(--ga-line-strong)'}`,
 });
 
 export function Input({ invalid, mono, ...rest }: React.InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean; mono?: boolean }) {
@@ -60,7 +60,7 @@ export function Input({ invalid, mono, ...rest }: React.InputHTMLAttributes<HTML
     <input
       {...rest}
       onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--ga-primary-600)'; e.currentTarget.style.boxShadow = 'var(--ga-focus-ring)'; rest.onFocus?.(e); }}
-      onBlur={(e) => { e.currentTarget.style.borderColor = invalid ? '#DE9C95' : 'var(--ga-line-strong)'; e.currentTarget.style.boxShadow = 'none'; rest.onBlur?.(e); }}
+      onBlur={(e) => { e.currentTarget.style.borderColor = invalid ? 'var(--ga-danger-fg)' : 'var(--ga-line-strong)'; e.currentTarget.style.boxShadow = 'none'; rest.onBlur?.(e); }}
       style={{ ...inputStyle({ invalid, mono }), ...rest.style }}
     />
   );
@@ -167,7 +167,7 @@ export function SkeletonList({ rows = 5 }: { rows?: number }) {
       {Array.from({ length: rows }).map((_, i) => (
         <div key={i} style={{
           height: 13, width: widths[i % widths.length], borderRadius: 5,
-          background: 'linear-gradient(90deg,#F0EAE1 25%,#F8F3EC 50%,#F0EAE1 75%)',
+          background: 'linear-gradient(90deg,var(--ga-surface-2) 25%,var(--ga-surface-3) 50%,var(--ga-surface-2) 75%)',
           backgroundSize: '420px 100%', animation: 'ga-shimmer 1.4s infinite linear',
         }} />
       ))}
@@ -193,7 +193,7 @@ export function EmptyState({ title, text, action, tone = 'neutral', code }: {
       }}>{tone === 'danger' ? '?' : ''}</div>
       <span style={{ fontSize: 16, fontWeight: 600 }}>{title}</span>
       {text && <span style={{ fontSize: 14, color: 'var(--ga-muted)', maxWidth: '38ch', lineHeight: 1.5 }}>{text}</span>}
-      {code && <span style={{ fontFamily: 'var(--ga-font-mono)', fontSize: 12, color: 'var(--ga-muted)', background: 'var(--ga-surface-2)', border: '1px solid #EDE5D9', borderRadius: 8, padding: '7px 10px' }}>{code}</span>}
+      {code && <span style={{ fontFamily: 'var(--ga-font-mono)', fontSize: 12, color: 'var(--ga-muted)', background: 'var(--ga-surface-2)', border: '1px solid var(--ga-line)', borderRadius: 8, padding: '7px 10px' }}>{code}</span>}
       {action}
     </div>
   );
@@ -204,8 +204,8 @@ export function Modal({ title, kicker, children, footer, onClose, width = 520 }:
   title: string; kicker?: string; children: React.ReactNode; footer?: React.ReactNode; onClose: () => void; width?: number;
 }) {
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(43,39,36,.42)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 60 }}>
-      <div onClick={(e) => e.stopPropagation()} style={{ width, background: '#fff', borderRadius: 'var(--ga-radius-xl)', boxShadow: 'var(--ga-shadow-lg)', overflow: 'hidden' }}>
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 60 }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ width, background: 'var(--ga-surface)', borderRadius: 'var(--ga-radius-xl)', boxShadow: 'var(--ga-shadow-lg)', overflow: 'hidden' }}>
         <div style={{ padding: '22px 24px 4px', display: 'flex', flexDirection: 'column', gap: 8 }}>
           {kicker && <span style={{ fontFamily: 'var(--ga-font-mono)', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ga-warn-fg)' }}>{kicker}</span>}
           <h3 style={{ margin: 0, fontSize: 19, fontWeight: 600, letterSpacing: '-.01em' }}>{title}</h3>

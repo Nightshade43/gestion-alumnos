@@ -4,9 +4,9 @@ type Tone = 'ok' | 'warn' | 'err';
 export interface Toast { id: number; tone: Tone; title: string; text?: string; action?: () => void; actionLabel?: string }
 
 const TONE: Record<Tone, { fg: string; bg: string; glyph: string }> = {
-  ok:   { fg: '#2F7A4E', bg: '#E2F1E7', glyph: '✓' },
-  warn: { fg: '#8F6414', bg: '#FBEFD8', glyph: '!' },
-  err:  { fg: '#9E3A38', bg: '#F8E3E1', glyph: '×' },
+  ok:   { fg: '#5EC97E', bg: 'rgba(94,201,126,.13)', glyph: '✓' },
+  warn: { fg: '#E8A24A', bg: 'rgba(232,162,74,.14)', glyph: '!' },
+  err:  { fg: '#E87A7A', bg: 'rgba(232,122,122,.12)', glyph: '×' },
 };
 
 const Ctx = React.createContext<{ push: (t: Omit<Toast, 'id'>) => void }>({ push: () => {} });
@@ -29,10 +29,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           const tone = TONE[t.tone];
           return (
             <div key={t.id} style={{
-              display: 'flex', alignItems: 'flex-start', gap: 12, background: '#fff',
+              display: 'flex', alignItems: 'flex-start', gap: 12, background: 'var(--ga-surface)',
               border: '1px solid var(--ga-line)', borderLeft: `3px solid ${tone.fg}`,
               borderRadius: 'var(--ga-radius-md)', padding: '14px 16px',
-              boxShadow: '0 10px 26px rgba(43,39,36,.13)', maxWidth: 380,
+              boxShadow: '0 10px 26px rgba(0,0,0,.45)', maxWidth: 380,
               animation: 'ga-toast-in .18s ease-out',
             }}>
               <div style={{ width: 20, height: 20, borderRadius: 999, flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, background: tone.bg, color: tone.fg }}>{tone.glyph}</div>

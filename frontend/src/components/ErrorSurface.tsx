@@ -70,7 +70,7 @@ export function BusinessRuleModal({ error, onClose, onGo, goLabel }: {
         <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.55, color: 'var(--ga-muted)' }}>
           El backend rechazó la request por una regla de negocio. Resolvé lo que falta y volvé a intentar.
         </p>
-        <div style={{ background: 'var(--ga-surface-2)', border: '1px solid #EDE5D9', borderRadius: 10, padding: '10px 12px', fontFamily: 'var(--ga-font-mono)', fontSize: 12, color: 'var(--ga-muted)' }}>
+        <div style={{ background: 'var(--ga-surface-2)', border: '1px solid var(--ga-line)', borderRadius: 10, padding: '10px 12px', fontFamily: 'var(--ga-font-mono)', fontSize: 12, color: 'var(--ga-muted)' }}>
           message: "{error.payload?.message}"
         </div>
       </div>

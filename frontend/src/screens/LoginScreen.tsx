@@ -30,7 +30,7 @@ export function LoginScreen({ onAuthenticated }: { onAuthenticated: () => void }
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px', boxSizing: 'border-box' }}>
       <div style={{ width: '100%', maxWidth: 376, display: 'flex', flexDirection: 'column', gap: 22 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
-          <div style={{ width: 34, height: 34, borderRadius: 10, background: 'var(--ga-primary-600)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 16, fontWeight: 700 }}>G</div>
+          <div style={{ width: 34, height: 34, borderRadius: 10, background: 'var(--ga-primary-600)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ga-canvas)', fontSize: 16, fontWeight: 700 }}>G</div>
           <span style={{ fontSize: 17, fontWeight: 600, letterSpacing: '-.01em' }}>Gestión de Alumnos</span>
         </div>
 
@@ -65,12 +65,12 @@ export function LoginScreen({ onAuthenticated }: { onAuthenticated: () => void }
 
           {error && (
             <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', background: 'var(--ga-danger-bg)', border: '1px solid var(--ga-danger-line)', borderRadius: 10, padding: '11px 13px' }}>
-              <span style={{ width: 18, height: 18, borderRadius: 999, flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, background: '#F2D2CF', color: 'var(--ga-danger-fg)', marginTop: 1 }}>×</span>
+              <span style={{ width: 18, height: 18, borderRadius: 999, flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, background: 'rgba(232,122,122,.22)', color: 'var(--ga-danger-fg)', marginTop: 1 }}>×</span>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                 <span style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--ga-danger-fg)' }}>
                   {error === 'server' ? 'No se pudo conectar' : 'Credenciales inválidas'}
                 </span>
-                <span style={{ fontSize: 12.5, color: '#8A4744', lineHeight: 1.45 }}>
+                <span style={{ fontSize: 12.5, color: 'var(--ga-danger-fg)', lineHeight: 1.45, opacity: .85 }}>
                   {error === 'server'
                     ? 'Revisá que el backend esté corriendo en localhost:8080.'
                     : '401 · Revisá usuario y contraseña. No distinguimos cuál de los dos falló.'}
