@@ -17,20 +17,23 @@ Orden recomendado: **1 → 3 → 2 → 7 → 5 → 4 → 6 → 8**.
 
 ## Resumen
 
-| # | Tema | Tipo | Prioridad | Rompe contrato |
-|---|---|---|---|---|
-| 1 | Listado global de seguimientos | endpoint nuevo | Alta | No |
-| 2 | `puedeFinalizar` en `InscripcionResponse` | campo nuevo | Alta | No (aditivo) |
-| 3 | `programaNombre` + `estado` en `EmpleadoCubierto` | campos nuevos | Alta | No (aditivo) |
-| 4 | Contadores de programa (módulos / días) | campos nuevos | Media | No (aditivo) |
-| 5 | Filtros en `GET /api/contratos` | params opcionales | Media | No |
-| 6 | `PUT` de Institución y Empresa | endpoints nuevos | Media | No |
-| 7 | `aprobado` en instancia evaluativa (gate de Sede) | modelo | Alta | Sí (migración) |
-| 8 | Endpoint de métricas de Inicio | endpoint nuevo | Baja | No |
+| # | Tema | Tipo | Prioridad | Rompe contrato | Estado |
+|---|---|---|---|---|---|
+| 1 | Listado global de seguimientos | endpoint nuevo | Alta | No | ✅ Resuelto en `master` |
+| 2 | `puedeFinalizar` en `InscripcionResponse` | campo nuevo | Alta | No (aditivo) | ✅ Resuelto en `master` |
+| 3 | `programaNombre` + `estado` en `EmpleadoCubierto` | campos nuevos | Alta | No (aditivo) | ✅ Resuelto en `master` |
+| 4 | Contadores de programa (módulos / días) | campos nuevos | Media | No (aditivo) | Pendiente |
+| 5 | Filtros en `GET /api/contratos` | params opcionales | Media | No | Pendiente |
+| 6 | `PUT` de Institución y Empresa | endpoints nuevos | Media | No | Pendiente |
+| 7 | `aprobado` en instancia evaluativa (gate de Sede) | modelo | Alta | Sí (migración) | Pendiente |
+| 8 | Endpoint de métricas de Inicio | endpoint nuevo | Baja | No | Pendiente |
 
 ---
 
 ## 1. Listado global de seguimientos
+
+> **✅ Resuelto en backend** (`GET /api/seguimientos` con `inscripcionId`/`limit` opcionales, ya en `master`).
+> **⚠️ Frontend sin adoptar todavía**: `useSeguimientosDe` sigue en `api/queries.ts` y `InicioScreen.tsx` sigue montando 6 requests en paralelo en vez de una sola llamada con `?limit=4`.
 
 **Hoy.** `SeguimientoController` solo expone `GET /api/seguimientos?inscripcionId={id}`
 (obligatorio) y `POST /api/seguimientos`.
@@ -71,6 +74,9 @@ sistema, de cualquier inscripción y en cualquier estado, sin necesidad de más 
 
 ## 2. Saber si una inscripción escolar puede finalizar
 
+> **✅ Resuelto en backend** (`puedeFinalizar` + `modulosPendientes` en `InscripcionResponse`, ya en `master`).
+> **⚠️ Frontend sin adoptar todavía**: no hay ninguna referencia a `puedeFinalizar` en el frontend — la tercera fila de "Requiere atención" en Inicio sigue sin mostrarse y el botón Finalizar del detalle sigue sin deshabilitarse preventivamente.
+
 **Hoy.** `POST /api/inscripciones/{id}/finalizar` puede fallar con **422**
 (`RequisitosAcademicosIncompletos`) cuando la escolar tiene módulos sin aprobar. El cliente
 solo se entera **al intentarlo**.
@@ -109,6 +115,9 @@ fallar contra la API.
 ---
 
 ## 3. `EmpleadoCubierto` con programa y estado
+
+> **✅ Resuelto en backend** (`programaNombre` + `estado` en `EmpleadoCubierto`, ya en `master`).
+> **⚠️ Frontend a medio adoptar**: `ContratosScreen.tsx` y `EmpresasScreen.tsx` ya leen `programaNombre`/`estado` directo de la respuesta, pero **todavía llaman** a `useInscripciones({ categoria: 'PARTICULAR' })` (dos veces en Contratos, una en Empresas) — el cruce que este cambio debía eliminar sigue ahí, ahora redundante.
 
 **Hoy.**
 

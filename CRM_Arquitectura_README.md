@@ -12,7 +12,7 @@ Cubre actualmente:
 - CENMA Bº SMATA — Sede
 - Clientes particulares
 
-Etapa inicial: aplicación local. Arquitectura pensada para exponerse como aplicación web sin reescribir la lógica de dominio.
+Backend expuesto como API REST (JWT), consumido por el frontend propio en `frontend/` (Vite + React). Arquitectura pensada para no reescribir la lógica de dominio al agregar clientes.
 
 ---
 
@@ -62,8 +62,10 @@ Eje central: `Persona → Inscripcion → Programa`, con ramas específicas seg�
 | `Inscripcion` | Vínculo Persona–Programa (y opcionalmente Plan/Grupo), con máquina de estados | Ambas |
 | `InstanciaEvaluativa` | Nota o instancia evaluativa dentro de un Módulo, con recuperatorio auto-referenciado | Escolar |
 | `HistorialGrupo` | Auditoría de cambios de grupo dentro de la misma escuela | Escolar |
-| `Contrato` | Facturación (1 a 1 con Inscripcion): tipo, clases contratadas/consumidas | Particular |
+| `Contrato` | Facturación (1 a 1 con Inscripcion): tipo, clases contratadas/consumidas; opcionalmente asociado a una `Empresa` | Particular |
 | `Seguimiento` | Observaciones de progreso en texto libre (futuro: nivel MCER) | Particular |
+| `Empresa` | Pagadora de contratos corporativos: cubre las inscripciones de varios empleados bajo un mismo `Contrato` | Particular |
+| `Usuario` | Cuenta de acceso a la API (autenticación JWT); sembrada por `AdminUserSeeder`, sin endpoint de alta | Transversal |
 
 Todas las relaciones son **unidireccionales** (el lado "muchos" conoce al "uno", no al revés) por decisión explícita de simplicidad de mantenimiento en desarrollo individual.
 
@@ -95,7 +97,7 @@ Todas las relaciones son **unidireccionales** (el lado "muchos" conoce al "uno",
 - 2 grupos de agenda (miércoles/jueves), puramente informativos — no afectan el avance.
 
 ### 4.3 Clientes particulares
-- Individuales únicamente en esta versión (sin entidad Empresa — ver sección 6).
+- Individuales o corporativos: un `Contrato` puede ser individual o estar asociado a una `Empresa`, que cubre las inscripciones de varios empleados con pool de clases compartido (`ContratoService`, alta vía `POST /api/contratos/empresa`).
 - Sin horario recurrente fijo (sin `Grupo`), coordinación clase a clase.
 - Facturación variable vía `Contrato`: por clase, por paquete, o mensual. Sin registro de pagos ni de sesión individual — solo contador agregado de clases consumidas.
 - Progreso vía `Seguimiento`: observaciones de texto libre, sin nota numérica.
@@ -124,10 +126,16 @@ Todas las relaciones son **unidireccionales** (el lado "muchos" conoce al "uno",
 
 ## 6. Puntos abiertos / extensiones futuras
 
-- Empresa como pagador de un Contrato cubriendo varios empleados.
 - Nivel MCER (A1–C2) como campo adicional en `Seguimiento`.
 - Registro de sesión individual (fecha/hora) si se necesita trazabilidad fina.
 - Pagos/facturación real (emisión de comprobantes).
+- Roles / multi-usuario (hoy un único usuario admin sembrado por `AdminUserSeeder`, sin endpoint de alta).
+- CORS para el backend (el frontend ya lee `VITE_API_BASE`; en desarrollo el proxy de Vite lo evita, pero producción con front y back en orígenes distintos lo necesita).
+- Logging estructurado.
+- Los 5 puntos de `design_handoff_gestion_alumnos/BACKEND.md` todavía sin resolver (contadores de programa, filtros en `GET /api/contratos`, `PUT` de Institución/Empresa, campo `aprobado` para el gate de Sede, endpoint de métricas de Inicio).
+- Migraciones versionadas (Flyway/Liquibase) — hoy el esquema se genera con `ddl-auto=update`, razonable en desarrollo individual pero sin control de versión del esquema.
+- Spring Actuator / endpoint de salud, necesario para desplegar en cualquier PaaS.
+- `InstitucionController` es el único de los 12 controllers sin test dedicado.
 
 ---
 
@@ -138,30 +146,42 @@ ar.com.ramallo.gestionalumnos
 ├── GestionAlumnosApplication.java
 ├── domain/
 │   ├── Persona, Institucion, Programa, Modulo, Plan, Grupo,
-│   │   Inscripcion, InstanciaEvaluativa, Contrato, Seguimiento, HistorialGrupo
+│   │   Inscripcion, InstanciaEvaluativa, Contrato, Seguimiento,
+│   │   HistorialGrupo, Empresa, Usuario
 │   └── enums/
 │       ├── CategoriaPrograma, EstrategiaEvaluacion, EstadoInscripcion,
 │       │   TipoInstanciaEvaluativa, TipoFacturacion, EstadoContrato
-├── repository/       (pendiente)
+├── repository/       interfaces JpaRepository, una por entidad
 ├── service/
-│   └── evaluacion/   (pendiente — Strategy pattern CENMA Base / Sede / Seguimiento libre)
-├── controller/       (pendiente — vacío hasta exponer REST)
-├── exception/        (pendiente)
-└── config/           (pendiente)
+│   ├── InscripcionService, ContratoService, SeguimientoService
+│   └── evaluacion/   Strategy pattern: CenmaBaseEvaluacionService, CenmaSedeEvaluacionService,
+│                      EvaluacionServiceFactory
+├── security/         JwtService, JwtAuthenticationFilter, JwtAuthenticationEntryPoint,
+│                      SecurityConfig, UsuarioDetailsService
+├── web/               12 controllers REST + GlobalExceptionHandler + ErrorResponse
+│   └── dto/           un Request/Response por entidad expuesta
+├── exception/        excepciones de negocio mapeadas a HTTP (400/404/409/422)
+└── config/           AdminUserSeeder
 ```
 
 ---
 
 ## 8. Estado actual
 
-**Completo y testeado:**
-- Las 11 entidades del modelo de dominio, persistidas contra PostgreSQL real (no H2), con tests de integración (`@DataJpaTest` + `@AutoConfigureTestDatabase(Replace.NONE)`) cubriendo: mapeo de relaciones, unique constraints compuestas, recuperatorio auto-referenciado, defaults de builder, y ambas ramas de negocio (escolar y particular) de punta a punta.
+**Completo y testeado (121 tests, `./mvnw test`):**
+- Las 13 entidades del modelo de dominio, persistidas contra PostgreSQL real (no H2), con tests de integración (`@DataJpaTest` + `@AutoConfigureTestDatabase(Replace.NONE)`) cubriendo: mapeo de relaciones, unique constraints compuestas, recuperatorio auto-referenciado, defaults de builder, y ambas ramas de negocio (escolar y particular) de punta a punta.
+- `repository/`: interfaces `JpaRepository` completas.
+- `service/`: `InscripcionService` (máquina de estados, validación de unicidad ESCOLAR), `ContratoService` (individuales y de Empresa con pool compartido), `SeguimientoService`, y `service/evaluacion/` (Strategy pattern por `estrategiaEvaluacion`).
+- `web/`: 12 controllers REST, autenticación JWT stateless (`AuthController` + filtro), manejo de errores centralizado con el shape único `{ timestamp, status, error, message }`.
+- `frontend/`: las 11 pantallas (Vite + React 19 + TypeScript + TanStack Query) consumiendo esta API, con tema visual propio (Dark CENMA) documentado en `design_handoff_gestion_alumnos/`.
 
-**Pendiente:**
-- `repository/`: interfaces `JpaRepository` por entidad.
-- `service/`: `InscripcionService` (máquina de estados, validación de unicidad ESCOLAR) y `service/evaluacion/` (Strategy pattern por `estrategiaEvaluacion`).
-- `controller/`, `exception/`, `config/`: sin empezar.
+**Pendiente** (detalle en la sección 6 de este documento y en `design_handoff_gestion_alumnos/BACKEND.md`):
+- 5 de los 8 puntos de `BACKEND.md` (contadores de programa, filtros de contratos, `PUT` de Institución/Empresa, campo `aprobado` del gate de Sede, métricas de Inicio); los otros 3 ya están en `master` pero el frontend todavía no los adoptó.
+- `API_REFERENCE.md` (contrato completo de la API) — referenciado desde el README raíz pero todavía no escrito.
+- `InstitucionControllerTest` — el único controller sin test dedicado.
+- CI (no hay `.github/workflows`), CORS, Dockerfile/deploy, Actuator, migraciones versionadas.
 
 ### Próximo entregable
 
-Capa de repositorios (`PersonaRepository`, `ProgramaRepository`, `InscripcionRepository`, etc.), seguida de `InscripcionService`.
+`API_REFERENCE.md` (documentar el contrato real de los 12 controllers) y, del lado del frontend, adoptar los 3 puntos de `BACKEND.md` ya resueltos en el backend (listado global de seguimientos, `puedeFinalizar`, `EmpleadoCubierto` sin el cruce redundante).
+
