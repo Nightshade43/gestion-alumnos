@@ -39,3 +39,8 @@ build/
 ### Scripts ###
 seed-data.sh
 /login.json
+
+### Benchmark (scripts/benchmark) ###
+bench.log*
+bench-resultados.json
+__pycache__/
