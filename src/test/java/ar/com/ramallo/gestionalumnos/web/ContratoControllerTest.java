@@ -160,4 +160,12 @@ class ContratoControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("empresaId: valor inválido 'abc'"));
     }
+
+    @Test
+    void ampliarCupoSinClasesAdicionalesDevuelve400() throws Exception {
+        mockMvc.perform(post("/api/contratos/1/ampliar-cupo"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("clasesAdicionales: es obligatorio"));
+        verify(contratoService, never()).ampliarCupo(org.mockito.ArgumentMatchers.anyLong(), org.mockito.ArgumentMatchers.anyInt());
+    }
 }

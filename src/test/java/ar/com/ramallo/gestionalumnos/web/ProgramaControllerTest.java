@@ -128,4 +128,13 @@ class ProgramaControllerTest {
                 .andExpect(jsonPath("$.cantidadInscripcionesActivas").value(0))
                 .andExpect(jsonPath("$.diasDeGrupo.length()").value(0));
     }
+
+    @Test
+    void unaCategoriaInexistenteEnElBodyDevuelve400ConLosValoresPermitidos() throws Exception {
+        mockMvc.perform(post("/api/programas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nombre\":\"x\",\"categoria\":\"OTRA\",\"estrategiaEvaluacion\":\"CENMA_BASE\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("categoria: valor inválido 'OTRA' (permitidos: ESCOLAR, PARTICULAR)"));
+    }
 }

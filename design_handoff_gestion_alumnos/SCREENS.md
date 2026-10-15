@@ -225,7 +225,7 @@ Se abre desde el botón del header de **Evaluaciones**, en el detalle de una ins
   sobre las instancias que promedian."
 - Cuatro campos: **Módulo*** (select con los módulos de esa inscripción) · **Tipo***
   (`NOTA` / `TP_INTEGRADOR` / `EVALUACION_FINAL`, cada opción con su glosa) ·
-  **Fecha*** (mono) · **Nota*** (mono, placeholder "0.00 – 10.00").
+  **Fecha*** (selector de fecha, mono; la API solo acepta `yyyy-MM-dd`) · **Nota*** (mono, placeholder "0.00 – 10.00").
 - Con `TP_INTEGRADOR` el cuarto campo **cambia de control**: pasa a select
   `Aprobado` / `No aprobado` y la etiqueta a "Resultado". Es el único tipo que no promedia.
 - Panel violeta, tres variantes: gate ("El TP integrador no promedia: es el gate que

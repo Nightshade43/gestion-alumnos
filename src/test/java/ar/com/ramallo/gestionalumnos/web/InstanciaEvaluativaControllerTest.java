@@ -94,4 +94,40 @@ class InstanciaEvaluativaControllerTest {
                         .content("{\"inscripcionId\":1,\"moduloId\":99,\"tipo\":\"NOTA\",\"fecha\":\"2026-03-01\"}"))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void unaFechaConOtroFormatoDevuelve400ConElFormatoEsperado() throws Exception {
+        mockMvc.perform(post("/api/instancias-evaluativas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"inscripcionId\":1,\"moduloId\":1,\"tipo\":\"NOTA\",\"fecha\":\"10/03/2026\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("fecha: valor inválido '10/03/2026' (formato esperado: yyyy-MM-dd)"));
+    }
+
+    @Test
+    void unTipoInexistenteDevuelve400ConLosValoresPermitidos() throws Exception {
+        mockMvc.perform(post("/api/instancias-evaluativas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"inscripcionId\":1,\"moduloId\":1,\"tipo\":\"PARCIAL\",\"fecha\":\"2026-03-01\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.startsWith("tipo: valor inválido 'PARCIAL' (permitidos: ")));
+    }
+
+    @Test
+    void unIdConTextoDevuelve400() throws Exception {
+        mockMvc.perform(post("/api/instancias-evaluativas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"inscripcionId\":\"abc\",\"moduloId\":1,\"tipo\":\"NOTA\",\"fecha\":\"2026-03-01\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("inscripcionId: valor inválido 'abc'"));
+    }
+
+    @Test
+    void unJsonMalformadoDevuelve400SinExponerElErrorDeLaLibreria() throws Exception {
+        mockMvc.perform(post("/api/instancias-evaluativas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{inscripcionId:1,moduloId:1}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Cuerpo de la solicitud inválido o malformado"));
+    }
 }

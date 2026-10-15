@@ -508,7 +508,7 @@ function NotaModal({ inscripcionId, modulos, instancias, estrategia, onClose }: 
         </div>
 
         <Field label="Fecha" required error={fieldErrors.fecha}>
-          <Input value={fecha} onChange={(e) => setFecha(e.target.value)} mono invalid={!!fieldErrors.fecha} />
+          <Input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} mono invalid={!!fieldErrors.fecha} />
         </Field>
 
         <Field
