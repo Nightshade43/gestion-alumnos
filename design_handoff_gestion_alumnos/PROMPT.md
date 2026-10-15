@@ -56,7 +56,7 @@ Heurísticas de cliente marcadas en el código, por si el backend cambia (las tr
 justificadas en `BACKEND.md`):
 - el tope del pool solo aplica con `PAQUETE`;
 - "módulo aprobado" lo calcula el front (`evaluarModulo` en `InscripcionScreen.tsx`);
-- el gate de Sede se guarda como `nota` 10/0 porque no existe un campo `aprobado`.
+- el gate de Sede (`TP_INTEGRADOR`) usa `aprobado`; el `INTEGRADOR` de Base lleva nota (desde 6).
 
 Si el backend implementa alguno de los 8 puntos de `BACKEND.md`, borrá el workaround
 correspondiente en el mismo commit y actualizá `types.ts`.

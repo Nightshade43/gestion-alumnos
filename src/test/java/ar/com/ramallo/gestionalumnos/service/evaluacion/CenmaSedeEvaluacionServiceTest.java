@@ -92,6 +92,34 @@ class CenmaSedeEvaluacionServiceTest {
         assertThat(service.tpAprobado(inscripcion, modulo)).isTrue();
     }
 
+    @Test
+    void tpAprobadoUsaElCampoAprobadoAunSinNota() {
+        InstanciaEvaluativa tp = instancia(TipoInstanciaEvaluativa.TP_INTEGRADOR, "0.00", LocalDate.now());
+        tp.setNota(null);
+        tp.setAprobado(true);
+        mockearTp(tp);
+
+        assertThat(service.tpAprobado(inscripcion, modulo)).isTrue();
+    }
+
+    @Test
+    void elCampoAprobadoManda_porSobreLaNota() {
+        InstanciaEvaluativa tp = instancia(TipoInstanciaEvaluativa.TP_INTEGRADOR, "10.00", LocalDate.now());
+        tp.setAprobado(false);
+        mockearTp(tp);
+
+        assertThat(service.tpAprobado(inscripcion, modulo)).isFalse();
+    }
+
+    @Test
+    void tpSinNotaNiAprobadoNoCuentaComoAprobado() {
+        InstanciaEvaluativa tp = instancia(TipoInstanciaEvaluativa.TP_INTEGRADOR, "0.00", LocalDate.now());
+        tp.setNota(null);
+        mockearTp(tp);
+
+        assertThat(service.tpAprobado(inscripcion, modulo)).isFalse();
+    }
+
     private InstanciaEvaluativa instancia(TipoInstanciaEvaluativa tipo, String nota, LocalDate fecha) {
         return InstanciaEvaluativa.builder()
                 .inscripcion(inscripcion).modulo(modulo).tipo(tipo)

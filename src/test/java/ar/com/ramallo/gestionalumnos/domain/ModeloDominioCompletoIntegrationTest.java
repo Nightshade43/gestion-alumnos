@@ -21,7 +21,7 @@ class ModeloDominioCompletoIntegrationTest {
 
     @Test
     void armaElGrafoCompletoDeLaRamaEscolar() {
-        Institucion institucion = Institucion.builder().nombre("CENMA Bo SMATA").build();
+        Institucion institucion = Institucion.builder().nombre("CENMA Bo SMATA - test grafo completo").build();
         entityManager.persist(institucion);
 
         Programa programa = Programa.builder()
@@ -76,7 +76,7 @@ class ModeloDominioCompletoIntegrationTest {
 
         Inscripcion recargada = entityManager.find(Inscripcion.class, inscripcion.getId());
         assertThat(recargada.getPersona().getNombre()).isEqualTo("Valentina Ríos");
-        assertThat(recargada.getPrograma().getInstitucion().getNombre()).isEqualTo("CENMA Bo SMATA");
+        assertThat(recargada.getPrograma().getInstitucion().getNombre()).isEqualTo("CENMA Bo SMATA - test grafo completo");
         assertThat(recargada.getPlan().getCodigo()).isEqualTo("A");
         assertThat(recargada.getGrupo().getDia()).isEqualTo("Miercoles");
         assertThat(recargada.getEstado()).isEqualTo(EstadoInscripcion.ACTIVA);

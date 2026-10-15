@@ -40,7 +40,7 @@ Los ítems 1-3 están resueltos en el backend y **adoptados en el frontend**:
 | 4 | Contadores de programa (módulos / días) | campos nuevos | Media | No (aditivo) | Pendiente |
 | 5 | Filtros en `GET /api/contratos` | params opcionales | Media | No | Pendiente |
 | 6 | `PUT` de Institución y Empresa | endpoints nuevos | Media | No | Pendiente |
-| 7 | `aprobado` en instancia evaluativa (gate de Sede) | modelo | Alta | Sí (migración) | Pendiente |
+| 7 | `aprobado` en instancia evaluativa (gate de Sede) | modelo | Alta | No (aditivo, nullable) | ✅ Resuelto y adoptado (`TP_INTEGRADOR`; el integrador de Base lleva nota) |
 | 8 | Endpoint de métricas de Inicio | endpoint nuevo | Baja | No | Pendiente |
 
 ---
@@ -258,6 +258,20 @@ sabe mostrar el 409 como toast persistente).
 ---
 
 ## 7. El gate de Sede no tiene campo propio (deuda de modelo)
+
+> **✅ Resuelto en backend y adoptado en frontend, solo para `TP_INTEGRADOR` (Sede).**
+> `InstanciaEvaluativa.aprobado` (`Boolean`, nullable): obligatorio al cargar un `TP_INTEGRADOR`
+> (400 si falta), `nota` opcional, ignorado en los demás tipos. Sin script de migración: con
+> `ddl-auto=update` la columna se agrega sola y las filas previas (`aprobado = null`) se leen por
+> `nota >= 6` (`CenmaSedeEvaluacionService.gateAprobado` y `gateAprobado` en `InscripcionScreen.tsx`).
+> **Base no usa este campo, y se alineó con la regla de negocio:** un módulo de Base se aprueba con
+> 3 notas que promedian ≥ 6 **más** el `INTEGRADOR` con nota ≥ 6 (si se rinde de nuevo vale el más
+> reciente). El integrador lleva nota real, no booleano: `CenmaBaseEvaluacionService.moduloAprobado`
+> lo exige (antes lo ignoraba y el frontend sí, por eso podían discrepar), y el promedio solo toma
+> instancias de tipo `NOTA`. El mapeo 10/0 del integrador desapareció del frontend. Efecto visible:
+> `puedeFinalizar` pasa a `false` en Base hasta que el integrador de cada módulo esté aprobado.
+>
+> El texto de abajo es la propuesta original.
 
 **Hoy.** `InstanciaEvaluativa` guarda `nota` (`BigDecimal`) y `cuentaParaPromedio`. En
 **CENMA Sede** el `TP_INTEGRADOR` no es una nota: es un **gate binario** (aprobado / no

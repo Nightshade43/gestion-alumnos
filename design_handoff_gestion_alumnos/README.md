@@ -38,7 +38,7 @@ implementación de las 11 pantallas salieron **8 pendientes nuevos**, ninguno bl
 están especificados uno por uno, con contrato propuesto y criterio de aceptación, en
 **[BACKEND.md](./BACKEND.md)**. El frontend funciona sin ellos; lo que cambian es cantidad
 de requests, exactitud de dos avisos de Inicio y una deuda de modelo (el gate de Sede
-guardado como nota 10/0).
+guardado como nota 10/0; resuelto con el campo `aprobado` del `TP_INTEGRADOR`).
 
 ### Gaps de la primera revisión — resueltos
 Los tres gaps de la primera lectura ya están cerrados en `master`. El paquete quedó

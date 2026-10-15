@@ -85,7 +85,7 @@ Todas las relaciones son **unidireccionales** (el lado "muchos" conoce al "uno",
 ### 4.1 CENMA Bº SMATA — Base
 - 1 clase semanal, único curso (1er año), único Grupo por ciclo lectivo (lunes 19–21).
 - 2 módulos por ciclo lectivo, cada uno con actividad integradora interdisciplinaria (`cuentaParaPromedio = false`).
-- Mínimo 3 notas por módulo (sin contar el integrador). Aprobación: nota ≥ 6.
+- Mínimo 3 notas por módulo (sin contar el integrador). El módulo se aprueba con promedio ≥ 6 **y** el integrador interdisciplinario con nota ≥ 6 (si se rinde de nuevo vale el más reciente).
 - Recuperatorio: la nota reemplaza a la original en el promedio; el original se conserva vía `recuperaA`.
 - Promedio de módulo y de ciclo lectivo con 2 decimales (`BigDecimal`, no `double`).
 
@@ -132,7 +132,7 @@ Todas las relaciones son **unidireccionales** (el lado "muchos" conoce al "uno",
 - Roles / multi-usuario (hoy un único usuario admin sembrado por `AdminUserSeeder`, sin endpoint de alta).
 - CORS para el backend (el frontend ya lee `VITE_API_BASE`; en desarrollo el proxy de Vite lo evita, pero producción con front y back en orígenes distintos lo necesita).
 - Logging estructurado.
-- Los 5 puntos de `design_handoff_gestion_alumnos/BACKEND.md` todavía sin resolver (contadores de programa, filtros en `GET /api/contratos`, `PUT` de Institución/Empresa, campo `aprobado` para el gate de Sede, endpoint de métricas de Inicio).
+- Los 4 puntos de `design_handoff_gestion_alumnos/BACKEND.md` todavía sin resolver (contadores de programa, filtros en `GET /api/contratos`, `PUT` de Institución/Empresa, endpoint de métricas de Inicio).
 - Migraciones versionadas (Flyway/Liquibase) — hoy el esquema se genera con `ddl-auto=update`, razonable en desarrollo individual pero sin control de versión del esquema.
 - Spring Actuator / endpoint de salud, necesario para desplegar en cualquier PaaS.
 - `InstitucionController` es el único de los 12 controllers sin test dedicado.
@@ -176,12 +176,12 @@ ar.com.ramallo.gestionalumnos
 - `frontend/`: las 11 pantallas (Vite + React 19 + TypeScript + TanStack Query) consumiendo esta API, con tema visual propio (Dark CENMA) documentado en `design_handoff_gestion_alumnos/`.
 
 **Pendiente** (detalle en la sección 6 de este documento y en `design_handoff_gestion_alumnos/BACKEND.md`):
-- 5 de los 8 puntos de `BACKEND.md` (contadores de programa, filtros de contratos, `PUT` de Institución/Empresa, campo `aprobado` del gate de Sede, métricas de Inicio); los otros 3 ya están en `master` pero el frontend todavía no los adoptó.
+- 4 de los 8 puntos de `BACKEND.md` (contadores de programa, filtros de contratos, `PUT` de Institución/Empresa, métricas de Inicio); los otros 4 ya están resueltos y adoptados.
 - `API_REFERENCE.md` (contrato completo de la API) — referenciado desde el README raíz pero todavía no escrito.
 - `InstitucionControllerTest` — el único controller sin test dedicado.
 - CI (no hay `.github/workflows`), CORS, Dockerfile/deploy, Actuator, migraciones versionadas.
 
 ### Próximo entregable
 
-Los 3 puntos de `BACKEND.md` resueltos en el backend (listado global de seguimientos, `puedeFinalizar`, `EmpleadoCubierto`) ya están adoptados en el frontend. Siguen pendientes los puntos 4-8 de `BACKEND.md`, empezando por el campo `aprobado` del gate de Sede.
+Los 3 puntos de `BACKEND.md` resueltos en el backend (listado global de seguimientos, `puedeFinalizar`, `EmpleadoCubierto`) ya están adoptados en el frontend. El campo `aprobado` del gate de Sede (punto 7, solo `TP_INTEGRADOR`) también está resuelto. Siguen pendientes los puntos 4, 5, 6 y 8 de `BACKEND.md`.
 

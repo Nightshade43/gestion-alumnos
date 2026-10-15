@@ -8,11 +8,12 @@ import java.time.LocalDate;
 
 public record InstanciaEvaluativaResponse(
         Long id, Long inscripcionId, Long moduloId, TipoInstanciaEvaluativa tipo,
-        BigDecimal nota, LocalDate fecha, boolean cuentaParaPromedio, Long recuperaAId) {
+        BigDecimal nota, LocalDate fecha, boolean cuentaParaPromedio, Long recuperaAId,
+        Boolean aprobado) {
     public static InstanciaEvaluativaResponse from(InstanciaEvaluativa i) {
         return new InstanciaEvaluativaResponse(
                 i.getId(), i.getInscripcion().getId(), i.getModulo().getId(), i.getTipo(),
                 i.getNota(), i.getFecha(), i.isCuentaParaPromedio(),
-                i.getRecuperaA() != null ? i.getRecuperaA().getId() : null);
+                i.getRecuperaA() != null ? i.getRecuperaA().getId() : null, i.getAprobado());
     }
 }

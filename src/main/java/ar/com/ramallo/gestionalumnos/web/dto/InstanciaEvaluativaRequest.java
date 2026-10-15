@@ -8,4 +8,5 @@ import java.time.LocalDate;
 
 public record InstanciaEvaluativaRequest(
         @NotNull Long inscripcionId, @NotNull Long moduloId, @NotNull TipoInstanciaEvaluativa tipo,
-        BigDecimal nota, @NotNull LocalDate fecha, Boolean cuentaParaPromedio, Long recuperaAId) {}
+        BigDecimal nota, @NotNull LocalDate fecha, Boolean cuentaParaPromedio, Long recuperaAId,
+        Boolean aprobado) {}

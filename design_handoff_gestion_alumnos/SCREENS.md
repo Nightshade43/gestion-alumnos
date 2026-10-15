@@ -306,8 +306,8 @@ El modal cambia de tipos según la línea; no hay un select universal de 4 tipos
 - **Sede** — `TP_INTEGRADOR` (gate, control Aprobado / No aprobado, no promedia) y
   `EVALUACION_FINAL` (nota numérica). Aviso: "la final ES la nota del módulo, no se promedia
   con el TP" y que la API no valida la secuencia.
-- **Base** — `NOTA` (promedia) e `INTEGRADOR` (interdisciplinario,
-  `cuentaParaPromedio = false`). Bajo el select, contador vivo: "Este módulo tiene 2 de las 3
+- **Base** — `NOTA` (promedia) e `INTEGRADOR` (interdisciplinario, lleva nota y se aprueba con 6;
+  `cuentaParaPromedio = false`, pero el módulo no se aprueba sin él). Bajo el select, contador vivo: "Este módulo tiene 2 de las 3
   notas mínimas (el integrador no cuenta)".
 - **Recupera a** (solo Base, solo tipo `NOTA`, solo si ya hay notas): select con las notas
   vigentes del módulo. Al guardar, la original pasa a *no promedia* con la observación
@@ -338,10 +338,10 @@ Sincronizado con §19–21:
 - `InscripcionesScreen.tsx` — columna Plan muestra "Sin plan" en Base, panel informativo de
   Base en el alta, y el pie del formulario cambia por estrategia.
 
-**Deuda con backend**: el gate (`TP_INTEGRADOR` / `INTEGRADOR`) no tiene campo booleano; se
-guarda como `nota: 10 | 0` con `cuentaParaPromedio: false` y la UI lo lee como
-aprobado / no aprobado. Si el backend agrega un campo propio, ese mapeo se borra (está
-marcado con comentario en `NotaModal`).
+**Gate**: el `TP_INTEGRADOR` de Sede viaja con `aprobado: true | false` y sin nota, con
+`cuentaParaPromedio: false`; las filas anteriores al campo se leen por `nota >= 6`. El
+`INTEGRADOR` de Base no es un booleano: lleva nota (aprobado desde 6) y es requisito del módulo
+junto con las 3 notas (`BACKEND.md` §7).
 
 ## 23. Dos huecos de API, ya resueltos
 
@@ -376,7 +376,7 @@ campo lo reemplazaría.
 | 4 | Módulos, planes y grupos solo se consultan por `programaId` | Instituciones los pide **solo al desplegar** una fila: 1 request por programa abierto | `cantidadModulos` y `dias` en `ProgramaResponse`, o `GET /api/programas?institucionId=` con contadores |
 | 5 | `GET /api/contratos` no acepta filtros | Contratos y Empresas filtran estado y empresa en cliente | `?empresaId=` y `?estado=`, mismo criterio que `/api/inscripciones` |
 | 6 | `InstitucionController` y `EmpresaController` solo tienen list/get/create | La UI no ofrece editar ni dar de baja instituciones ni empresas | `PUT /{id}` en ambos; baja lógica cuando hay contratos o programas asociados |
-| 7 | El gate de Sede (TP integrador aprobado / no aprobado) no tiene campo propio | Se guarda como `nota` 10 / 0 y la UI lo lee como booleano | `aprobado: boolean` en `InstanciaEvaluativa` para `TP_INTEGRADOR` |
+| 7 | El gate de Sede (TP integrador aprobado / no aprobado) no tiene campo propio | ~~Se guarda como `nota` 10 / 0~~ Resuelto: `aprobado` en `InstanciaEvaluativa` (solo `TP_INTEGRADOR`; el `INTEGRADOR` de Base sigue en 10/0) | `aprobado: boolean` en `InstanciaEvaluativa` para `TP_INTEGRADOR` |
 | 8 | Sin endpoint de métricas | Inicio calcula los 4 KPIs en cliente sobre dos listados completos | opcional: `GET /api/metricas`, solo si los listados crecen |
 
 Los tres primeros son los que cambian la UI de forma visible. 6 y 7 son deuda de modelo.

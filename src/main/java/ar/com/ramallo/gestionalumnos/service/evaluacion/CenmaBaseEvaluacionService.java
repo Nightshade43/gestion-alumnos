@@ -3,12 +3,14 @@ package ar.com.ramallo.gestionalumnos.service.evaluacion;
 import ar.com.ramallo.gestionalumnos.domain.Inscripcion;
 import ar.com.ramallo.gestionalumnos.domain.InstanciaEvaluativa;
 import ar.com.ramallo.gestionalumnos.domain.Modulo;
+import ar.com.ramallo.gestionalumnos.domain.enums.TipoInstanciaEvaluativa;
 import ar.com.ramallo.gestionalumnos.repository.InstanciaEvaluativaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -32,7 +34,22 @@ public class CenmaBaseEvaluacionService implements EstrategiaEvaluacionService {
         if (vigentes.size() < MINIMO_NOTAS_POR_MODULO) {
             return false;
         }
-        return promedio(vigentes)
+        boolean promedioAprobado = promedio(vigentes)
+                .map(nota -> nota.compareTo(NOTA_APROBACION) >= 0)
+                .orElse(false);
+        return promedioAprobado && integradorAprobado(inscripcion, modulo);
+    }
+
+    /**
+     * El integrador interdisciplinario lleva nota propia y se aprueba con 6 o más. Si se rinde
+     * de nuevo vale el más reciente. No entra al promedio: es un requisito aparte de las 3 notas.
+     */
+    public boolean integradorAprobado(Inscripcion inscripcion, Modulo modulo) {
+        return instanciaEvaluativaRepository.findByInscripcionIdAndModuloId(inscripcion.getId(), modulo.getId())
+                .stream()
+                .filter(instancia -> instancia.getTipo() == TipoInstanciaEvaluativa.INTEGRADOR)
+                .max(Comparator.comparing(InstanciaEvaluativa::getFecha))
+                .map(InstanciaEvaluativa::getNota)
                 .map(nota -> nota.compareTo(NOTA_APROBACION) >= 0)
                 .orElse(false);
     }
@@ -59,6 +76,9 @@ public class CenmaBaseEvaluacionService implements EstrategiaEvaluacionService {
                 .collect(Collectors.toSet());
 
         return todas.stream()
+                // Por tipo y no solo por el flag: cuentaParaPromedio es true por defecto en la API y un
+                // INTEGRADOR cargado sin indicarlo no debe contaminar el promedio de las notas.
+                .filter(instancia -> instancia.getTipo() == TipoInstanciaEvaluativa.NOTA)
                 .filter(InstanciaEvaluativa::isCuentaParaPromedio)
                 .filter(instancia -> !reemplazadasPorRecuperatorio.contains(instancia.getId()))
                 .toList();

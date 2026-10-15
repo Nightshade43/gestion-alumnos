@@ -38,6 +38,13 @@ public class InstanciaEvaluativa {
 
     private BigDecimal nota;
 
+    /**
+     * Resultado del gate de Sede (solo {@code TP_INTEGRADOR}); {@code null} en el resto de los tipos.
+     * Nullable a propósito: con ddl-auto=update las filas anteriores a este campo quedan en null y
+     * {@code CenmaSedeEvaluacionService.tpAprobado} las resuelve por {@code nota >= 6}, como se guardaban antes.
+     */
+    private Boolean aprobado;
+
     @Column(nullable = false)
     private LocalDate fecha;
 

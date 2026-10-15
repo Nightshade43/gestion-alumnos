@@ -34,9 +34,16 @@ public class CenmaSedeEvaluacionService implements EstrategiaEvaluacionService {
 
     public boolean tpAprobado(Inscripcion inscripcion, Modulo modulo) {
         return ultimaInstancia(inscripcion, modulo, TipoInstanciaEvaluativa.TP_INTEGRADOR)
-                .map(InstanciaEvaluativa::getNota)
-                .map(nota -> nota.compareTo(NOTA_APROBACION) >= 0)
+                .map(this::gateAprobado)
                 .orElse(false);
+    }
+
+    /** Campo propio si existe; si no (filas previas al campo), la nota 10/0 con que se guardaba el gate. */
+    private boolean gateAprobado(InstanciaEvaluativa instancia) {
+        if (instancia.getAprobado() != null) {
+            return instancia.getAprobado();
+        }
+        return instancia.getNota() != null && instancia.getNota().compareTo(NOTA_APROBACION) >= 0;
     }
 
     private boolean evaluacionFinalAprobada(Inscripcion inscripcion, Modulo modulo) {

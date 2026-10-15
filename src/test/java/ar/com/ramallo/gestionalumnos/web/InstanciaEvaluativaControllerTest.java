@@ -57,6 +57,34 @@ class InstanciaEvaluativaControllerTest {
     }
 
     @Test
+    void creaUnTpIntegradorConAprobadoYSinNota() throws Exception {
+        Inscripcion inscripcion = Inscripcion.builder().id(1L).build();
+        Modulo modulo = Modulo.builder().id(1L).build();
+        InstanciaEvaluativa guardada = InstanciaEvaluativa.builder().id(2L).inscripcion(inscripcion).modulo(modulo)
+                .tipo(TipoInstanciaEvaluativa.TP_INTEGRADOR).aprobado(true)
+                .fecha(LocalDate.now()).cuentaParaPromedio(false).build();
+        when(inscripcionRepository.findById(1L)).thenReturn(Optional.of(inscripcion));
+        when(moduloRepository.findById(1L)).thenReturn(Optional.of(modulo));
+        when(instanciaEvaluativaRepository.save(any())).thenReturn(guardada);
+
+        mockMvc.perform(post("/api/instancias-evaluativas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"inscripcionId\":1,\"moduloId\":1,\"tipo\":\"TP_INTEGRADOR\",\"aprobado\":true,"
+                                + "\"cuentaParaPromedio\":false,\"fecha\":\"2026-03-01\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.aprobado").value(true));
+    }
+
+    @Test
+    void devuelve400SiUnTpIntegradorNoTraeAprobado() throws Exception {
+        mockMvc.perform(post("/api/instancias-evaluativas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"inscripcionId\":1,\"moduloId\":1,\"tipo\":\"TP_INTEGRADOR\",\"nota\":10,\"fecha\":\"2026-03-01\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("aprobado: es obligatorio para TP_INTEGRADOR"));
+    }
+
+    @Test
     void devuelve404SiElModuloNoExiste() throws Exception {
         when(inscripcionRepository.findById(1L)).thenReturn(Optional.of(Inscripcion.builder().id(1L).build()));
         when(moduloRepository.findById(99L)).thenReturn(Optional.empty());

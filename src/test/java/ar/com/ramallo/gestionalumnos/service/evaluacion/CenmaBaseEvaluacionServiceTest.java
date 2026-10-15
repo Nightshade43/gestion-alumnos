@@ -45,10 +45,42 @@ class CenmaBaseEvaluacionServiceTest {
     }
 
     @Test
-    void moduloAprobadoConPromedioMayorOIgualASeisYAlMenosTresNotas() {
-        mockearInstancias(nota("6.00"), nota("7.00"), nota("8.00"));
+    void moduloAprobadoConPromedioMayorOIgualASeisAlMenosTresNotasEIntegradorAprobado() {
+        mockearInstancias(nota("6.00"), nota("7.00"), nota("8.00"), integrador("6.00", LocalDate.now()));
 
         assertThat(service.moduloAprobado(inscripcion, modulo)).isTrue();
+    }
+
+    @Test
+    void moduloNoAprobadoSinIntegradorAunqueElPromedioAlcance() {
+        mockearInstancias(nota("8.00"), nota("9.00"), nota("10.00"));
+
+        assertThat(service.moduloAprobado(inscripcion, modulo)).isFalse();
+    }
+
+    @Test
+    void moduloNoAprobadoConIntegradorMenorASeis() {
+        mockearInstancias(nota("8.00"), nota("9.00"), nota("10.00"), integrador("5.00", LocalDate.now()));
+
+        assertThat(service.moduloAprobado(inscripcion, modulo)).isFalse();
+    }
+
+    @Test
+    void elIntegradorMasRecienteEsElQueVale() {
+        mockearInstancias(nota("7.00"), nota("7.00"), nota("7.00"),
+                integrador("3.00", LocalDate.now().minusDays(10)),
+                integrador("8.00", LocalDate.now()));
+
+        assertThat(service.moduloAprobado(inscripcion, modulo)).isTrue();
+    }
+
+    @Test
+    void unIntegradorConCuentaParaPromedioPorDefectoNoContaminaElPromedio() {
+        InstanciaEvaluativa integrador = integrador("2.00", LocalDate.now());
+        integrador.setCuentaParaPromedio(true);
+        mockearInstancias(nota("7.00"), nota("7.00"), nota("7.00"), integrador);
+
+        assertThat(service.notaModulo(inscripcion, modulo)).contains(new BigDecimal("7.00"));
     }
 
     @Test
@@ -104,6 +136,16 @@ class CenmaBaseEvaluacionServiceTest {
 
         assertThat(detalle.notas()).hasSize(4);
         assertThat(detalle.promedio()).contains(new BigDecimal("8.00"));
+    }
+
+    private InstanciaEvaluativa integrador(String valor, LocalDate fecha) {
+        return InstanciaEvaluativa.builder()
+                .inscripcion(inscripcion).modulo(modulo)
+                .tipo(TipoInstanciaEvaluativa.INTEGRADOR)
+                .nota(new BigDecimal(valor))
+                .fecha(fecha)
+                .cuentaParaPromedio(false)
+                .build();
     }
 
     private InstanciaEvaluativa nota(String valor) {

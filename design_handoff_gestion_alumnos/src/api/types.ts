@@ -88,10 +88,14 @@ export interface ContratoResponse {
 export interface InstanciaEvaluativaRequest {
   inscripcionId: number; moduloId: number; tipo: TipoInstanciaEvaluativa;
   nota?: Decimal | null; fecha: IsoDate; cuentaParaPromedio?: boolean | null; recuperaAId?: number | null;
+  /** Obligatorio para TP_INTEGRADOR (400 si falta); el backend lo ignora en los demás tipos. */
+  aprobado?: boolean | null;
 }
 export interface InstanciaEvaluativaResponse {
   id: number; inscripcionId: number; moduloId: number; tipo: TipoInstanciaEvaluativa;
   nota: Decimal | null; fecha: IsoDate; cuentaParaPromedio: boolean; recuperaAId: number | null;
+  /** Solo TP_INTEGRADOR. null en el resto y en filas anteriores al campo. */
+  aprobado: boolean | null;
 }
 
 export interface SeguimientoRequest { inscripcionId: number; fecha: IsoDate; observacion: string }

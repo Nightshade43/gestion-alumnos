@@ -69,8 +69,8 @@ existen. Si se implementa alguno en el backend, borrar el workaround correspondi
 mismo commit.
 
 Workarounds vigentes marcados en el código:
-- `evaluarModulo` en `InscripcionScreen.tsx` (la API no expone "módulo aprobado");
-- el gate de Sede se guarda como `nota` 10/0 porque no existe un campo `aprobado`.
+- `evaluarModulo` en `InscripcionScreen.tsx` (la API no expone "módulo aprobado"); tiene que
+  seguir la regla de los `*EvaluacionService` del backend, incluido el integrador de Base.
 
 ## Desarrollo
 

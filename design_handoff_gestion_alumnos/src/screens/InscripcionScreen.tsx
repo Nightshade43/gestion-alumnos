@@ -179,12 +179,26 @@ const MIN_NOTAS_BASE = 3;   // CENMA Base: mínimo 3 notas por módulo, sin cont
 const esGate = (t: TipoInstanciaEvaluativa) => t === 'TP_INTEGRADOR' || t === 'INTEGRADOR';
 
 /**
+ * Resultado de un gate. Son dos reglas distintas:
+ *   TP_INTEGRADOR (Sede) → booleano `aprobado`; las filas anteriores al campo lo tienen en null
+ *                          y se leen por la nota 10/0 con que se guardaban.
+ *   INTEGRADOR (Base)    → nota propia, aprobado desde 6 (CenmaBaseEvaluacionService.integradorAprobado).
+ */
+const gateAprobado = (n: InstanciaEvaluativaResponse) =>
+  n.tipo === 'TP_INTEGRADOR' ? (n.aprobado ?? (n.nota ?? 0) >= NOTA_APROBACION) : (n.nota ?? 0) >= NOTA_APROBACION;
+
+/** Si se rinde de nuevo, el backend toma la instancia más reciente del tipo; no todas. */
+const ultimaPorFecha = (xs: InstanciaEvaluativaResponse[]) =>
+  xs.reduce<InstanciaEvaluativaResponse | null>((a, b) => (a == null || b.fecha > a.fecha ? b : a), null);
+
+/**
  * "Módulo aprobado" no lo expone la API: se calcula en cliente y se marca como
  * heurística. Las dos líneas cierran el módulo de forma distinta.
  */
 function evaluarModulo(instancias: InstanciaEvaluativaResponse[], estrategia?: EstrategiaEvaluacion) {
   const gates = instancias.filter((n) => esGate(n.tipo));
-  const gatesOk = gates.length > 0 && gates.every((g) => (g.nota ?? 0) >= NOTA_APROBACION);
+  const ultimoGate = ultimaPorFecha(gates);
+  const gatesOk = ultimoGate != null && gateAprobado(ultimoGate);
   const finales = instancias.filter((n) => n.tipo === 'EVALUACION_FINAL');
   const notas = instancias.filter((n) => n.tipo === 'NOTA');
 
@@ -337,7 +351,8 @@ function Modulo({ modulo, instancias, estrategia }: {
         <tbody>
           {instancias.slice().sort((a, b) => (a.fecha < b.fecha ? -1 : 1)).map((n) => {
             const gate = esGate(n.tipo);
-            const ok = (n.nota ?? 0) >= NOTA_APROBACION;
+            const tp = n.tipo === 'TP_INTEGRADOR';
+            const ok = gate ? gateAprobado(n) : (n.nota ?? 0) >= NOTA_APROBACION;
             const fueRecuperada = recuperadas.has(n.id);
             const promedia = !gate && n.cuentaParaPromedio && !fueRecuperada;
             return (
@@ -345,7 +360,9 @@ function Modulo({ modulo, instancias, estrategia }: {
                 <td style={{ ...tdStyle, fontFamily: 'var(--ga-font-mono)', fontSize: 13 }}>{n.tipo}</td>
                 <td style={{ ...tdStyle, fontFamily: 'var(--ga-font-mono)', fontSize: 13.5, color: 'var(--ga-muted)' }}>{n.fecha}</td>
                 <td style={{ ...tdStyle, fontWeight: 500, color: ok ? 'var(--ga-ink)' : 'var(--ga-danger-fg)' }}>
-                  {n.nota == null ? '—' : gate ? (ok ? 'Aprobado' : 'No aprobado') : n.nota.toFixed(2)}
+                  {tp
+                    ? (n.aprobado == null && n.nota == null ? '—' : ok ? 'Aprobado' : 'No aprobado')
+                    : n.nota == null ? '—' : n.nota.toFixed(2)}
                 </td>
                 <td style={{ ...tdStyle, fontSize: 13.5, color: 'var(--ga-muted)' }}>{promedia ? 'Sí' : 'No'}</td>
                 <td style={{ ...tdStyle, fontSize: 13.5, color: 'var(--ga-muted)' }}>
@@ -374,7 +391,7 @@ const TIPOS: Record<string, { v: TipoInstanciaEvaluativa; label: string }[]> = {
   ],
   CENMA_BASE: [
     { v: 'NOTA', label: 'NOTA — promedia (mínimo 3 por módulo)' },
-    { v: 'INTEGRADOR', label: 'INTEGRADOR — interdisciplinario, no promedia' },
+    { v: 'INTEGRADOR', label: 'INTEGRADOR — interdisciplinario, no promedia (se aprueba con 6)' },
   ],
 };
 
@@ -400,6 +417,8 @@ function NotaModal({ inscripcionId, modulos, instancias, estrategia, onClose }: 
   const [recuperaAId, setRecuperaAId] = React.useState('');
 
   const gate = esGate(tipo);
+  // Solo el TP de Sede es un booleano; el integrador de Base lleva nota como cualquier otra.
+  const tpIntegrador = tipo === 'TP_INTEGRADOR';
   const delModulo = instancias.filter((n) => n.moduloId === moduloId);
   const notasCargadas = delModulo.filter((n) => n.tipo === 'NOTA');
   const recuperadas = new Set(delModulo.map((n) => n.recuperaAId).filter(Boolean) as number[]);
@@ -411,13 +430,13 @@ function NotaModal({ inscripcionId, modulos, instancias, estrategia, onClose }: 
         ? 'El TP integrador no lleva nota propia ni promedia: es el gate que habilita la EVALUACION_FINAL y, en módulos secuenciales, el módulo siguiente.'
         : 'En Sede la final ES la nota del módulo: no se promedia con el TP. La API no valida la secuencia, así que se puede cargar sin el TP aprobado.')
     : (gate
-        ? 'El integrador interdisciplinario va con cuentaParaPromedio = false: no entra al promedio del módulo.'
+        ? 'El integrador interdisciplinario lleva nota (se aprueba con 6 o más) y va con cuentaParaPromedio = false: no entra al promedio, pero el módulo no se aprueba sin él.'
         : 'La nota entra al promedio del módulo (2 decimales). Con recuperatorio, la nueva reemplaza a la original en el promedio y la original se conserva.');
 
   const submit = () => {
     if (!moduloId) { push({ tone: 'warn', title: '400 · Falta el módulo', text: 'moduloId es obligatorio.' }); return; }
     const valor = parseFloat(nota.replace(',', '.'));
-    if (!gate && (isNaN(valor) || valor < 0 || valor > 10)) {
+    if (!tpIntegrador && (isNaN(valor) || valor < 0 || valor > 10)) {
       push({ tone: 'warn', title: '400 · Nota inválida', text: 'La nota va de 0.00 a 10.00.' });
       return;
     }
@@ -425,9 +444,9 @@ function NotaModal({ inscripcionId, modulos, instancias, estrategia, onClose }: 
       inscripcionId,
       moduloId,
       tipo,
-      // La API no tiene un booleano para el gate: se registra como nota y la UI lo lee como
-      // aprobado / no aprobado. Si el backend agrega un campo propio, este mapeo se borra.
-      nota: gate ? (aprobado === 'Aprobado' ? 10 : 0) : valor,
+      // TP_INTEGRADOR viaja con su campo propio y sin nota; el resto lleva nota.
+      nota: tpIntegrador ? undefined : valor,
+      aprobado: tpIntegrador ? aprobado === 'Aprobado' : undefined,
       fecha,
       cuentaParaPromedio: !gate,
       recuperaAId: puedeRecuperar && recuperaAId ? Number(recuperaAId) : undefined,
@@ -492,8 +511,13 @@ function NotaModal({ inscripcionId, modulos, instancias, estrategia, onClose }: 
           <Input value={fecha} onChange={(e) => setFecha(e.target.value)} mono invalid={!!fieldErrors.fecha} />
         </Field>
 
-        <Field label={gate ? 'Resultado' : 'Nota'} required error={fieldErrors.nota}>
-          {gate
+        <Field
+          label={tpIntegrador ? 'Resultado' : 'Nota'}
+          required
+          error={fieldErrors.nota}
+          hint={tipo === 'INTEGRADOR' ? 'El integrador se aprueba con 6 o más.' : undefined}
+        >
+          {tpIntegrador
             ? <Select value={aprobado} onChange={(e) => setAprobado(e.target.value)}>
                 <option value="Aprobado">Aprobado</option>
                 <option value="No aprobado">No aprobado</option>

@@ -260,11 +260,13 @@ registro nuevo, no una edición.
 **`InstanciaEvaluativaRequest`**
 ```json
 { "inscripcionId": 10, "moduloId": 5, "tipo": "NOTA", "nota": 8.5, "fecha": "2026-04-10",
-  "cuentaParaPromedio": true, "recuperaAId": null }
+  "cuentaParaPromedio": true, "recuperaAId": null, "aprobado": null }
 ```
-`inscripcionId`, `moduloId`, `tipo`, `fecha`: obligatorios. `nota`: sin `@NotNull` a nivel API (el gate
-de Sede — `TP_INTEGRADOR` — hoy se carga igual con nota `10`/`0` en vez de un campo `aprobado` propio;
-ver pendiente #7 en `BACKEND.md`, es deuda de modelo conocida). `cuentaParaPromedio`: si se omite,
+`inscripcionId`, `moduloId`, `tipo`, `fecha`: obligatorios. `nota`: sin `@NotNull` a nivel API.
+`aprobado`: **obligatorio si `tipo = TP_INTEGRADOR`** (400 `aprobado: es obligatorio para TP_INTEGRADOR`
+si falta; el gate de Sede se carga como aprobado / no aprobado, con `nota` opcional); en los demás
+tipos se ignora y se guarda `null`. El `INTEGRADOR` de Base **lleva nota** (se aprueba con 6 o más) y
+se carga con `cuentaParaPromedio: false`. `cuentaParaPromedio`: si se omite,
 default `true`. `recuperaAId`: id de la instancia que este registro recupera — si viene, debe existir
 (404 si no).
 
@@ -273,8 +275,10 @@ default `true`. `recuperaAId`: id de la instancia que este registro recupera —
 **`InstanciaEvaluativaResponse`**
 ```json
 { "id": 20, "inscripcionId": 10, "moduloId": 5, "tipo": "NOTA", "nota": 8.5,
-  "fecha": "2026-04-10", "cuentaParaPromedio": true, "recuperaAId": null }
+  "fecha": "2026-04-10", "cuentaParaPromedio": true, "recuperaAId": null, "aprobado": null }
 ```
+`aprobado` es `null` salvo en `TP_INTEGRADOR`, y también en las filas anteriores al campo: para esas,
+Sede lo resuelve por `nota >= 6`.
 
 **Sin validación de secuencia**: la API no impide cargar una `EVALUACION_FINAL` sin `TP_INTEGRADOR`
 aprobado en Sede. El frontend lo permite y avisa en ámbar, no bloqueante.
@@ -422,5 +426,5 @@ texto) — así lo consume `ErrorSurface.tsx` en el frontend.
 ## Pendiente (no rompe nada de lo de arriba)
 
 Ver `design_handoff_gestion_alumnos/BACKEND.md` para el detalle completo: contadores en
-`ProgramaResponse`, filtros en `GET /api/contratos`, `PUT` de Institución/Empresa, campo `aprobado`
-propio para el gate de Sede, y un endpoint de métricas para Inicio.
+`ProgramaResponse`, filtros en `GET /api/contratos`, `PUT` de Institución/Empresa y un endpoint de
+métricas para Inicio.
