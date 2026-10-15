@@ -335,6 +335,15 @@ Aprobado/No aprobado manda `aprobado: true|false`.
 (`GET /api/inscripciones` + `GET /api/contratos`). Es una decisión deliberada, no una
 carencia: dos requests y cero endpoints nuevos.
 
+**Medición (benchmark con datos sintéticos, `scripts/benchmark/`).** Con 300 personas, `GET /api/inscripciones`
+tardaba ≈960 ms y ejecutaba 2571 consultas SQL: ≈8,6 por inscripción, de las cuales la mayor parte eran
+relaciones `@ManyToOne` cargadas de a una (N+1) y el resto la evaluación académica por inscripción. Se
+aplicó primero lo que no cambia el contrato: `@EntityGraph` en el listado y filtro `estado` (Inicio pide solo
+`ACTIVA` y `PAUSADA`). Queda sin aplicar, a la espera de más mediciones, omitir `evaluarEstadoAcademico` en
+inscripciones que no están `ACTIVA` (cambiaría el significado de `puedeFinalizar` / `modulosPendientes` en el
+historial). El endpoint de métricas sigue sin hacer falta: Inicio necesita la lista completa de vigentes para
+las filas de "Requiere atención".
+
 **Cuándo hacerlo.** Solo si los listados crecen al punto de que traerlos completos para
 contar sea caro. En ese caso:
 

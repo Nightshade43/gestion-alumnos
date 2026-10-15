@@ -48,11 +48,12 @@ export const grupos = {
 };
 
 export const inscripciones = {
-  /** Listado global. Ambos filtros son opcionales y combinables. */
-  list: (f: { personaId?: number; categoria?: T.CategoriaPrograma } = {}) => {
+  /** Listado global. Los tres filtros son opcionales y combinables; `estado` admite varios valores. */
+  list: (f: { personaId?: number; categoria?: T.CategoriaPrograma; estado?: T.EstadoInscripcion[] } = {}) => {
     const qs = new URLSearchParams();
     if (f.personaId != null) qs.set('personaId', String(f.personaId));
     if (f.categoria) qs.set('categoria', f.categoria);
+    f.estado?.forEach((e) => qs.append('estado', e));
     const s = qs.toString();
     return api.get<T.InscripcionResponse[]>('/api/inscripciones' + (s ? `?${s}` : ''));
   },

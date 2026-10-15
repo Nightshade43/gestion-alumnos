@@ -206,7 +206,7 @@ El vínculo Persona–Programa, con máquina de estados. El endpoint más grande
 |---|---|---|
 | `POST` | `/api/inscripciones` | Crear (queda en `ACTIVA`) |
 | `GET` | `/api/inscripciones/{id}` | Obtener por id |
-| `GET` | `/api/inscripciones?personaId=&categoria=` | Listar — ambos filtros opcionales y combinables |
+| `GET` | `/api/inscripciones?personaId=&categoria=&estado=` | Listar — filtros opcionales y combinables. `estado` admite varios valores (`?estado=ACTIVA&estado=PAUSADA`); un valor inexistente devuelve 400 |
 | `POST` | `/api/inscripciones/{id}/pausar` | `ACTIVA → PAUSADA` |
 | `POST` | `/api/inscripciones/{id}/reanudar` | `PAUSADA → ACTIVA` |
 | `POST` | `/api/inscripciones/{id}/finalizar` | `ACTIVA → FINALIZADA` |

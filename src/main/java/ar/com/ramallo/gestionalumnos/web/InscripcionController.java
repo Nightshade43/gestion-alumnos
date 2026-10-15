@@ -3,6 +3,7 @@ package ar.com.ramallo.gestionalumnos.web;
 import ar.com.ramallo.gestionalumnos.domain.Grupo;
 import ar.com.ramallo.gestionalumnos.domain.Inscripcion;
 import ar.com.ramallo.gestionalumnos.domain.enums.CategoriaPrograma;
+import ar.com.ramallo.gestionalumnos.domain.enums.EstadoInscripcion;
 import ar.com.ramallo.gestionalumnos.exception.RecursoNoEncontradoException;
 import ar.com.ramallo.gestionalumnos.repository.GrupoRepository;
 import ar.com.ramallo.gestionalumnos.repository.InscripcionRepository;
@@ -39,14 +40,34 @@ public class InscripcionController {
         return armarResponse(buscarOFallar(id));
     }
 
+    /**
+     * Todos los filtros son opcionales y combinables. {@code estado} admite varios valores
+     * ({@code ?estado=ACTIVA&estado=PAUSADA}): la pantalla de Inicio solo necesita las vigentes, y pedirlas
+     * acota el costo a los alumnos en curso en lugar de arrastrar todo el historial de finalizadas y canceladas.
+     */
     @GetMapping
     public List<InscripcionResponse> listar(
             @RequestParam(required = false) Long personaId,
-            @RequestParam(required = false) CategoriaPrograma categoria) {
-        List<Inscripcion> inscripciones = personaId != null
-                ? inscripcionRepository.findByPersonaId(personaId)
-                : inscripcionRepository.findAll();
+            @RequestParam(required = false) CategoriaPrograma categoria,
+            @RequestParam(required = false) List<EstadoInscripcion> estado) {
+        boolean filtraEstado = estado != null && !estado.isEmpty();
 
+        // personaId manda en la consulta; el estado solo va a la base cuando es el único criterio de fondo.
+        List<Inscripcion> inscripciones;
+        if (personaId != null) {
+            inscripciones = inscripcionRepository.findByPersonaId(personaId);
+        } else if (filtraEstado) {
+            inscripciones = inscripcionRepository.findByEstadoIn(estado);
+        } else {
+            inscripciones = inscripcionRepository.findAll();
+        }
+
+        // Los filtros restantes se aplican antes de armar la respuesta: evaluarEstadoAcademico es lo caro.
+        if (personaId != null && filtraEstado) {
+            inscripciones = inscripciones.stream()
+                    .filter(i -> estado.contains(i.getEstado()))
+                    .toList();
+        }
         if (categoria != null) {
             inscripciones = inscripciones.stream()
                     .filter(i -> i.getPrograma().getCategoria() == categoria)

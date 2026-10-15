@@ -189,4 +189,39 @@ class InscripcionControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("categoria: valor inválido 'OTRA' (permitidos: ESCOLAR, PARTICULAR)"));
     }
+
+    @Test
+    void filtraPorVariosEstadosEnLaConsulta() throws Exception {
+        when(inscripcionRepository.findByEstadoIn(List.of(EstadoInscripcion.ACTIVA, EstadoInscripcion.PAUSADA)))
+                .thenReturn(List.of(inscripcionDe(10L, EstadoInscripcion.ACTIVA), inscripcionDe(11L, EstadoInscripcion.PAUSADA)));
+        when(inscripcionService.evaluarEstadoAcademico(any())).thenReturn(PUEDE_FINALIZAR);
+        mockMvc.perform(get("/api/inscripciones").param("estado", "ACTIVA", "PAUSADA"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2));
+
+        verify(inscripcionRepository, never()).findAll();
+    }
+
+    @Test
+    void conPersonaYEstadoFiltraElEstadoSobreLasInscripcionesDeLaPersona() throws Exception {
+        when(inscripcionRepository.findByPersonaId(1L))
+                .thenReturn(List.of(inscripcionDe(10L, EstadoInscripcion.ACTIVA), inscripcionDe(11L, EstadoInscripcion.FINALIZADA)));
+        when(inscripcionService.evaluarEstadoAcademico(any())).thenReturn(PUEDE_FINALIZAR);
+        mockMvc.perform(get("/api/inscripciones").param("personaId", "1").param("estado", "ACTIVA"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(10));
+
+        verify(inscripcionRepository, never()).findByEstadoIn(any());
+        // Solo se evalúa lo que se devuelve: la finalizada descartada no cuesta consultas.
+        verify(inscripcionService, times(1)).evaluarEstadoAcademico(any());
+    }
+
+    @Test
+    void unEstadoInexistenteDevuelve400ConLosValoresPermitidos() throws Exception {
+        mockMvc.perform(get("/api/inscripciones").param("estado", "OTRO"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message")
+                        .value("estado: valor inválido 'OTRO' (permitidos: ACTIVA, PAUSADA, FINALIZADA, CANCELADA)"));
+    }
 }

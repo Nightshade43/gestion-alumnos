@@ -1,5 +1,6 @@
 import React from 'react';
 import { useInscripciones, useContratos, useSeguimientosRecientes } from '../api/queries';
+import type { EstadoInscripcion } from '../api/types';
 import { Card, EmptyState, SkeletonList } from '../components/primitives';
 import { ErrorScreen } from '../components/ErrorSurface';
 import { ScreenHeader, type Route } from '../shell/AppShell';
@@ -13,8 +14,13 @@ import { ScreenHeader, type Route } from '../shell/AppShell';
  * "Requiere atención" anticipa los rechazos de la API: cada fila es una request
  * que hoy fallaría (409 por pool agotado, alta de contrato faltante, 422 al finalizar).
  */
+const VIGENTES: EstadoInscripcion[] = ['ACTIVA', 'PAUSADA'];
+
 export function InicioScreen({ onNavigate }: { onNavigate: (r: Route) => void }) {
-  const ins = useInscripciones();
+  // Solo las vigentes: el historial (finalizadas y canceladas) crece cada año y el backend evalúa el estado
+  // académico de cada fila devuelta, así que no se pide lo que esta pantalla no usa. La constante es estable
+  // para que la clave de la query no cambie en cada render.
+  const ins = useInscripciones({ estado: VIGENTES });
   // Solo se usan los vigentes: el filtro lo resuelve el backend.
   const con = useContratos({ estado: 'ACTIVO' });
 

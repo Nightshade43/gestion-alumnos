@@ -12,8 +12,8 @@ export const qk = {
   modulos: (pid: number) => ['modulos', pid] as const,
   planes: (pid: number) => ['planes', pid] as const,
   grupos: (pid: number) => ['grupos', pid] as const,
-  inscripciones: (f: { personaId?: number; categoria?: T.CategoriaPrograma } = {}) =>
-    ['inscripciones', 'list', f.personaId ?? null, f.categoria ?? null] as const,
+  inscripciones: (f: { personaId?: number; categoria?: T.CategoriaPrograma; estado?: T.EstadoInscripcion[] } = {}) =>
+    ['inscripciones', 'list', f.personaId ?? null, f.categoria ?? null, f.estado?.join(',') ?? null] as const,
   inscripcionesPorPersona: (pid: number) => ['inscripciones', 'persona', pid] as const,
   contratos: ['contratos'] as const,
   contratosLista: (f: { empresaId?: number; estado?: T.EstadoContrato } = {}) =>
@@ -60,7 +60,7 @@ export const useContrato = (id?: number | null) => useQuery({
  * Listado global. `categoria` filtra en el backend, así que las pantallas
  * "Inscripciones escolares" / "Inscripciones particulares" piden solo su rama.
  */
-export const useInscripciones = (f: { personaId?: number; categoria?: T.CategoriaPrograma } = {}) =>
+export const useInscripciones = (f: { personaId?: number; categoria?: T.CategoriaPrograma; estado?: T.EstadoInscripcion[] } = {}) =>
   useQuery({ queryKey: qk.inscripciones(f), queryFn: () => ep.inscripciones.list(f) });
 
 /** `estado` / `empresaId` filtran en el backend; sin argumentos trae todos. */

@@ -51,6 +51,10 @@ sembrar.
    Remove-Item bench.log*
    ```
 
+   Antes de correr `./mvnw test`, usá una terminal **sin** `SPRING_PROFILES_ACTIVE` (la variable de entorno
+   pisa `spring.profiles.active=local` y los tests no pueden cargar el contexto: fallan todos los que levantan
+   Spring). En PowerShell: `Remove-Item Env:SPRING_PROFILES_ACTIVE`, o abrir una terminal nueva.
+
 ## Cómo leer el resultado
 
 Por cada hito imprime una tabla con, para cada request: cantidad de elementos, tamaño, primera corrida

@@ -10,11 +10,13 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.core.ResolvableType;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -67,8 +69,16 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleTipoDeParametro(MethodArgumentTypeMismatchException ex) {
-        String detalle = ex.getName() + ": valor inválido '" + ex.getValue() + "'";
+        // Un parámetro repetido (?estado=A&estado=B) llega como arreglo; se muestra tal como lo mandó el cliente.
+        Object recibido = ex.getValue() instanceof Object[] varios
+                ? Arrays.stream(varios).map(String::valueOf).collect(Collectors.joining(","))
+                : ex.getValue();
+        String detalle = ex.getName() + ": valor inválido '" + recibido + "'";
         Class<?> requerido = ex.getRequiredType();
+        // En un List<Enum> el tipo requerido es List: los valores permitidos son los del elemento.
+        if (requerido != null && Collection.class.isAssignableFrom(requerido)) {
+            requerido = ResolvableType.forMethodParameter(ex.getParameter()).asCollection().resolveGeneric(0);
+        }
         if (requerido != null && requerido.isEnum()) {
             detalle += " (permitidos: " + Arrays.stream(requerido.getEnumConstants())
                     .map(Object::toString)
