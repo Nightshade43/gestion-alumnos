@@ -66,6 +66,8 @@ Pendiente (no bloqueante, ver sección 6 de `CRM_Arquitectura_README.md`): nivel
    admin.password=<password admin>
    ```
 
+   Para depurar consultas, agregá en ese mismo archivo `spring.jpa.show-sql=true` (y `spring.jpa.properties.hibernate.format_sql=true`). Están apagadas por defecto: imprimir cada SQL llena la consola y distorsiona los tiempos.
+
    Este archivo está en `.gitignore` — nunca se versiona, cada quien tiene el suyo con sus propias credenciales locales.
 
 3. Ejecutar la aplicación desde IntelliJ (clase `GestionAlumnosApplication`) o por línea de comandos:

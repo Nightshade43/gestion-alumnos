@@ -1,7 +1,14 @@
+# Copiar este archivo a application-local.properties (que está en .gitignore) y completarlo con tus valores.
+# Nunca pongas credenciales reales acá: este archivo SÍ se versiona.
 spring.datasource.url=jdbc:postgresql://localhost:5432/gestion_alumnos
 spring.datasource.username=postgres
 spring.datasource.password=postgres
 
 jwt.secret=CAMBIAME_por_un_secreto_de_al_menos_32_caracteres_random
-admin.username=lucas
-admin.password=monse1143
+admin.username=admin
+admin.password=CAMBIAME_por_una_clave_propia
+
+# Opcional, solo para depurar: imprime cada consulta SQL por consola. Apagado por defecto porque
+# distorsiona los tiempos (sobre todo en Windows) y llena la consola.
+# spring.jpa.show-sql=true
+# spring.jpa.properties.hibernate.format_sql=true

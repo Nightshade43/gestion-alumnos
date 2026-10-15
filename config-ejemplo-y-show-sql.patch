@@ -1,0 +1,45 @@
+diff --git a/README.md b/README.md
+index 8af0bd5..fee6a18 100644
+--- a/README.md
++++ b/README.md
+@@ -66,6 +66,8 @@ Pendiente (no bloqueante, ver sección 6 de `CRM_Arquitectura_README.md`): nivel
+    admin.password=<password admin>
+    ```
+ 
++   Para depurar consultas, agregá en ese mismo archivo `spring.jpa.show-sql=true` (y `spring.jpa.properties.hibernate.format_sql=true`). Están apagadas por defecto: imprimir cada SQL llena la consola y distorsiona los tiempos.
++
+    Este archivo está en `.gitignore` — nunca se versiona, cada quien tiene el suyo con sus propias credenciales locales.
+ 
+ 3. Ejecutar la aplicación desde IntelliJ (clase `GestionAlumnosApplication`) o por línea de comandos:
+diff --git a/src/main/resources/application-local.properties.example b/src/main/resources/application-local.properties.example
+index a33411b..2e84d2d 100644
+--- a/src/main/resources/application-local.properties.example
++++ b/src/main/resources/application-local.properties.example
+@@ -1,7 +1,14 @@
++# Copiar este archivo a application-local.properties (que está en .gitignore) y completarlo con tus valores.
++# Nunca pongas credenciales reales acá: este archivo SÍ se versiona.
+ spring.datasource.url=jdbc:postgresql://localhost:5432/gestion_alumnos
+ spring.datasource.username=postgres
+ spring.datasource.password=postgres
+ 
+ jwt.secret=CAMBIAME_por_un_secreto_de_al_menos_32_caracteres_random
+-admin.username=lucas
+-admin.password=monse1143
+\ No newline at end of file
++admin.username=admin
++admin.password=CAMBIAME_por_una_clave_propia
++
++# Opcional, solo para depurar: imprime cada consulta SQL por consola. Apagado por defecto porque
++# distorsiona los tiempos (sobre todo en Windows) y llena la consola.
++# spring.jpa.show-sql=true
++# spring.jpa.properties.hibernate.format_sql=true
+diff --git a/src/main/resources/application.properties b/src/main/resources/application.properties
+index 43967d7..5b69b30 100644
+--- a/src/main/resources/application.properties
++++ b/src/main/resources/application.properties
+@@ -1,5 +1,3 @@
+ spring.profiles.active=local
+ 
+ spring.jpa.hibernate.ddl-auto=update
+-spring.jpa.show-sql=true
+-spring.jpa.properties.hibernate.format_sql=true
