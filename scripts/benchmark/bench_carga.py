@@ -298,18 +298,24 @@ class Sembrador:
 # Medición
 # ---------------------------------------------------------------------------------------------
 
-def sentencias_sql(ruta_log, ejecutar):
-    """Ejecuta una request y lee de bench.log cuantas sentencias JDBC contó Hibernate (None si no hay log)."""
+def metricas_servidor(ruta_log, ruta, ejecutar):
+    """Ejecuta una request y lee de bench.log la linea que escribe BenchRequestMetricsFilter:
+    "BENCH_SQL GET <ruta> sql=<n> ms=<t>". Devuelve (sentencias SQL, ms en el servidor) o (None, None)."""
     if not ruta_log or not os.path.exists(ruta_log):
-        return None
+        return None, None
     inicio = os.path.getsize(ruta_log)
     ejecutar()
-    time.sleep(0.6)  # la sesion se cierra (y se loguea) al terminar la request
-    with open(ruta_log, "rb") as f:
-        f.seek(inicio)
-        texto = f.read().decode("utf-8", "replace")
-    cantidades = [int(x) for x in re.findall(r"executing (\d+) JDBC statements", texto)]
-    return max(cantidades) if cantidades else None
+    patron = re.compile(r"BENCH_SQL GET %s sql=(\d+) ms=([\d.]+)" % re.escape(ruta))
+    for _ in range(10):                      # la linea se escribe al terminar la request
+        time.sleep(0.2)
+        with open(ruta_log, "rb") as f:
+            f.seek(inicio)
+            texto = f.read().decode("utf-8", "replace")
+        encontradas = patron.findall(texto)
+        if encontradas:
+            sql, ms = encontradas[-1]
+            return int(sql), float(ms)
+    return None, None
 
 
 def percentil(valores, p):
@@ -326,7 +332,7 @@ def medir_endpoint(api, a, nombre, ruta, inicio=False):
         estado, crudo, ms = api.request("GET", ruta)
         tiempos.append(ms)
     cuerpo = json.loads(crudo) if crudo else None
-    return {
+    fila = {
         "nombre": nombre, "ruta": ruta, "inicio": inicio,
         "elementos": len(cuerpo) if isinstance(cuerpo, list) else 1,
         "kb": len(crudo) / 1024.0,
@@ -334,8 +340,10 @@ def medir_endpoint(api, a, nombre, ruta, inicio=False):
         "mediana": statistics.median(tiempos),
         "p95": percentil(tiempos, 0.95),
         "maximo": max(tiempos),
-        "sql": sentencias_sql(a.log, lambda: api.request("GET", ruta)),
     }
+    sql, srv = metricas_servidor(a.log, ruta, lambda: api.request("GET", ruta))
+    fila["sql"], fila["srv"] = sql, srv
+    return fila
 
 
 def medir(api, a, inscripcion_detalle):
@@ -370,69 +378,94 @@ def imprimir_tabla(titulo, filas):
     print()
     print(titulo)
     print("-" * len(titulo))
-    cab = "%-38s %9s %8s %9s %9s %9s %9s %8s" % (
-        "Request", "elementos", "KB", "frio ms", "mediana", "p95", "maximo", "SQL")
+    cab = "%-38s %9s %8s %9s %9s %9s %9s %8s %8s" % (
+        "Request", "elementos", "KB", "frio ms", "mediana", "p95", "maximo", "srv ms", "SQL")
     print(cab)
     for f in filas:
         if "error" in f:
             print("%-38s %s" % (f["nombre"], f["error"]))
             continue
         sql = "-" if f["sql"] is None else str(f["sql"])
-        print("%-38s %9d %8.1f %9.1f %9.1f %9.1f %9.1f %8s" % (
-            f["nombre"], f["elementos"], f["kb"], f["frio"], f["mediana"], f["p95"], f["maximo"], sql))
+        srv = "-" if f["srv"] is None else "%.1f" % f["srv"]
+        print("%-38s %9d %8.1f %9.1f %9.1f %9.1f %9.1f %8s %8s" % (
+            f["nombre"], f["elementos"], f["kb"], f["frio"], f["mediana"], f["p95"], f["maximo"], srv, sql))
     t = total_inicio(filas)
     sql = "-" if t["sql"] is None else str(t["sql"])
-    print("%-38s %9s %8s %9s %9.1f %9.1f %9s %8s" % (
-        "TOTAL Inicio (suma de sus 3)", "", "", "", t["mediana"], t["p95"], "", sql))
+    print("%-38s %9s %8s %9s %9.1f %9.1f %9s %8s %8s" % (
+        "TOTAL Inicio (suma de sus 3)", "", "", "", t["mediana"], t["p95"], "", "", sql))
+
+
+def estimar_cruce(puntos, umbral):
+    """puntos: [(alumnos, ms)] ordenados. Interpola el primer tramo que cruza el umbral; si ninguno lo cruza,
+    extrapola linealmente con el ultimo tramo. None si no hay crecimiento."""
+    for (h0, t0), (h1, t1) in zip(puntos, puntos[1:]):
+        if t0 <= umbral < t1:
+            return h0 + (umbral - t0) * (h1 - h0) / (t1 - t0)
+    if len(puntos) >= 2:
+        (h0, t0), (h1, t1) = puntos[-2], puntos[-1]
+        if t0 < t1 < umbral:
+            return h1 + (umbral - t1) * (h1 - h0) / (t1 - t0)
+    return None
 
 
 def veredicto(resultados, a):
     hitos = sorted(resultados)
+    puntos = [(h, total_inicio(resultados[h])["mediana"]) for h in hitos]
     objetivo = min(hitos, key=lambda h: abs(h - a.objetivo))
-    t = total_inicio(resultados[objetivo])
+    t_obj = dict(puntos)[objetivo]
+    cruce = estimar_cruce(puntos, a.umbral_ms)
     print()
     print("=" * 72)
-    print("VEREDICTO (con %d alumnos, umbral %d ms sobre la suma de Inicio)" % (objetivo, a.umbral_ms))
+    print("VEREDICTO (objetivo %d alumnos, umbral %d ms sobre la suma de Inicio)" % (objetivo, a.umbral_ms))
     print("=" * 72)
-    print("Inicio, mediana: %.0f ms   p95: %.0f ms" % (t["mediana"], t["p95"]))
-    if t["mediana"] <= a.umbral_ms:
-        print("-> DIFERIR la optimizacion: con %d alumnos queda por debajo del umbral." % objetivo)
+    for (h0, t0), (h1, t1) in zip(puntos, puntos[1:]):
+        print("De %d a %d alumnos: %.0f -> %.0f ms (%.2f ms por alumno)" % (h0, h1, t0, t1, (t1 - t0) / float(h1 - h0)))
+    sqls = [(h, total_inicio(resultados[h])["sql"]) for h in hitos]
+    if len(sqls) >= 2 and sqls[0][1] is not None and sqls[-1][1] is not None:
+        (h0, s0), (h1, s1) = sqls[0], sqls[-1]
+        print("Consultas SQL de Inicio: %d -> %d (%.1f por alumno)." % (s0, s1, (s1 - s0) / float(h1 - h0)))
+    print("Con %d alumnos Inicio tarda %.0f ms (mediana)." % (objetivo, t_obj))
+    if cruce is not None:
+        print("El umbral de %d ms se cruza cerca de los %d alumnos." % (a.umbral_ms, round(cruce)))
+    if t_obj > a.umbral_ms:
+        print("-> OPTIMIZAR AHORA: ya supera el umbral con el objetivo.")
+    elif cruce is not None and cruce < a.margen * objetivo:
+        print("-> OPTIMIZAR PRONTO: el umbral se cruza antes de %.1fx el objetivo (%d alumnos). "
+              "Recordar que el listado incluye inscripciones finalizadas y canceladas, que se acumulan." % (
+                  a.margen, round(a.margen * objetivo)))
     else:
-        print("-> OPTIMIZAR ahora: con %d alumnos supera el umbral." % objetivo)
-    if len(hitos) >= 2:
-        h0, h1 = hitos[0], hitos[-1]
-        t0, t1 = total_inicio(resultados[h0])["mediana"], total_inicio(resultados[h1])["mediana"]
-        pendiente = (t1 - t0) / float(h1 - h0)
-        print("Crecimiento medido entre %d y %d alumnos: %.2f ms por alumno." % (h0, h1, pendiente))
-        if t1 >= a.umbral_ms:
-            print("El umbral ya se supera dentro del rango medido.")
-        elif pendiente <= 0:
-            print("Sin crecimiento apreciable entre hitos: el tiempo no depende (todavia) de la cantidad de alumnos.")
-        else:
-            cruce = h1 + (a.umbral_ms - t1) / pendiente
-            if cruce > 20 * h1:
-                print("Extrapolacion lineal: el umbral quedaria recien por encima de los %d alumnos." % (20 * h1))
-            else:
-                print("Extrapolacion lineal: el umbral se cruzaria cerca de los %d alumnos." % round(cruce))
-        s0, s1 = total_inicio(resultados[h0])["sql"], total_inicio(resultados[h1])["sql"]
-        if s0 is not None and s1 is not None and h1 > h0:
-            print("Consultas SQL de Inicio: %d -> %d (%.1f por alumno)." % (s0, s1, (s1 - s0) / float(h1 - h0)))
-    print("Nota: es una extrapolacion lineal; si las consultas crecen peor que lineal (p. ej. N+1 anidado) "
-          "el cruce llega antes. Confirmar con un hito mayor (--hitos).")
+        print("-> DIFERIR: el umbral no se cruza antes de %.1fx el objetivo (%d alumnos)." % (
+            a.margen, round(a.margen * objetivo)))
+    print("Es una estimacion lineal sobre datos sinteticos: si el tiempo crece peor que lineal el cruce llega "
+          "antes. Confirmar con otro hito (--hitos) o con --solo-medir sobre la base real.")
 
 
 # ---------------------------------------------------------------------------------------------
 # Programa principal
 # ---------------------------------------------------------------------------------------------
 
+RAIZ_REPO = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+
+
+def ubicar(nombre):
+    """El archivo en la carpeta actual o, si no esta, en la raiz del repo (el backend escribe bench.log ahi)."""
+    for carpeta in (os.getcwd(), RAIZ_REPO):
+        candidato = os.path.join(carpeta, nombre)
+        if os.path.exists(candidato):
+            return candidato
+    return os.path.join(RAIZ_REPO, nombre)
+
+
 def parsear():
     p = argparse.ArgumentParser(description="Carga sintetica y medicion de listados (ver README.md).")
     p.add_argument("--base", default="http://localhost:8081", help="URL del backend de benchmark (def. 8081)")
     p.add_argument("--usuario"); p.add_argument("--clave")
-    p.add_argument("--credenciales", default="login.json", help="JSON {username, password} (def. login.json)")
+    p.add_argument("--credenciales", help="JSON {username, password} (def. login.json en la carpeta actual o en la raiz del repo)")
     p.add_argument("--hitos", default="50,150,300", help="cantidades acumuladas de alumnos donde medir")
     p.add_argument("--objetivo", type=int, default=150, help="hito sobre el que se emite el veredicto")
     p.add_argument("--umbral-ms", type=int, default=500, help="umbral sobre la suma de las 3 requests de Inicio")
+    p.add_argument("--margen", type=float, default=2.0,
+                   help="diferir solo si el umbral no se cruza antes de margen x objetivo (def. 2.0)")
     p.add_argument("--repeticiones", type=int, default=10, help="mediciones en caliente por request")
     p.add_argument("--pct-sede", type=int, default=60); p.add_argument("--pct-base", type=int, default=25)
     p.add_argument("--modulos-base", type=int, default=6); p.add_argument("--modulos-sede", type=int, default=6)
@@ -440,12 +473,14 @@ def parsear():
     p.add_argument("--peor-caso", action="store_true",
                    help="todos los alumnos escolares con todos los modulos evaluados")
     p.add_argument("--semilla", type=int, default=42)
-    p.add_argument("--log", default="bench.log", help="log del backend para contar SQL (def. bench.log)")
+    p.add_argument("--log", help="log del backend para contar SQL (def. bench.log en la carpeta actual o en la raiz del repo)")
     p.add_argument("--salida", help="guardar los resultados en un JSON")
     p.add_argument("--solo-medir", action="store_true", help="no crea nada: solo mide la base actual")
     a = p.parse_args()
     if a.pct_sede + a.pct_base > 100:
         p.error("--pct-sede + --pct-base no puede superar 100")
+    a.credenciales = a.credenciales or ubicar("login.json")
+    a.log = a.log or ubicar("bench.log")
     return a
 
 
@@ -480,7 +515,10 @@ def main():
                 imprimir_tabla("Con %d alumnos" % hito, filas)
                 resultados[hito] = filas
         if a.log and not os.path.exists(a.log):
-            print("\n(No se encontro %s: sin conteo de SQL. Correr desde la raiz del repo y con el perfil 'bench'.)" % a.log)
+            print("\n(No se encontro %s: sin conteo de SQL. El backend debe correr con el perfil 'bench'.)" % a.log)
+        elif all(f.get("sql") is None for fs in resultados.values() for f in fs if "error" not in f):
+            print("\n(%s no tiene lineas BENCH_SQL: ¿el backend arranco con SPRING_PROFILES_ACTIVE=local,bench "
+                  "despues de aplicar este cambio?)" % a.log)
         veredicto(resultados, a)
         if a.salida:
             with open(a.salida, "w", encoding="utf-8") as f:

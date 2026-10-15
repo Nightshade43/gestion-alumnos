@@ -30,8 +30,9 @@ sembrar.
 
    Hibernate crea las tablas solo (`ddl-auto=update`) y el seeder crea el usuario admin con las mismas
    credenciales de `application-local.properties`. El perfil `bench` apaga `show-sql` (imprimir cada
-   consulta distorsiona los tiempos) y activa las estadísticas de Hibernate; el conteo de consultas sale de
-   `bench.log`.
+   consulta distorsiona los tiempos) y activa un filtro (`BenchRequestMetricsFilter`) que escribe en
+   `bench.log`, por request, la cantidad de sentencias SQL y los milisegundos en el servidor. De ahí salen
+   las columnas `SQL` y `srv ms`.
 
 3. En otra terminal, también desde la raíz del repo:
 
@@ -40,7 +41,8 @@ sembrar.
    ```
 
    Toma las credenciales de `login.json` (el mismo archivo que usás para el login con curl) o de
-   `--usuario` / `--clave`. Por defecto siembra hasta 50, 150 y 300 alumnos y mide en cada hito.
+   `--usuario` / `--clave`, y busca `login.json` y `bench.log` en la carpeta actual o en la raíz del repo.
+   Por defecto siembra hasta 50, 150 y 300 alumnos y mide en cada hito.
 
 4. Limpiar: detener el backend de benchmark y
 
@@ -56,10 +58,15 @@ Por cada hito imprime una tabla con, para cada request: cantidad de elementos, t
 `TOTAL Inicio` suma las tres requests que dispara la pantalla de Inicio (`inscripciones` + `contratos` +
 `seguimientos`), que es el peor caso: el navegador las lanza en paralelo.
 
+La columna `srv ms` es el tiempo que el servidor tardó en esa request (sin red ni cliente) y sirve para
+contrastar con la mediana medida desde afuera.
+
 El veredicto compara esa suma contra `--umbral-ms` (500 ms por defecto) en el hito `--objetivo`
-(150 alumnos), informa el crecimiento medido por alumno y extrapola linealmente cuándo se cruzaría el
-umbral. Si la cantidad de consultas SQL crece más rápido que la de alumnos, la extrapolación es optimista:
-confirmar con un hito mayor (`--hitos 100,300,600`).
+(150 alumnos) y estima en qué cantidad de alumnos se cruzaría el umbral (interpolando entre hitos o
+extrapolando con el último tramo). Es **DIFERIR** solo si el umbral no se cruza antes de `--margen` veces el
+objetivo (2 por defecto): el listado incluye inscripciones finalizadas y canceladas, que se acumulan año
+a año, así que no alcanza con mirar el punto del objetivo. Si el tiempo crece peor que lineal, la
+estimación es optimista: confirmar con un hito mayor (`--hitos 100,300,600`).
 
 ## Qué datos genera
 
@@ -81,11 +88,23 @@ lleva el prefijo `BENCH`.
 Los supuestos (6 módulos por programa, la mezcla de alumnos) son estimaciones: conviene ajustarlos a tus
 números reales.
 
+## Repetir la medición sobre los mismos datos (antes y después de optimizar)
+
+La base de benchmark conserva los datos entre corridas. Para comparar una optimización sin volver a
+sembrar, reiniciá el backend de benchmark con el código nuevo y corré:
+
+```powershell
+python scripts/benchmark/bench_carga.py --solo-medir
+```
+
+Mide los mismos listados sobre los mismos datos. Para empezar de cero (otros hitos, otros supuestos),
+detené el backend, hacé `DROP DATABASE` y `CREATE DATABASE` de `gestion_alumnos_bench` y repetí los pasos.
+
 ## Medir la base real
 
 Cuando la base real tenga los 150 alumnos, `--solo-medir` hace únicamente `GET` (no crea nada) y emite el
-mismo informe. Para el conteo de SQL, el backend real tendría que arrancar con
-`spring.jpa.properties.hibernate.generate_statistics=true` y `logging.file.name=bench.log`.
+mismo informe. El conteo de SQL y `srv ms` solo existen si el backend corre con el perfil `bench`; contra
+el backend normal esas columnas salen con `-`.
 
 ```powershell
 python scripts/benchmark/bench_carga.py --base http://localhost:8080 --solo-medir
