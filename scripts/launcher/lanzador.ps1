@@ -54,6 +54,22 @@ function Verificar-Java {
     if ([int]$Matches[1] -lt 21) {
         Fallar "Se encontró Java $($Matches[1]) y hace falta 21 o superior. Instalá un JDK 21 y volvé a abrir este archivo."
     }
+    Asegurar-JavaHome
+}
+
+# mvnw.cmd exige un JAVA_HOME válido y no se conforma con tener java en el PATH. Si la variable falta o apunta
+# a una carpeta que no existe, se la deriva del java que ya se verificó y se usa solo en este proceso.
+function Asegurar-JavaHome {
+    $actual = $env:JAVA_HOME
+    if ($actual -and (Test-Path (Join-Path $actual 'bin\java.exe'))) { return }
+    $salida = (Ejecutar 'cmd.exe' @('/c', 'java -XshowSettings:properties -version 2>&1')).Salida
+    if ($salida -notmatch '(?m)^\s*java\.home\s*=\s*(.+?)\s*$') {
+        Fallar 'No pude determinar la carpeta de instalación de Java. Definí la variable de entorno JAVA_HOME apuntando a tu JDK 21.'
+    }
+    $env:JAVA_HOME = $Matches[1]
+    if ($actual) {
+        Aviso "JAVA_HOME ('$actual') no apunta a un Java válido: uso $($Matches[1]) solo para esta ejecución."
+    }
 }
 
 function Leer-Propiedades([string]$ruta) {
@@ -93,15 +109,45 @@ function Leer-Configuracion {
     return $config
 }
 
-function Buscar-Psql {
+# Busca psql.exe: 1) la clave launcher.psql de application-local.properties (si la definiste), 2) el PATH,
+# 3) el registro de Windows, 4) el servicio de PostgreSQL y 5) las carpetas habituales de Program Files.
+function Buscar-Psql($config) {
+    if ($config.ContainsKey('launcher.psql') -and (Test-Path $config['launcher.psql'])) {
+        return $config['launcher.psql']
+    }
     $comando = Get-Command psql -ErrorAction SilentlyContinue
     if ($comando) { return $comando.Source }
-    $candidatos = Get-ChildItem 'C:\Program Files\PostgreSQL\*\bin\psql.exe' -ErrorAction SilentlyContinue
-    if (-not $candidatos) { return $null }
-    $ordenados = $candidatos | Sort-Object {
-        try { [double]($_.Directory.Parent.Name -replace '[^\d.]', '') } catch { 0 }
+
+    $carpetas = New-Object System.Collections.Generic.List[string]
+    try {
+        foreach ($clave in @('HKLM:\SOFTWARE\PostgreSQL\Installations\*', 'HKLM:\SOFTWARE\WOW6432Node\PostgreSQL\Installations\*')) {
+            Get-ItemProperty $clave -ErrorAction SilentlyContinue | ForEach-Object {
+                if ($_.'Base Directory') { $carpetas.Add((Join-Path $_.'Base Directory' 'bin')) }
+            }
+        }
+    } catch { }
+    try {
+        # El servicio se registra con la ruta de pg_ctl.exe, que está en la misma carpeta bin que psql.exe.
+        Get-CimInstance Win32_Service -ErrorAction SilentlyContinue |
+            Where-Object { $_.PathName -match 'pg_ctl\.exe' } | ForEach-Object {
+                if ($_.PathName -match '^"?(.+?)\\pg_ctl\.exe') { $carpetas.Add($Matches[1]) }
+            }
+    } catch { }
+    foreach ($base in @($env:ProgramFiles, ${env:ProgramFiles(x86)})) {
+        if (-not $base) { continue }
+        Get-ChildItem (Join-Path $base 'PostgreSQL\*\bin\psql.exe') -ErrorAction SilentlyContinue | ForEach-Object {
+            $carpetas.Add($_.Directory.FullName)
+        }
+    }
+
+    $encontrados = $carpetas | Where-Object { $_ -and (Test-Path (Join-Path $_ 'psql.exe')) } |
+        Select-Object -Unique | ForEach-Object { Join-Path $_ 'psql.exe' }
+    if (-not $encontrados) { return $null }
+    # Con varias versiones instaladas se prefiere la más nueva (la carpeta se llama 16, 17, 9.6...).
+    $ordenados = $encontrados | Sort-Object {
+        try { [double]((Split-Path (Split-Path $_ -Parent) -Parent | Split-Path -Leaf) -replace '[^\d.]', '') } catch { 0 }
     } -Descending
-    return $ordenados[0].FullName
+    return @($ordenados)[0]
 }
 
 # Verifica que PostgreSQL responda y crea la base si no existe.
@@ -115,9 +161,11 @@ function Preparar-Base($config) {
     $base = $Matches[3]
     $usuario = $config['spring.datasource.username']
 
-    $psql = Buscar-Psql
+    $psql = Buscar-Psql $config
     if (-not $psql) {
-        Aviso "No encontré psql, así que no puedo verificar ni crear la base '$base'. Si no existe, creala con pgAdmin o con: CREATE DATABASE $base;"
+        Aviso ("No encontré psql, así que no puedo verificar ni crear la base '$base'. Si no existe, creala con pgAdmin o con: CREATE DATABASE $base;`n" +
+               "Para que el launcher la cree solo, agregá a application-local.properties la ruta de psql.exe, por ejemplo:`n" +
+               "  launcher.psql=C:\Program Files\PostgreSQL\16\bin\psql.exe")
         return
     }
 

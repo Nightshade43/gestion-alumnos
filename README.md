@@ -119,7 +119,7 @@ Requisitos: JDK 21 y PostgreSQL con el servicio iniciado. Node.js solo hace falt
 1. **Primera vez:** hacé doble clic en `iniciar.bat`. Si falta `application-local.properties`, el launcher lo crea a partir del ejemplo y lo abre en el Bloc de notas: completá la contraseña de PostgreSQL, `jwt.secret` y las credenciales de admin, guardá y volvé a abrir `iniciar.bat`.
 2. **`iniciar.bat`** hace todo lo demás:
    - verifica que haya Java 21 o superior;
-   - verifica que PostgreSQL responda y **crea la base `gestion_alumnos` si no existe** (usa `psql`, que se instala junto con PostgreSQL);
+   - verifica que PostgreSQL responda y **crea la base `gestion_alumnos` si no existe** (usa `psql`, que se instala junto con PostgreSQL; si el launcher no lo encuentra, agregá la ruta en `application-local.properties` con `launcher.psql=C:\Program Files\PostgreSQL\16\bin\psql.exe`);
    - construye el sistema si todavía no está construido o si hay cambios nuevos (por ejemplo después de un `git pull` en la otra computadora): compila el frontend y lo empaqueta dentro de un único jar;
    - levanta el sistema y abre el navegador en `http://localhost:8080`.
 3. **No cierres la ventana de consola mientras uses el sistema:** al cerrarla se detiene.

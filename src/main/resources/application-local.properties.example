@@ -8,6 +8,10 @@ jwt.secret=CAMBIAME_por_un_secreto_de_al_menos_32_caracteres_random
 admin.username=admin
 admin.password=CAMBIAME_por_una_clave_propia
 
+# Opcional, solo para el launcher (iniciar.bat): ruta de psql.exe si no lo encuentra solo. Lo usa para crear la base
+# gestion_alumnos si no existe. Spring Boot ignora esta clave.
+# launcher.psql=C:\Program Files\PostgreSQL\16\bin\psql.exe
+
 # Opcional, solo para depurar: imprime cada consulta SQL por consola. Apagado por defecto porque
 # distorsiona los tiempos (sobre todo en Windows) y llena la consola.
 # spring.jpa.show-sql=true
