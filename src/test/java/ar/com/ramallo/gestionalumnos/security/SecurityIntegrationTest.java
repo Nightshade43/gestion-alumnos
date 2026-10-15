@@ -11,6 +11,7 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 
+import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,6 +30,22 @@ class SecurityIntegrationTest {
     void rechazaAccesoSinTokenAUnEndpointProtegido() throws Exception {
         mockMvc.perform(get("/api/personas"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void unaRutaDeApiInexistenteSinTokenSigueDando401() throws Exception {
+        mockMvc.perform(get("/api/ruta-que-no-existe"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void elFrontendEstaticoNoPideToken() throws Exception {
+        // Sin frontend compilado en el classpath la ruta da 404; con el jar completo da 200. Lo que importa
+        // es que la seguridad no la rechace con 401.
+        mockMvc.perform(get("/"))
+                .andExpect(status().is(not(401)));
+        mockMvc.perform(get("/ruta-que-no-existe"))
+                .andExpect(status().is(not(401)));
     }
 
     @Test

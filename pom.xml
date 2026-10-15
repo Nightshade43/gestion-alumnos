@@ -147,4 +147,40 @@
         </plugins>
     </build>
 
+    <profiles>
+        <!--
+            Empaqueta el frontend compilado dentro del jar para que el backend lo sirva en el mismo puerto.
+            No está activo por defecto: ./mvnw test y el CI no lo necesitan. Lo usa construir.bat:
+            1) npm run build (genera frontend/dist)  2) ./mvnw -Pcon-frontend package
+        -->
+        <profile>
+            <id>con-frontend</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copiar-frontend</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.outputDirectory}/static</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>frontend/dist</directory>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>

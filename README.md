@@ -41,6 +41,7 @@ Backend y frontend funcionales: **199/199 tests de backend pasando**, con integr
 
 - ✅ CI en GitHub Actions: tests de backend contra PostgreSQL y chequeo de tipos y build del frontend
 - ✅ Benchmark de carga con datos sintéticos (`scripts/benchmark/`)
+- ✅ Launcher local de doble clic (`iniciar.bat`): verifica Java y PostgreSQL, crea la base si falta y abre el sistema en el navegador
 
 Pendiente (no bloqueante, ver sección 6 de `CRM_Arquitectura_README.md`): nivel MCER en Seguimiento, registro de sesión individual, pagos reales, roles/multi-usuario, CORS, logging estructurado. Para un despliegue: CORS, Docker y Actuator.
 
@@ -73,7 +74,7 @@ Pendiente (no bloqueante, ver sección 6 de `CRM_Arquitectura_README.md`): nivel
 - JDK 21
 - Maven (o el wrapper incluido: `./mvnw` / `mvnw.cmd`)
 - PostgreSQL corriendo localmente
-- Node.js 22 (para el frontend; es la versión que usa el CI)
+- Node.js 22 (para compilar y desarrollar el frontend; para usar el sistema ya construido no hace falta)
 
 ## Configuración local
 
@@ -111,7 +112,27 @@ Una vez levantado el backend, la API queda disponible en `http://localhost:8080`
 
 Para cargar datos de prueba (CENMA Base, CENMA Sede y particulares), copiá `seed-data.sh.example` a `seed-data.sh` (que está en `.gitignore`), completá tu usuario y clave de admin y corré `bash seed-data.sh` con el backend levantado.
 
-## Frontend
+## Uso diario: abrir el sistema con doble clic (Windows)
+
+Requisitos: JDK 21 y PostgreSQL con el servicio iniciado. Node.js solo hace falta cuando hay que construir.
+
+1. **Primera vez:** hacé doble clic en `iniciar.bat`. Si falta `application-local.properties`, el launcher lo crea a partir del ejemplo y lo abre en el Bloc de notas: completá la contraseña de PostgreSQL, `jwt.secret` y las credenciales de admin, guardá y volvé a abrir `iniciar.bat`.
+2. **`iniciar.bat`** hace todo lo demás:
+   - verifica que haya Java 21 o superior;
+   - verifica que PostgreSQL responda y **crea la base `gestion_alumnos` si no existe** (usa `psql`, que se instala junto con PostgreSQL);
+   - construye el sistema si todavía no está construido o si hay cambios nuevos (por ejemplo después de un `git pull` en la otra computadora): compila el frontend y lo empaqueta dentro de un único jar;
+   - levanta el sistema y abre el navegador en `http://localhost:8080`.
+3. **No cierres la ventana de consola mientras uses el sistema:** al cerrarla se detiene.
+
+Otros comandos:
+
+- `construir.bat` reconstruye a mano (instala dependencias del frontend, lo compila y genera `target\gestion-alumnos-*.jar`). Es lo único que usa Node.
+- `iniciar.bat -Reconstruir` fuerza la reconstrucción aunque no haya cambios.
+- Para tener un acceso en el escritorio, clic derecho sobre `iniciar.bat` → *Enviar a* → *Escritorio (crear acceso directo)*.
+
+En este modo el backend sirve la interfaz en el mismo puerto: no hay proxy ni CORS de por medio. El empaquetado del frontend dentro del jar está en el profile `con-frontend` del `pom.xml`, que no se activa en `./mvnw test` ni en el CI.
+
+## Frontend (desarrollo)
 
 Con el backend corriendo en `localhost:8080`:
 
@@ -157,6 +178,7 @@ src/main/java/ar/com/ramallo/gestionalumnos/
 └── config/          AdminUserSeeder y, solo con el profile bench, BenchRequestMetricsFilter
 
 frontend/                        App React + TypeScript (Vite)
+iniciar.bat / construir.bat      Launcher local (la lógica está en scripts/launcher/lanzador.ps1)
 design_handoff_gestion_alumnos/  Diseño del frontend: pantallas, tokens y pendientes de backend
 scripts/benchmark/               Benchmark de carga con datos sintéticos
 .github/workflows/               Integración continua

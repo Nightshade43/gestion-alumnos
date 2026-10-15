@@ -38,7 +38,12 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .anyRequest().authenticated())
+                        // Toda la API exige token.
+                        .requestMatchers("/api/**").authenticated()
+                        // Lo demás es el frontend compilado (index.html y assets), que el jar sirve desde
+                        // classpath:/static (ver el profile con-frontend del pom). Son archivos públicos sin datos;
+                        // una ruta que no existe responde 404, no 401.
+                        .anyRequest().permitAll())
                 .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
