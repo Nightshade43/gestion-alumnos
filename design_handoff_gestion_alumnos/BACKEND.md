@@ -41,7 +41,7 @@ Los ítems 1-3 están resueltos en el backend y **adoptados en el frontend**:
 | 5 | Filtros en `GET /api/contratos` | params opcionales | Media | No | ✅ Resuelto en `master`; adoptado solo en Inicio |
 | 6 | `PUT` de Institución y Empresa | endpoints nuevos | Media | No | ✅ Resuelto y adoptado |
 | 7 | `aprobado` en instancia evaluativa (gate de Sede) | modelo | Alta | No (aditivo, nullable) | ✅ Resuelto y adoptado (`TP_INTEGRADOR`; el integrador de Base lleva nota) |
-| 8 | Endpoint de métricas de Inicio | endpoint nuevo | Baja | No | Pendiente |
+| 8 | Endpoint de métricas de Inicio | endpoint nuevo | Baja | No | ⏸ Diferido tras medir (ver §8): no hace falta a la escala prevista |
 
 ---
 
@@ -327,7 +327,10 @@ Aprobado/No aprobado manda `aprobado: true|false`.
 
 ---
 
-## 8. Métricas de Inicio (opcional)
+## 8. Métricas de Inicio (diferido)
+
+**Estado.** Diferido tras medir. A la escala prevista (150 alumnos reales) Inicio no necesita un endpoint
+de métricas; ver la medición más abajo. Se retoma solo si una nueva medición supera el umbral.
 
 **Hoy.** No hay endpoint de métricas.
 
@@ -342,10 +345,21 @@ académica: ≈8,8 consultas por inscripción escolar (módulos e instancias con
 módulo). Por eso `InscripcionService.evaluarEstadosAcademicos` evalúa el listado por lotes: una consulta de
 módulos para todos los programas y una de instancias para todas las inscripciones, con la misma regla que el
 camino individual (`EstrategiaEvaluacionService.moduloAprobado(List<InstanciaEvaluativa>)`). El contrato no
-cambió. Aplicado también: filtro `estado` en el listado (Inicio pide solo `ACTIVA` y `PAUSADA`). Queda sin
-aplicar, a la espera de nuevas mediciones, omitir la evaluación en inscripciones que no están `ACTIVA`
-(cambiaría el significado de `puedeFinalizar` / `modulosPendientes` en el historial). El endpoint de métricas
-sigue sin hacer falta: Inicio necesita la lista completa de vigentes para las filas de "Requiere atención".
+cambió. Aplicado también: filtro `estado` en el listado (Inicio pide solo `ACTIVA` y `PAUSADA`).
+
+**Resultado con 300 personas** (mismos datos sintéticos, antes → después): `GET /api/inscripciones` de 2571 a
+3 consultas SQL y de ≈960 ms a ≈52 ms (mediana); suma de las tres requests de Inicio de ≈1011 ms a ≈103 ms,
+contra un umbral de 500 ms. El veredicto del benchmark es diferir: el umbral no se cruzaría antes de 600
+alumnos, el doble del objetivo. Se descartó omitir la evaluación académica en inscripciones no `ACTIVA`
+(cambiaría el significado de `puedeFinalizar` / `modulosPendientes` en el historial) porque ya no hace falta.
+Contratos y seguimientos siguen cargando relaciones por elemento (71 y 38 consultas, ≈20 ms): no se tocaron.
+El endpoint de métricas sigue sin hacer falta: Inicio necesita la lista completa de vigentes para las filas de
+"Requiere atención".
+
+**Cómo volver a medir.** `scripts/benchmark/README.md`. Con `--solo-medir` sobre la base real (150 alumnos)
+o con más hitos (`--hitos 150,300,600`) si el volumen real supera lo estimado. Los datos sintéticos son todos
+`ACTIVA`: no miden el efecto de un historial acumulado de finalizadas y canceladas en las pantallas que
+piden el listado completo (Personas, Inscripciones).
 
 **Cuándo hacerlo.** Solo si los listados crecen al punto de que traerlos completos para
 contar sea caro. En ese caso:

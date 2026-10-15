@@ -63,7 +63,8 @@ Documentación de diseño en `design_handoff_gestion_alumnos/`:
 
 ## Pendientes de backend
 
-`BACKEND.md` lista 8 puntos (los ítems 1-3 ya están resueltos y adoptados) con contrato propuesto y criterio de aceptación. **Ninguno
+`BACKEND.md` lista 8 puntos con contrato propuesto y criterio de aceptación: los ítems 1-7 están resueltos y el 8
+(endpoint de métricas) quedó diferido tras medir con datos sintéticos (`scripts/benchmark/`). **Ninguno
 bloquea el frontend.** No implementarlos desde el cliente ni asumir campos que todavía no
 existen. Si se implementa alguno en el backend, borrar el workaround correspondiente en el
 mismo commit.
