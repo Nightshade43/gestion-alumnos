@@ -401,7 +401,7 @@ Todo error de la API devuelve el mismo shape (`ErrorResponse`):
 
 | Código | Cuándo | Excepción / origen |
 |---|---|---|
-| `400` | Body inválido (`@NotNull`/`@NotBlank`/`@Email` fallido, o un `@RequestParam` fuera de rango como `limit > 100`) | `MethodArgumentNotValidException` / `ConstraintViolationException` — `message` viene como `"campo: mensaje; campo: mensaje"` |
+| `400` | Body inválido (`@NotNull`/`@NotBlank`/`@Email` fallido, o un `@RequestParam` fuera de rango como `limit > 100`); campos inconsistentes entre sí (`aprobado` ausente en un `TP_INTEGRADOR`); parámetro de query o de ruta que no se puede convertir (enum inexistente, id no numérico) | `MethodArgumentNotValidException` / `ConstraintViolationException` / `SolicitudInvalidaException` / `MethodArgumentTypeMismatchException` — `message` viene como `"campo: mensaje; campo: mensaje"`; para un enum inválido, `"estado: valor inválido 'XYZ' (permitidos: ACTIVO, FINALIZADO)"` |
 | `401` | Login inválido, o token vencido/ausente en cualquier request | `AuthenticationException` |
 | `404` | Id que no existe (persona, programa, módulo, plan, grupo, inscripción, contrato, empresa) | `RecursoNoEncontradoException` |
 | `409` | Transición de estado inválida; duplicado (unique constraint de Módulo/Plan, o de cualquier otra entidad vía `DataIntegrityViolationException`); contrato ya asociado a una inscripción; límite de clases del pool excedido | `EstadoInvalidoException` / `RegistroDuplicadoException` / `DataIntegrityViolationException` / `LimiteClasesExcedidoException` |
@@ -430,5 +430,4 @@ texto) — así lo consume `ErrorSurface.tsx` en el frontend.
 ## Pendiente (no rompe nada de lo de arriba)
 
 Ver `design_handoff_gestion_alumnos/BACKEND.md` para el detalle completo. Del backend solo queda un
-endpoint de métricas para Inicio (opcional). Del lado del frontend falta la UI de edición de
-Institución y Empresa (el `PUT` ya existe).
+endpoint de métricas para Inicio (opcional).

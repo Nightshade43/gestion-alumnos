@@ -23,6 +23,7 @@ export const instituciones = {
   list:   () => api.get<T.InstitucionResponse[]>('/api/instituciones'),
   get:    (id: number) => api.get<T.InstitucionResponse>(`/api/instituciones/${id}`),
   create: (b: T.InstitucionRequest) => api.post<T.InstitucionResponse>('/api/instituciones', b),
+  update: (id: number, b: T.InstitucionRequest) => api.put<T.InstitucionResponse>(`/api/instituciones/${id}`, b),
 };
 
 export const programas = {
@@ -69,6 +70,7 @@ export const empresas = {
   list:   () => api.get<T.EmpresaResponse[]>('/api/empresas'),
   get:    (id: number) => api.get<T.EmpresaResponse>(`/api/empresas/${id}`),
   create: (b: T.EmpresaRequest) => api.post<T.EmpresaResponse>('/api/empresas', b),
+  update: (id: number, b: T.EmpresaRequest) => api.put<T.EmpresaResponse>(`/api/empresas/${id}`, b),
 };
 
 export const contratos = {

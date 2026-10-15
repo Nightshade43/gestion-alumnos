@@ -6,8 +6,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +42,22 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(SolicitudInvalidaException.class)
     public ResponseEntity<ErrorResponse> handleSolicitudInvalida(SolicitudInvalidaException ex) {
         return build(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    /**
+     * Parámetro de query o de ruta que no se puede convertir (un enum inexistente, un id no numérico).
+     * Es un error del cliente: sin este handler caía en el genérico y devolvía 500.
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTipoDeParametro(MethodArgumentTypeMismatchException ex) {
+        String detalle = ex.getName() + ": valor inválido '" + ex.getValue() + "'";
+        Class<?> requerido = ex.getRequiredType();
+        if (requerido != null && requerido.isEnum()) {
+            detalle += " (permitidos: " + Arrays.stream(requerido.getEnumConstants())
+                    .map(Object::toString)
+                    .collect(Collectors.joining(", ")) + ")";
+        }
+        return build(HttpStatus.BAD_REQUEST, detalle);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

@@ -146,4 +146,18 @@ class ContratoControllerTest {
                 .andExpect(jsonPath("$.length()").value(1));
         verify(contratoRepository).findByEmpresaIdAndEstado(3L, EstadoContrato.ACTIVO);
     }
+
+    @Test
+    void unEstadoInexistenteDevuelve400ConLosValoresPermitidos() throws Exception {
+        mockMvc.perform(get("/api/contratos").param("estado", "NOEXISTE"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("estado: valor inválido 'NOEXISTE' (permitidos: ACTIVO, FINALIZADO)"));
+    }
+
+    @Test
+    void unEmpresaIdNoNumericoDevuelve400() throws Exception {
+        mockMvc.perform(get("/api/contratos").param("empresaId", "abc"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("empresaId: valor inválido 'abc'"));
+    }
 }

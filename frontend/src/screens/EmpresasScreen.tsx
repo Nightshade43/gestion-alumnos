@@ -1,10 +1,10 @@
 import React from 'react';
-import { useEmpresas, useContratos, useCrearEmpresa } from '../api/queries';
+import { useEmpresas, useContratos, useCrearEmpresa, useActualizarEmpresa } from '../api/queries';
 import { Button, Card, EmptyState, Field, Input, Modal, MonoChip, PoolBar, SkeletonList, StatusBadge } from '../components/primitives';
 import { ErrorScreen, useApiErrorHandler } from '../components/ErrorSurface';
 import { ScreenHeader, type Route } from '../shell/AppShell';
 import { useToasts } from '../components/Toasts';
-import type { ContratoResponse } from '../api/types';
+import type { ContratoResponse, EmpresaResponse } from '../api/types';
 
 /**
  * Empresas. EmpresaResponse solo trae { id, nombre, contacto }: los contratos y
@@ -18,6 +18,7 @@ export function EmpresasScreen({ onNavigate }: { onNavigate: (r: Route) => void 
   const contratos = useContratos();
   const [abierta, setAbierta] = React.useState<number | null>(null);
   const [nueva, setNueva] = React.useState(false);
+  const [editando, setEditando] = React.useState<EmpresaResponse | null>(null);
 
   if (isPending) return <Card title="Empresas"><SkeletonList /></Card>;
   if (error) return <ErrorScreen error={error} onRetry={refetch} entidad="listado" />;
@@ -71,6 +72,9 @@ export function EmpresasScreen({ onNavigate }: { onNavigate: (r: Route) => void 
 
                     {abiertaEsta && (
                       <div style={{ background: 'var(--ga-row-alt)', borderTop: '1px solid var(--ga-line-soft)', padding: '16px 22px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                          <Button variant="secondary" onClick={() => setEditando(emp)}>Editar</Button>
+                        </div>
                         {propios.length === 0
                           ? <span style={{ fontSize: 13.5, color: 'var(--ga-muted)' }}>
                               Sin contratos todavía. Se arman desde Contratos → "Contrato de empresa".
@@ -91,7 +95,8 @@ export function EmpresasScreen({ onNavigate }: { onNavigate: (r: Route) => void 
             </div>}
       </Card>
 
-      {nueva && <NuevaEmpresaModal onClose={() => setNueva(false)} />}
+      {nueva && <EmpresaModal onClose={() => setNueva(false)} />}
+      {editando && <EmpresaModal inicial={editando} onClose={() => setEditando(null)} />}
     </div>
   );
 }
@@ -141,27 +146,43 @@ function TarjetaContratoEmpresa({ contrato: c, onAbrirContrato, onAbrirInscripci
   );
 }
 
-/** EmpresaController solo expone list/get/create: no hay edición ni baja. */
-function NuevaEmpresaModal({ onClose }: { onClose: () => void }) {
+/**
+ * Alta o edición según venga `inicial`. El PUT reemplaza el registro completo, así que
+ * siempre viajan los dos campos: un contacto vacío se manda como null y lo borra.
+ */
+function EmpresaModal({ inicial, onClose }: { inicial?: EmpresaResponse; onClose: () => void }) {
   const crear = useCrearEmpresa();
+  // Los hooks no pueden ser condicionales: en modo alta el id no se usa porque nunca se llama a mutate.
+  const actualizar = useActualizarEmpresa(inicial?.id ?? 0);
   const { push } = useToasts();
   const { handle, fieldErrors } = useApiErrorHandler();
-  const [nombre, setNombre] = React.useState('');
-  const [contacto, setContacto] = React.useState('');
+  const [nombre, setNombre] = React.useState(inicial?.nombre ?? '');
+  const [contacto, setContacto] = React.useState(inicial?.contacto ?? '');
+
+  const guardar = () => {
+    const body = { nombre, contacto: contacto || null };
+    if (inicial) {
+      actualizar.mutate(body, {
+        onSuccess: () => { push({ tone: 'ok', title: 'Empresa actualizada', text: '200 · Contratos e Inicio ya muestran los datos nuevos.' }); onClose(); },
+        onError: (e) => handle(e),
+      });
+    } else {
+      crear.mutate(body, {
+        onSuccess: () => { push({ tone: 'ok', title: 'Empresa creada', text: '201 · Ya se le puede armar un contrato de pool.' }); onClose(); },
+        onError: (e) => handle(e),
+      });
+    }
+  };
 
   return (
     <Modal
-      title="Nueva empresa"
+      title={inicial ? 'Editar empresa' : 'Nueva empresa'}
       onClose={onClose}
       footer={<>
         <Button variant="secondary" onClick={onClose}>Cancelar</Button>
-        <Button
-          disabled={crear.isPending}
-          onClick={() => crear.mutate({ nombre, contacto: contacto || null }, {
-            onSuccess: () => { push({ tone: 'ok', title: 'Empresa creada', text: '201 · Ya se le puede armar un contrato de pool.' }); onClose(); },
-            onError: (e) => handle(e),
-          })}
-        >Crear empresa</Button>
+        <Button disabled={crear.isPending || actualizar.isPending} onClick={guardar}>
+          {inicial ? 'Guardar cambios' : 'Crear empresa'}
+        </Button>
       </>}
     >
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>

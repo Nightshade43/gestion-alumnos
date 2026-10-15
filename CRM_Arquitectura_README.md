@@ -132,7 +132,7 @@ Todas las relaciones son **unidireccionales** (el lado "muchos" conoce al "uno",
 - Roles / multi-usuario (hoy un único usuario admin sembrado por `AdminUserSeeder`, sin endpoint de alta).
 - CORS para el backend (el frontend ya lee `VITE_API_BASE`; en desarrollo el proxy de Vite lo evita, pero producción con front y back en orígenes distintos lo necesita).
 - Logging estructurado.
-- El único punto de `design_handoff_gestion_alumnos/BACKEND.md` sin resolver: el endpoint de métricas de Inicio (opcional). Además falta la UI de edición de Institución y Empresa (el `PUT` ya existe).
+- El único punto de `design_handoff_gestion_alumnos/BACKEND.md` sin resolver: el endpoint de métricas de Inicio (opcional).
 - Migraciones versionadas (Flyway/Liquibase) — hoy el esquema se genera con `ddl-auto=update`, razonable en desarrollo individual pero sin control de versión del esquema.
 - Spring Actuator / endpoint de salud, necesario para desplegar en cualquier PaaS.
 - `InstitucionController` es el único de los 12 controllers sin test dedicado.
@@ -176,10 +176,10 @@ ar.com.ramallo.gestionalumnos
 - `frontend/`: las 11 pantallas (Vite + React 19 + TypeScript + TanStack Query) consumiendo esta API, con tema visual propio (Dark CENMA) documentado en `design_handoff_gestion_alumnos/`.
 
 **Pendiente** (detalle en la sección 6 de este documento y en `design_handoff_gestion_alumnos/BACKEND.md`):
-- 1 de los 8 puntos de `BACKEND.md` (métricas de Inicio, opcional); los otros 7 están resueltos. Falta la UI de edición de Institución y Empresa.
+- 1 de los 8 puntos de `BACKEND.md` (métricas de Inicio, opcional); los otros 7 están resueltos.
 - CI (no hay `.github/workflows`), CORS, Dockerfile/deploy, Actuator, migraciones versionadas.
 
 ### Próximo entregable
 
-Los 3 puntos de `BACKEND.md` resueltos en el backend (listado global de seguimientos, `puedeFinalizar`, `EmpleadoCubierto`) ya están adoptados en el frontend. El campo `aprobado` del gate de Sede (punto 7, solo `TP_INTEGRADOR`) también está resuelto. Los puntos 4, 5 y 6 también están resueltos (contadores de programa, filtros de contratos, `PUT` de Institución y Empresa); solo queda el 8 (métricas de Inicio, opcional) y la UI de edición.
+Los 3 puntos de `BACKEND.md` resueltos en el backend (listado global de seguimientos, `puedeFinalizar`, `EmpleadoCubierto`) ya están adoptados en el frontend. El campo `aprobado` del gate de Sede (punto 7, solo `TP_INTEGRADOR`) también está resuelto. Los puntos 4, 5 y 6 también están resueltos (contadores de programa, filtros de contratos, `PUT` de Institución y Empresa); solo queda el 8 (métricas de Inicio, opcional). La UI de edición de Institución y Empresa ya está.
 

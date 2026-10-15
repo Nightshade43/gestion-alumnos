@@ -1,10 +1,10 @@
 import React from 'react';
-import { useInstituciones, useProgramas, useCrearInstitucion } from '../api/queries';
+import { useInstituciones, useProgramas, useCrearInstitucion, useActualizarInstitucion } from '../api/queries';
 import { Button, Card, EmptyState, Field, Input, Modal, MonoChip, SkeletonList } from '../components/primitives';
 import { ErrorScreen, useApiErrorHandler } from '../components/ErrorSurface';
 import { ScreenHeader, type Route } from '../shell/AppShell';
 import { useToasts } from '../components/Toasts';
-import type { ProgramaResponse } from '../api/types';
+import type { InstitucionResponse, ProgramaResponse } from '../api/types';
 
 /**
  * Instituciones. Son pocas y de uso poco frecuente, así que no tienen pantalla
@@ -19,6 +19,7 @@ export function InstitucionesScreen({ onNavigate }: { onNavigate: (r: Route) => 
   const programas = useProgramas();
   const [abierta, setAbierta] = React.useState<number | null>(null);
   const [nueva, setNueva] = React.useState(false);
+  const [editando, setEditando] = React.useState<InstitucionResponse | null>(null);
 
   if (isPending) return <Card title="Instituciones"><SkeletonList /></Card>;
   if (error) return <ErrorScreen error={error} onRetry={refetch} entidad="listado" />;
@@ -71,6 +72,9 @@ export function InstitucionesScreen({ onNavigate }: { onNavigate: (r: Route) => 
 
                     {abiertaEsta && (
                       <div style={{ background: 'var(--ga-row-alt)', borderTop: '1px solid var(--ga-line-soft)', padding: '16px 22px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                          <Button variant="secondary" onClick={() => setEditando(inst)}>Editar</Button>
+                        </div>
                         {propios.length === 0
                           ? <span style={{ fontSize: 13.5, color: 'var(--ga-muted)' }}>
                               Todavía no hay programas de esta institución. Se crean desde Programas, eligiéndola en el alta.
@@ -86,7 +90,8 @@ export function InstitucionesScreen({ onNavigate }: { onNavigate: (r: Route) => 
             </div>}
       </Card>
 
-      {nueva && <NuevaInstitucionModal onClose={() => setNueva(false)} />}
+      {nueva && <InstitucionModal onClose={() => setNueva(false)} />}
+      {editando && <InstitucionModal inicial={editando} onClose={() => setEditando(null)} />}
     </div>
   );
 }
@@ -118,26 +123,39 @@ function FilaPrograma({ programa, onClick }: { programa: ProgramaResponse; onCli
   );
 }
 
-/** El backend ya expone PUT /api/instituciones/{id}; la UI todavía no ofrece editar (pendiente de diseño). */
-function NuevaInstitucionModal({ onClose }: { onClose: () => void }) {
+/** Alta o edición según venga `inicial`. Cambiar el nombre a uno que ya usa otra institución devuelve 409. */
+function InstitucionModal({ inicial, onClose }: { inicial?: InstitucionResponse; onClose: () => void }) {
   const crear = useCrearInstitucion();
+  // Los hooks no pueden ser condicionales: en modo alta el id no se usa porque nunca se llama a mutate.
+  const actualizar = useActualizarInstitucion(inicial?.id ?? 0);
   const { push } = useToasts();
   const { handle, fieldErrors } = useApiErrorHandler();
-  const [nombre, setNombre] = React.useState('');
+  const [nombre, setNombre] = React.useState(inicial?.nombre ?? '');
+
+  const guardar = () => {
+    const body = { nombre };
+    if (inicial) {
+      actualizar.mutate(body, {
+        onSuccess: () => { push({ tone: 'ok', title: 'Institución actualizada', text: '200 · El nombre nuevo ya se ve en Programas.' }); onClose(); },
+        onError: (e) => handle(e),
+      });
+    } else {
+      crear.mutate(body, {
+        onSuccess: () => { push({ tone: 'ok', title: 'Institución creada', text: '201 · Ya se puede elegir en el alta de programas.' }); onClose(); },
+        onError: (e) => handle(e),
+      });
+    }
+  };
 
   return (
     <Modal
-      title="Nueva institución"
+      title={inicial ? 'Editar institución' : 'Nueva institución'}
       onClose={onClose}
       footer={<>
         <Button variant="secondary" onClick={onClose}>Cancelar</Button>
-        <Button
-          disabled={crear.isPending}
-          onClick={() => crear.mutate({ nombre }, {
-            onSuccess: () => { push({ tone: 'ok', title: 'Institución creada', text: '201 · Ya se puede elegir en el alta de programas.' }); onClose(); },
-            onError: (e) => handle(e),
-          })}
-        >Crear institución</Button>
+        <Button disabled={crear.isPending || actualizar.isPending} onClick={guardar}>
+          {inicial ? 'Guardar cambios' : 'Crear institución'}
+        </Button>
       </>}
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>

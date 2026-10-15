@@ -152,6 +152,10 @@ Implementada en `src/screens/InstitucionesScreen.tsx`.
 - Abierta: fondo `--ga-row-alt`, tarjetas de programa en grid
   `1.5fr 1fr 1fr 1fr` (nombre + estrategia mono · N módulos · días de grupo · N activas),
   click va a la ficha del programa.
+- Arriba de las tarjetas, alineado a la derecha, botón secundario **Editar**: abre el modal del
+  alta precargado ("Editar institución", botón "Guardar cambios"). `PUT /api/instituciones/{id}`;
+  toast "Institución actualizada · 200 · El nombre nuevo ya se ve en Programas." Nombre vacío →
+  400 inline en el campo; nombre de otra institución → 409 toast persistente.
 
 ## 10. Contratos
 Implementada en `src/screens/ContratosScreen.tsx`.
@@ -186,6 +190,11 @@ Implementada en `src/screens/EmpresasScreen.tsx`.
 - Abierta: por cada contrato, card con id + chip de facturación + badge, `PoolBar` a la
   izquierda (220px) y a la derecha los empleados cubiertos (punto ámbar + nombre + programa +
   badge de estado), cada uno navegable a su inscripción.
+- Arriba de las cards, alineado a la derecha, botón secundario **Editar**: abre el modal del alta
+  precargado ("Editar empresa", botón "Guardar cambios"). `PUT /api/empresas/{id}` reemplaza el
+  registro completo: siempre viajan nombre y contacto, y un contacto vacío lo borra ("Sin
+  contacto"). Toast "Empresa actualizada · 200 · Contratos e Inicio ya muestran los datos
+  nuevos." Mismos 400 / 409 que Instituciones.
 
 ---
 
@@ -241,7 +250,8 @@ de negocio y footer Cancelar / botón primario.
 - **Editar programa**: la Estrategia aparece **no editable** ("Fija desde el alta"); el aviso
   explica que cambiarla rompería el historial y que la salida es crear otro programa.
 - **Institución**: solo Nombre. **Empresa**: Nombre + Contacto, con el aviso de que crear la
-  empresa no crea contrato.
+  empresa no crea contrato. Las dos tienen variante de edición (mismo modal precargado, ver §9 y
+  §11).
 - **Módulo**: Orden (mono) + Secuencia. **Plan**: Código + Módulo de inicio (solo
   `CENMA_SEDE`). **Grupo**: Día + Horario, "no afecta el avance".
 - El botón de alta de cada pestaña del programa abre la variante correspondiente a la pestaña

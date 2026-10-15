@@ -243,6 +243,18 @@ export function useCrearInstitucion() {
   });
 }
 
+/** PUT /api/instituciones/{id}. ProgramaResponse trae institucionNombre denormalizado. */
+export function useActualizarInstitucion(id: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (b: T.InstitucionRequest) => ep.instituciones.update(id, b),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.instituciones });
+      qc.invalidateQueries({ queryKey: qk.programas });
+    },
+  });
+}
+
 /** POST /api/contratos — individual: una sola inscripción particular sin contrato previo. */
 export function useCrearContratoIndividual() {
   const qc = useQueryClient();
@@ -273,5 +285,20 @@ export function useCrearEmpresa() {
   return useMutation({
     mutationFn: ep.empresas.create,
     onSuccess: () => qc.invalidateQueries({ queryKey: qk.empresas }),
+  });
+}
+
+/**
+ * PUT /api/empresas/{id}. Reemplaza el registro completo: contacto null borra el contacto.
+ * ContratoResponse trae empresaNombre denormalizado (Contratos, Empresas, Inicio).
+ */
+export function useActualizarEmpresa(id: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (b: T.EmpresaRequest) => ep.empresas.update(id, b),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.empresas });
+      qc.invalidateQueries({ queryKey: qk.contratos });
+    },
   });
 }

@@ -182,4 +182,11 @@ class InscripcionControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0)); // inscripcionDe() usa programa ESCOLAR
     }
+
+    @Test
+    void unaCategoriaInexistenteDevuelve400() throws Exception {
+        mockMvc.perform(get("/api/inscripciones").param("categoria", "OTRA"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("categoria: valor inválido 'OTRA' (permitidos: ESCOLAR, PARTICULAR)"));
+    }
 }
