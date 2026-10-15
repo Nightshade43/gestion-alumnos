@@ -18,6 +18,7 @@ import java.util.Optional;
 import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -113,5 +114,28 @@ class InstitucionControllerTest {
                         .content("{\"nombre\":\" \"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(startsWith("nombre:")));
+    }
+
+    @Test
+    void unVerboNoSoportadoDevuelve405() throws Exception {
+        mockMvc.perform(delete("/api/instituciones/1"))
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(jsonPath("$.message").value("Método DELETE no permitido para esta ruta"));
+    }
+
+    @Test
+    void unContentTypeQueNoEsJsonDevuelve415() throws Exception {
+        mockMvc.perform(post("/api/instituciones")
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .content("hola"))
+                .andExpect(status().isUnsupportedMediaType())
+                .andExpect(jsonPath("$.message").value("Content-Type 'text/plain' no soportado (se espera application/json)"));
+    }
+
+    @Test
+    void unaRutaInexistenteDevuelve404() throws Exception {
+        mockMvc.perform(get("/api/noexiste"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Ruta no encontrada: /api/noexiste"));
     }
 }

@@ -4,11 +4,14 @@ import ar.com.ramallo.gestionalumnos.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -136,6 +139,37 @@ public class GlobalExceptionHandler {
             ultimo = campos.group(1);
         }
         return ultimo;
+    }
+
+    /** Ruta que no existe: una URL mal escrita. Sin este handler caía en el genérico y devolvía 500. */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleRutaInexistente(NoResourceFoundException ex) {
+        String ruta = ex.getResourcePath();
+        if (!ruta.startsWith("/")) {
+            ruta = "/" + ruta;
+        }
+        if (ruta.length() > MAX_VALOR_ECHO) {
+            ruta = ruta.substring(0, MAX_VALOR_ECHO) + "…";
+        }
+        return build(HttpStatus.NOT_FOUND, "Ruta no encontrada: " + ruta);
+    }
+
+    /** La ruta existe pero no con ese verbo (por ejemplo DELETE: la API no da de baja entidades). */
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleMetodoNoPermitido(HttpRequestMethodNotSupportedException ex) {
+        return build(HttpStatus.METHOD_NOT_ALLOWED, "Método " + ex.getMethod() + " no permitido para esta ruta");
+    }
+
+    /** Toda la API habla JSON: cualquier otro Content-Type en un body se rechaza acá. */
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleContentTypeNoSoportado(HttpMediaTypeNotSupportedException ex) {
+        String recibido = ex.getContentType() != null
+                ? ex.getContentType().getType() + "/" + ex.getContentType().getSubtype()
+                : null;
+        String detalle = recibido != null
+                ? "Content-Type '" + recibido + "' no soportado (se espera application/json)"
+                : "Content-Type ausente (se espera application/json)";
+        return build(HttpStatus.UNSUPPORTED_MEDIA_TYPE, detalle);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

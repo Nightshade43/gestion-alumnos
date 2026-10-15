@@ -38,3 +38,4 @@ build/
 
 ### Scripts ###
 seed-data.sh
+/login.json
