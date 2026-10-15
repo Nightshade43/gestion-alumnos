@@ -1,0 +1,102 @@
+# Genera el jar de release (backend + frontend ya compilado en un solo archivo) y lo publica en GitHub Releases.
+#
+# Se dispara al subir un tag que empiece con "v" (por ejemplo v1.0.0), y a mano desde la pestaña Actions
+# (en ese caso solo deja el jar como artefacto del run, sin crear ningún release).
+#
+# No corre los tests: ya corrieron en el CI del push. Etiquetá un commit cuyo CI esté en verde.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+# Para crear el release hace falta escritura sobre el contenido del repo; el resto de los permisos queda en lectura.
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Jar de release
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # mvnw se versionó sin permiso de ejecución (se commitea desde Windows).
+      - name: Dar permiso de ejecución a mvnw
+        run: chmod +x ./mvnw
+
+      # El jar lleva la versión del pom en el nombre. Si el tag dice v1.0.0 y el pom dice otra cosa, se corta
+      # acá en vez de publicar un jar que no coincide con su etiqueta.
+      - name: Leer la versión del pom y compararla con el tag
+        run: |
+          VERSION=$(python3 -c "import xml.etree.ElementTree as E; print(E.parse('pom.xml').getroot().find('{http://maven.apache.org/POM/4.0.0}version').text.strip())")
+          echo "Versión del pom: $VERSION"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          if [[ "$GITHUB_REF" == refs/tags/v* && "${GITHUB_REF_NAME#v}" != "$VERSION" ]]; then
+            echo "::error::El tag $GITHUB_REF_NAME no coincide con la versión del pom ($VERSION). Actualizá <version> en pom.xml o corregí el tag."
+            exit 1
+          fi
+
+      - name: Compilar el frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      # El profile con-frontend copia frontend/dist dentro del jar (ver pom.xml).
+      - name: Empaquetar el jar
+        run: ./mvnw -B --no-transfer-progress -Pcon-frontend -DskipTests clean package
+
+      - name: Verificar que el jar incluye el frontend y calcular el checksum
+        run: |
+          JAR="target/gestion-alumnos-${VERSION}.jar"
+          test -f "$JAR" || { echo "::error::No se generó $JAR"; exit 1; }
+          unzip -l "$JAR" | grep -q "BOOT-INF/classes/static/index.html" \
+            || { echo "::error::El jar no incluye el frontend (falta static/index.html)"; exit 1; }
+          (cd target && sha256sum "gestion-alumnos-${VERSION}.jar" > "gestion-alumnos-${VERSION}.jar.sha256")
+          ls -l target/gestion-alumnos-*.jar*
+
+      - name: Guardar el jar como artefacto del run
+        uses: actions/upload-artifact@v4
+        with:
+          name: gestion-alumnos-${{ env.VERSION }}
+          path: |
+            target/gestion-alumnos-${{ env.VERSION }}.jar
+            target/gestion-alumnos-${{ env.VERSION }}.jar.sha256
+          retention-days: 14
+
+      - name: Publicar el release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sed "s/__VERSION__/${VERSION}/g" .github/release-notes.md > notas-release.md
+          EXTRA=""
+          # Un tag como v1.1.0-rc1 se publica como pre-release.
+          if [[ "$GITHUB_REF_NAME" == *-* ]]; then EXTRA="--prerelease"; fi
+          gh release create "$GITHUB_REF_NAME" \
+            "target/gestion-alumnos-${VERSION}.jar" \
+            "target/gestion-alumnos-${VERSION}.jar.sha256" \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file notas-release.md \
+            --generate-notes \
+            $EXTRA

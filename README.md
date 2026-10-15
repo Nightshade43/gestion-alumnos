@@ -7,7 +7,7 @@
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)
-![Status](https://img.shields.io/badge/status-backend%20y%20frontend%20funcionales-blue)
+[![Versión](https://img.shields.io/github/v/release/Nightshade43/gestion-alumnos?label=versi%C3%B3n)](https://github.com/Nightshade43/gestion-alumnos/releases)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
 
 **Proyecto personal de aprendizaje y portfolio.** CRM (backend en Java/Spring Boot y frontend de escritorio en React/TypeScript) para gestionar tanto alumnos de instituciones educativas para adultos (CENMA Bº SMATA — Base y Sede) como clientes de cursos particulares (inglés para IT, turismo, gastronomía, consultoría en IA educativa).
@@ -18,9 +18,9 @@ Desarrollado como ejercicio de diseño de dominio y arquitectura backend con Jav
 
 ---
 
-## Estado del proyecto
+## Estado del proyecto — V1.0
 
-Backend y frontend funcionales: **199/199 tests de backend pasando**, con integración continua en cada push a `master`.
+Backend y frontend funcionales: **201/201 tests de backend pasando**, con integración continua en cada push a `master`.
 
 **Backend**
 
@@ -132,6 +132,22 @@ Otros comandos:
 
 En este modo el backend sirve la interfaz en el mismo puerto: no hay proxy ni CORS de por medio. El empaquetado del frontend dentro del jar está en el profile `con-frontend` del `pom.xml`, que no se activa en `./mvnw test` ni en el CI.
 
+## Versiones publicadas (jar de release)
+
+Cada tag `v*` (por ejemplo `v1.0.0`) publica en [GitHub Releases](https://github.com/Nightshade43/gestion-alumnos/releases) un jar autocontenido, con el backend y el frontend ya compilado, y su checksum `.sha256`. Sirve para usar el sistema en otra computadora sin clonar el repositorio ni instalar Node: alcanza con JDK 21 y PostgreSQL.
+
+1. Creá la base: `CREATE DATABASE gestion_alumnos;`
+2. Guardá el jar en una carpeta y creá junto a él un `application-local.properties` con el mismo contenido que el ejemplo (`src/main/resources/application-local.properties.example`).
+3. Ejecutá `java -jar gestion-alumnos-<versión>.jar` y abrí `http://localhost:8080`.
+
+Para publicar una versión nueva:
+
+1. Subí `<version>` en `pom.xml` (por ejemplo a `1.0.1`), hacé commit y push, y esperá a que el CI esté en verde.
+2. Etiquetá ese commit y subí el tag: `git tag v1.0.1` y `git push origin v1.0.1`.
+3. El workflow [`release.yml`](./.github/workflows/release.yml) construye el jar y crea el release. Si el tag no coincide con la versión del `pom.xml`, se detiene sin publicar.
+
+El workflow no corre los tests (ya corrieron en el CI del push) y también se puede lanzar a mano desde la pestaña Actions: en ese caso deja el jar como artefacto del run, sin crear un release.
+
 ## Frontend (desarrollo)
 
 Con el backend corriendo en `localhost:8080`:
@@ -181,7 +197,7 @@ frontend/                        App React + TypeScript (Vite)
 iniciar.bat / construir.bat      Launcher local (la lógica está en scripts/launcher/lanzador.ps1)
 design_handoff_gestion_alumnos/  Diseño del frontend: pantallas, tokens y pendientes de backend
 scripts/benchmark/               Benchmark de carga con datos sintéticos
-.github/workflows/               Integración continua
+.github/workflows/               Integración continua (ci.yml) y jar de release (release.yml)
 ```
 
 ## Documentación
