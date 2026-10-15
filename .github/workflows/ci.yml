@@ -19,7 +19,8 @@ permissions:
 jobs:
   backend:
     name: Backend (tests)
-    runs-on: ubuntu-latest
+    # Imagen fijada: 'ubuntu-latest' pasa a Ubuntu 26 desde el 19/10/2026. Migrar a propósito, no por sorpresa.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
 
     # Los tests de repositorio y SecurityIntegrationTest usan una base real, igual que en local.
@@ -53,9 +54,9 @@ jobs:
       ADMIN_PASSWORD: clave-solo-para-ci
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
@@ -71,7 +72,7 @@ jobs:
       # Para ver por qué falló un test sin tener que reproducirlo en local.
       - name: Guardar reportes de tests si falló
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: surefire-reports
           path: target/surefire-reports
@@ -79,16 +80,16 @@ jobs:
 
   frontend:
     name: Frontend (tipos y build)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     defaults:
       run:
         working-directory: frontend
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '22'
           cache: npm

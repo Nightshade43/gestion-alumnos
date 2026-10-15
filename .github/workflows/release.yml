@@ -22,19 +22,20 @@ concurrency:
 jobs:
   release:
     name: Jar de release
-    runs-on: ubuntu-latest
+    # Imagen fijada: 'ubuntu-latest' pasa a Ubuntu 26 desde el 19/10/2026. Migrar a propósito, no por sorpresa.
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
           cache: maven
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '22'
           cache: npm
@@ -76,7 +77,7 @@ jobs:
           ls -l target/gestion-alumnos-*.jar*
 
       - name: Guardar el jar como artefacto del run
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: gestion-alumnos-${{ env.VERSION }}
           path: |
