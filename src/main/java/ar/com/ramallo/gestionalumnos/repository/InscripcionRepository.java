@@ -15,4 +15,6 @@ public interface InscripcionRepository extends JpaRepository<Inscripcion, Long> 
             Long personaId, CategoriaPrograma categoria, List<EstadoInscripcion> estados);
 
     List<Inscripcion> findByContratoId(Long contratoId);
+
+    long countByProgramaIdAndEstado(Long programaId, EstadoInscripcion estado);
 }

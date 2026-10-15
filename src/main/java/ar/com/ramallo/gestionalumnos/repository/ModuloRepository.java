@@ -10,5 +10,7 @@ public interface ModuloRepository extends JpaRepository<Modulo, Long> {
 
     List<Modulo> findByProgramaIdOrderByOrden(Long programaId);
 
+    long countByProgramaId(Long programaId);
+
     Optional<Modulo> findByProgramaIdAndOrden(Long programaId, Integer orden);
 }

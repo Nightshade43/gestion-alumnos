@@ -37,9 +37,9 @@ Los ítems 1-3 están resueltos en el backend y **adoptados en el frontend**:
 | 1 | Listado global de seguimientos | endpoint nuevo | Alta | No | ✅ Resuelto en `master` |
 | 2 | `puedeFinalizar` en `InscripcionResponse` | campo nuevo | Alta | No (aditivo) | ✅ Resuelto en `master` |
 | 3 | `programaNombre` + `estado` en `EmpleadoCubierto` | campos nuevos | Alta | No (aditivo) | ✅ Resuelto en `master` |
-| 4 | Contadores de programa (módulos / días) | campos nuevos | Media | No (aditivo) | Pendiente |
-| 5 | Filtros en `GET /api/contratos` | params opcionales | Media | No | Pendiente |
-| 6 | `PUT` de Institución y Empresa | endpoints nuevos | Media | No | Pendiente |
+| 4 | Contadores de programa (módulos / días) | campos nuevos | Media | No (aditivo) | ✅ Resuelto y adoptado |
+| 5 | Filtros en `GET /api/contratos` | params opcionales | Media | No | ✅ Resuelto en `master`; adoptado solo en Inicio |
+| 6 | `PUT` de Institución y Empresa | endpoints nuevos | Media | No | ✅ Resuelto en backend; falta la UI de edición |
 | 7 | `aprobado` en instancia evaluativa (gate de Sede) | modelo | Alta | No (aditivo, nullable) | ✅ Resuelto y adoptado (`TP_INTEGRADOR`; el integrador de Base lleva nota) |
 | 8 | Endpoint de métricas de Inicio | endpoint nuevo | Baja | No | Pendiente |
 
@@ -172,6 +172,13 @@ que hoy existen solo para ese cruce.
 
 ## 4. Contadores de programa (módulos y días de grupo)
 
+> **✅ Resuelto y adoptado.** `ProgramaResponse` trae `cantidadModulos`, `cantidadInscripcionesActivas`
+> (solo estado `ACTIVA`) y `diasDeGrupo` (días distintos, en orden de alta del grupo). Se calculan por
+> programa con consultas de conteo (3 por fila en el listado). Instituciones ya no pide módulos ni
+> grupos al desplegar; Programas pasó de contar todas las inscripciones a mostrar las activas. Las
+> mutaciones que mueven esos números (alta / transición de inscripción, alta de módulo o grupo)
+> invalidan `programas`. El texto de abajo es la propuesta original.
+
 **Hoy.** `GET /api/modulos`, `/api/planes` y `/api/grupos` solo se consultan por
 `programaId`, y `ProgramaResponse` no trae ningún contador.
 
@@ -204,6 +211,12 @@ Alternativa equivalente si se prefiere no engordar el DTO:
 
 ## 5. Filtros en `GET /api/contratos`
 
+> **✅ Resuelto en backend** (`empresaId` y `estado`, opcionales y combinables, vía consultas derivadas
+> del repositorio). **Adoptado solo en Inicio** (`?estado=ACTIVO`): Contratos muestra todos los estados
+> y Empresas agrupa por empresa sobre un único listado, donde pedir uno por empresa serían N requests
+> en vez de 1. Un `estado` o `empresaId` con formato inválido hoy cae en el 500 genérico, igual que
+> `categoria` en `/api/inscripciones`. El texto de abajo es la propuesta original.
+
 **Hoy.** Devuelve todos los contratos, sin parámetros.
 
 **Por qué.** Contratos filtra por estado y Empresas agrupa por empresa. Además Inicio
@@ -230,6 +243,12 @@ empresa que están activos.
 ---
 
 ## 6. Edición de Institución y Empresa
+
+> **✅ Resuelto en backend** (`PUT /api/instituciones/{id}` y `PUT /api/empresas/{id}`; 404 si no
+> existe, 400 con `nombre: …` si viene vacío, 409 genérico si el nombre ya existe). Sin `DELETE`.
+> **Pendiente en frontend:** la UI no ofrece editar; hay que diseñarla (botón, dónde va) y que al
+> guardar invalide `programas` (`institucionNombre`) y `contratos` (`empresaNombre`).
+> El texto de abajo es la propuesta original.
 
 **Hoy.** `InstitucionController` y `EmpresaController` exponen solo `list`, `get` y `create`
 (a diferencia de `PersonaController`, que ya tiene `PUT` y `DELETE`).

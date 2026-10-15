@@ -15,21 +15,21 @@ import { ScreenHeader, type Route } from '../shell/AppShell';
  */
 export function InicioScreen({ onNavigate }: { onNavigate: (r: Route) => void }) {
   const ins = useInscripciones();
-  const con = useContratos();
+  // Solo se usan los vigentes: el filtro lo resuelve el backend.
+  const con = useContratos({ estado: 'ACTIVO' });
 
   if (ins.isPending || con.isPending) return <Card><SkeletonList rows={4} /></Card>;
   if (ins.error) return <ErrorScreen error={ins.error} onRetry={ins.refetch} entidad="listado" />;
   if (con.error) return <ErrorScreen error={con.error} onRetry={con.refetch} entidad="listado" />;
 
   const inscripciones = ins.data ?? [];
-  const contratos = con.data ?? [];
+  const vigentes = con.data ?? [];
 
   const activas = inscripciones.filter((i) => i.estado === 'ACTIVA');
   const pausadas = inscripciones.filter((i) => i.estado === 'PAUSADA');
   const escolares = activas.filter((i) => i.categoria === 'ESCOLAR').length;
   const particulares = activas.length - escolares;
 
-  const vigentes = contratos.filter((c) => c.estado === 'ACTIVO');
   const deEmpresa = vigentes.filter((c) => c.empresaId != null).length;
 
   // Solo PAQUETE tiene tope real en el backend (ContratoService.consumirClase):

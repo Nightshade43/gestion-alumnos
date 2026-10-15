@@ -38,6 +38,11 @@ export interface ProgramaResponse {
   id: number; nombre: string; categoria: CategoriaPrograma;
   estrategiaEvaluacion: EstrategiaEvaluacion;
   institucionId: number | null; institucionNombre: string | null;
+  cantidadModulos: number;
+  /** Solo estado ACTIVA. */
+  cantidadInscripcionesActivas: number;
+  /** Días distintos de sus grupos, en orden de alta. */
+  diasDeGrupo: string[];
 }
 
 export interface ModuloRequest { programaId: number; orden: number; esSecuencial: boolean }

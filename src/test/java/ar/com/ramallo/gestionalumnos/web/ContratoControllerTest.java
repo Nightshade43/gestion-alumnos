@@ -19,6 +19,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -108,5 +110,40 @@ class ContratoControllerTest {
         mockMvc.perform(get("/api/contratos"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1));
+    }
+
+    @Test
+    void listaFiltraPorEstado() throws Exception {
+        when(contratoRepository.findByEstado(EstadoContrato.ACTIVO)).thenReturn(List.of(contratoDe(1L, null, 10, 2)));
+        when(inscripcionRepository.findByContratoId(1L)).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/contratos").param("estado", "ACTIVO"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1));
+        verify(contratoRepository, never()).findAll();
+    }
+
+    @Test
+    void listaFiltraPorEmpresa() throws Exception {
+        Empresa empresa = Empresa.builder().id(3L).nombre("Acme SA").build();
+        when(contratoRepository.findByEmpresaId(3L)).thenReturn(List.of(contratoDe(2L, empresa, 50, 0)));
+        when(inscripcionRepository.findByContratoId(2L)).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/contratos").param("empresaId", "3"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].empresaId").value(3));
+    }
+
+    @Test
+    void listaCombinaEmpresaYEstado() throws Exception {
+        Empresa empresa = Empresa.builder().id(3L).nombre("Acme SA").build();
+        when(contratoRepository.findByEmpresaIdAndEstado(3L, EstadoContrato.ACTIVO))
+                .thenReturn(List.of(contratoDe(2L, empresa, 50, 0)));
+        when(inscripcionRepository.findByContratoId(2L)).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/contratos").param("empresaId", "3").param("estado", "ACTIVO"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1));
+        verify(contratoRepository).findByEmpresaIdAndEstado(3L, EstadoContrato.ACTIVO);
     }
 }

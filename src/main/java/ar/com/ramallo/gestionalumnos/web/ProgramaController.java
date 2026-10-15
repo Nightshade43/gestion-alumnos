@@ -1,9 +1,14 @@
 package ar.com.ramallo.gestionalumnos.web;
 
 import ar.com.ramallo.gestionalumnos.domain.Institucion;
+import ar.com.ramallo.gestionalumnos.domain.Grupo;
 import ar.com.ramallo.gestionalumnos.domain.Programa;
+import ar.com.ramallo.gestionalumnos.domain.enums.EstadoInscripcion;
 import ar.com.ramallo.gestionalumnos.exception.RecursoNoEncontradoException;
+import ar.com.ramallo.gestionalumnos.repository.GrupoRepository;
+import ar.com.ramallo.gestionalumnos.repository.InscripcionRepository;
 import ar.com.ramallo.gestionalumnos.repository.InstitucionRepository;
+import ar.com.ramallo.gestionalumnos.repository.ModuloRepository;
 import ar.com.ramallo.gestionalumnos.repository.ProgramaRepository;
 import ar.com.ramallo.gestionalumnos.web.dto.ProgramaRequest;
 import ar.com.ramallo.gestionalumnos.web.dto.ProgramaResponse;
@@ -13,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/programas")
@@ -21,6 +27,9 @@ public class ProgramaController {
 
     private final ProgramaRepository programaRepository;
     private final InstitucionRepository institucionRepository;
+    private final ModuloRepository moduloRepository;
+    private final GrupoRepository grupoRepository;
+    private final InscripcionRepository inscripcionRepository;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -30,17 +39,36 @@ public class ProgramaController {
                 .nombre(request.nombre()).categoria(request.categoria())
                 .estrategiaEvaluacion(request.estrategiaEvaluacion()).institucion(institucion)
                 .build();
-        return ProgramaResponse.from(programaRepository.save(programa));
+        return armarResponse(programaRepository.save(programa));
     }
 
     @GetMapping("/{id}")
     public ProgramaResponse obtener(@PathVariable Long id) {
-        return ProgramaResponse.from(buscarOFallar(id));
+        return armarResponse(buscarOFallar(id));
     }
 
     @GetMapping
     public List<ProgramaResponse> listar() {
-        return programaRepository.findAll().stream().map(ProgramaResponse::from).toList();
+        return programaRepository.findAll().stream().map(this::armarResponse).toList();
+    }
+
+    /**
+     * Los contadores se calculan acá y no en el DTO: son consultas por programa (3 por fila en el
+     * listado), aceptables con la cantidad de programas de una sede, y le ahorran al cliente
+     * pedir módulos y grupos de cada programa que despliega.
+     */
+    private ProgramaResponse armarResponse(Programa programa) {
+        Long id = programa.getId();
+        List<String> dias = grupoRepository.findByProgramaIdOrderByIdAsc(id).stream()
+                .map(Grupo::getDia)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        return ProgramaResponse.from(
+                programa,
+                Math.toIntExact(moduloRepository.countByProgramaId(id)),
+                Math.toIntExact(inscripcionRepository.countByProgramaIdAndEstado(id, EstadoInscripcion.ACTIVA)),
+                dias);
     }
 
     private Institucion resolverInstitucion(Long institucionId) {

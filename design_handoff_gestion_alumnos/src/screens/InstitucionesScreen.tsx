@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-  useInstituciones, useProgramas, useInscripciones,
-  useModulos, useGrupos, useCrearInstitucion,
-} from '../api/queries';
+import { useInstituciones, useProgramas, useCrearInstitucion } from '../api/queries';
 import { Button, Card, EmptyState, Field, Input, Modal, MonoChip, SkeletonList } from '../components/primitives';
 import { ErrorScreen, useApiErrorHandler } from '../components/ErrorSurface';
 import { ScreenHeader, type Route } from '../shell/AppShell';
@@ -13,14 +10,13 @@ import type { ProgramaResponse } from '../api/types';
  * Instituciones. Son pocas y de uso poco frecuente, así que no tienen pantalla
  * de detalle: cada fila se despliega en su lugar.
  *
- * Los programas se agrupan en cliente por institucionId (ProgramaResponse ya lo
- * trae). Módulos y grupos, en cambio, se piden por programa: se consultan SOLO
- * cuando la fila está abierta, para no hacer fan-out en el listado.
+ * Los programas se agrupan en cliente por institucionId. Módulos, días de grupo e
+ * inscripciones activas vienen como contadores en ProgramaResponse: desplegar una
+ * fila no dispara requests.
  */
 export function InstitucionesScreen({ onNavigate }: { onNavigate: (r: Route) => void }) {
   const { data, isPending, error, refetch } = useInstituciones();
   const programas = useProgramas();
-  const inscripciones = useInscripciones({ categoria: 'ESCOLAR' });
   const [abierta, setAbierta] = React.useState<number | null>(null);
   const [nueva, setNueva] = React.useState(false);
 
@@ -29,8 +25,6 @@ export function InstitucionesScreen({ onNavigate }: { onNavigate: (r: Route) => 
 
   const instituciones = data ?? [];
   const programasDe = (id: number) => (programas.data ?? []).filter((p) => p.institucionId === id);
-  const activasDe = (programaId: number) =>
-    (inscripciones.data ?? []).filter((i) => i.programaId === programaId && i.estado === 'ACTIVA').length;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
@@ -49,7 +43,7 @@ export function InstitucionesScreen({ onNavigate }: { onNavigate: (r: Route) => 
           : <div style={{ display: 'flex', flexDirection: 'column' }}>
               {instituciones.map((inst) => {
                 const propios = programasDe(inst.id);
-                const activas = propios.reduce((a, p) => a + activasDe(p.id), 0);
+                const activas = propios.reduce((a, p) => a + p.cantidadInscripcionesActivas, 0);
                 const abiertaEsta = abierta === inst.id;
                 return (
                   <div key={inst.id} style={{ borderBottom: '1px solid var(--ga-line-soft)' }}>
@@ -82,7 +76,7 @@ export function InstitucionesScreen({ onNavigate }: { onNavigate: (r: Route) => 
                               Todavía no hay programas de esta institución. Se crean desde Programas, eligiéndola en el alta.
                             </span>
                           : propios.map((p) => (
-                              <FilaPrograma key={p.id} programa={p} activas={activasDe(p.id)} onClick={() => onNavigate({ name: 'programa', id: p.id })} />
+                              <FilaPrograma key={p.id} programa={p} onClick={() => onNavigate({ name: 'programa', id: p.id })} />
                             ))}
                       </div>
                     )}
@@ -97,13 +91,7 @@ export function InstitucionesScreen({ onNavigate }: { onNavigate: (r: Route) => 
   );
 }
 
-/** Solo se monta con la fila abierta: los hooks de módulos y grupos corren on demand. */
-function FilaPrograma({ programa, activas, onClick }: {
-  programa: ProgramaResponse; activas: number; onClick: () => void;
-}) {
-  const modulos = useModulos(programa.id);
-  const grupos = useGrupos(programa.id);
-
+function FilaPrograma({ programa, onClick }: { programa: ProgramaResponse; onClick: () => void }) {
   return (
     <div
       onClick={onClick}
@@ -120,21 +108,17 @@ function FilaPrograma({ programa, activas, onClick }: {
         <MonoChip>{programa.estrategiaEvaluacion}</MonoChip>
       </div>
       <span style={{ fontSize: 13.5, color: 'var(--ga-muted)' }}>
-        {modulos.isPending ? '…' : (modulos.data ?? []).length + ' módulos'}
+        {programa.cantidadModulos + ' módulos'}
       </span>
       <span style={{ fontSize: 13.5, color: 'var(--ga-muted)' }}>
-        {grupos.isPending
-          ? '…'
-          : (grupos.data ?? []).length
-            ? (grupos.data ?? []).map((g) => g.dia).join(', ')
-            : 'Sin grupos'}
+        {programa.diasDeGrupo.length ? programa.diasDeGrupo.join(', ') : 'Sin grupos'}
       </span>
-      <span style={{ fontFamily: 'var(--ga-font-mono)', fontSize: 13, color: 'var(--ga-muted)' }}>{activas} activas</span>
+      <span style={{ fontFamily: 'var(--ga-font-mono)', fontSize: 13, color: 'var(--ga-muted)' }}>{programa.cantidadInscripcionesActivas} activas</span>
     </div>
   );
 }
 
-/** InstitucionController solo expone list/get/create: no hay edición ni baja. */
+/** El backend ya expone PUT /api/instituciones/{id}; la UI todavía no ofrece editar (pendiente de diseño). */
 function NuevaInstitucionModal({ onClose }: { onClose: () => void }) {
   const crear = useCrearInstitucion();
   const { push } = useToasts();

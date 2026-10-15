@@ -132,7 +132,7 @@ Todas las relaciones son **unidireccionales** (el lado "muchos" conoce al "uno",
 - Roles / multi-usuario (hoy un único usuario admin sembrado por `AdminUserSeeder`, sin endpoint de alta).
 - CORS para el backend (el frontend ya lee `VITE_API_BASE`; en desarrollo el proxy de Vite lo evita, pero producción con front y back en orígenes distintos lo necesita).
 - Logging estructurado.
-- Los 4 puntos de `design_handoff_gestion_alumnos/BACKEND.md` todavía sin resolver (contadores de programa, filtros en `GET /api/contratos`, `PUT` de Institución/Empresa, endpoint de métricas de Inicio).
+- El único punto de `design_handoff_gestion_alumnos/BACKEND.md` sin resolver: el endpoint de métricas de Inicio (opcional). Además falta la UI de edición de Institución y Empresa (el `PUT` ya existe).
 - Migraciones versionadas (Flyway/Liquibase) — hoy el esquema se genera con `ddl-auto=update`, razonable en desarrollo individual pero sin control de versión del esquema.
 - Spring Actuator / endpoint de salud, necesario para desplegar en cualquier PaaS.
 - `InstitucionController` es el único de los 12 controllers sin test dedicado.
@@ -176,12 +176,10 @@ ar.com.ramallo.gestionalumnos
 - `frontend/`: las 11 pantallas (Vite + React 19 + TypeScript + TanStack Query) consumiendo esta API, con tema visual propio (Dark CENMA) documentado en `design_handoff_gestion_alumnos/`.
 
 **Pendiente** (detalle en la sección 6 de este documento y en `design_handoff_gestion_alumnos/BACKEND.md`):
-- 4 de los 8 puntos de `BACKEND.md` (contadores de programa, filtros de contratos, `PUT` de Institución/Empresa, métricas de Inicio); los otros 4 ya están resueltos y adoptados.
-- `API_REFERENCE.md` (contrato completo de la API) — referenciado desde el README raíz pero todavía no escrito.
-- `InstitucionControllerTest` — el único controller sin test dedicado.
+- 1 de los 8 puntos de `BACKEND.md` (métricas de Inicio, opcional); los otros 7 están resueltos. Falta la UI de edición de Institución y Empresa.
 - CI (no hay `.github/workflows`), CORS, Dockerfile/deploy, Actuator, migraciones versionadas.
 
 ### Próximo entregable
 
-Los 3 puntos de `BACKEND.md` resueltos en el backend (listado global de seguimientos, `puedeFinalizar`, `EmpleadoCubierto`) ya están adoptados en el frontend. El campo `aprobado` del gate de Sede (punto 7, solo `TP_INTEGRADOR`) también está resuelto. Siguen pendientes los puntos 4, 5, 6 y 8 de `BACKEND.md`.
+Los 3 puntos de `BACKEND.md` resueltos en el backend (listado global de seguimientos, `puedeFinalizar`, `EmpleadoCubierto`) ya están adoptados en el frontend. El campo `aprobado` del gate de Sede (punto 7, solo `TP_INTEGRADOR`) también está resuelto. Los puntos 4, 5 y 6 también están resueltos (contadores de programa, filtros de contratos, `PUT` de Institución y Empresa); solo queda el 8 (métricas de Inicio, opcional) y la UI de edición.
 

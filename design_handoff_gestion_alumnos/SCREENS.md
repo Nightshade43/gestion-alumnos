@@ -128,7 +128,7 @@ Implementada en `src/screens/ProgramasScreen.tsx`.
 - Filtro segmentado (Todos / Escolar / Particular): pista `#F0EAE1` radio 9 padding 3,
   opción activa en blanco con `shadow-sm`.
 - Tabla: Programa · Categoría (punto + label) · Estrategia (chip mono) · Institución ·
-  Inscripciones (conteo).
+  Activas (inscripciones en estado ACTIVA, viene en `ProgramaResponse`).
 
 ## 8. Programa (detalle) — pestañas
 Implementada en `src/screens/ProgramaScreen.tsx`.
@@ -373,8 +373,8 @@ campo lo reemplazaría.
 | 1 | Sin listado global de seguimientos: `GET /api/seguimientos` exige `inscripcionId` | ~~Inicio pide los de las 6 inscripciones activas más recientes~~ Resuelto: `?limit=4` | `GET /api/seguimientos` sin filtro, orden por fecha desc + `?limit=` |
 | 2 | No se puede saber si una escolar puede finalizar sin traer todas sus instancias | ~~El aviso no se muestra en Inicio~~ Resuelto: Inicio y detalle leen el flag | `puedeFinalizar: boolean` en `InscripcionResponse`, o `modulosPendientes: int` |
 | 3 | `EmpleadoCubierto` solo trae `inscripcionId` + `personaNombre` | ~~Cruce contra `/api/inscripciones`~~ Resuelto: viene en `EmpleadoCubierto` | agregar `programaNombre` y `estado` a `EmpleadoCubierto` |
-| 4 | Módulos, planes y grupos solo se consultan por `programaId` | Instituciones los pide **solo al desplegar** una fila: 1 request por programa abierto | `cantidadModulos` y `dias` en `ProgramaResponse`, o `GET /api/programas?institucionId=` con contadores |
-| 5 | `GET /api/contratos` no acepta filtros | Contratos y Empresas filtran estado y empresa en cliente | `?empresaId=` y `?estado=`, mismo criterio que `/api/inscripciones` |
+| 4 | Módulos, planes y grupos solo se consultan por `programaId` | ~~Instituciones los pide solo al desplegar una fila~~ Resuelto: `cantidadModulos`, `cantidadInscripcionesActivas` y `diasDeGrupo` vienen en `ProgramaResponse` | `cantidadModulos` y `dias` en `ProgramaResponse`, o `GET /api/programas?institucionId=` con contadores |
+| 5 | `GET /api/contratos` no acepta filtros | ~~Filtro en cliente~~ Resuelto en backend (`?empresaId=` / `?estado=`); Inicio pide `?estado=ACTIVO`, Contratos y Empresas siguen con el listado completo | `?empresaId=` y `?estado=`, mismo criterio que `/api/inscripciones` |
 | 6 | `InstitucionController` y `EmpresaController` solo tienen list/get/create | La UI no ofrece editar ni dar de baja instituciones ni empresas | `PUT /{id}` en ambos; baja lógica cuando hay contratos o programas asociados |
 | 7 | El gate de Sede (TP integrador aprobado / no aprobado) no tiene campo propio | ~~Se guarda como `nota` 10 / 0~~ Resuelto: `aprobado` en `InstanciaEvaluativa` (solo `TP_INTEGRADOR`; el `INTEGRADOR` de Base sigue en 10/0) | `aprobado: boolean` en `InstanciaEvaluativa` para `TP_INTEGRADOR` |
 | 8 | Sin endpoint de métricas | Inicio calcula los 4 KPIs en cliente sobre dos listados completos | opcional: `GET /api/metricas`, solo si los listados crecen |

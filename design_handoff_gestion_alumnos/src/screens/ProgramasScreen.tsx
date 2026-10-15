@@ -1,5 +1,5 @@
 import React from 'react';
-import { useProgramas, useInscripciones, useInstituciones, useCrearPrograma } from '../api/queries';
+import { useProgramas, useInstituciones, useCrearPrograma } from '../api/queries';
 import { Button, Card, DataTable, EmptyState, Field, Input, Modal, MonoChip, RamaTag, Select, SkeletonList } from '../components/primitives';
 import { ErrorScreen, useApiErrorHandler } from '../components/ErrorSurface';
 import { ScreenHeader, type Route } from '../shell/AppShell';
@@ -13,7 +13,6 @@ import type { CategoriaPrograma, EstrategiaEvaluacion } from '../api/types';
  */
 export function ProgramasScreen({ onNavigate }: { onNavigate: (r: Route) => void }) {
   const { data, isPending, error, refetch } = useProgramas();
-  const inscripciones = useInscripciones();
   const [filtro, setFiltro] = React.useState<'TODOS' | CategoriaPrograma>('TODOS');
   const [nuevo, setNuevo] = React.useState(false);
 
@@ -21,7 +20,6 @@ export function ProgramasScreen({ onNavigate }: { onNavigate: (r: Route) => void
   if (error) return <ErrorScreen error={error} onRetry={refetch} entidad="listado" />;
 
   const rows = (data ?? []).filter((p) => filtro === 'TODOS' || p.categoria === filtro);
-  const conteo = (programaId: number) => (inscripciones.data ?? []).filter((i) => i.programaId === programaId).length;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
@@ -57,7 +55,7 @@ export function ProgramasScreen({ onNavigate }: { onNavigate: (r: Route) => void
             { key: 'cat', header: 'Categoría', render: (p) => <RamaTag categoria={p.categoria} /> },
             { key: 'estrategia', header: 'Estrategia', render: (p) => <MonoChip>{p.estrategiaEvaluacion}</MonoChip> },
             { key: 'inst', header: 'Institución', render: (p) => p.institucionNombre ?? '—' },
-            { key: 'ins', header: 'Inscripciones', mono: true, render: (p) => String(conteo(p.id)) },
+            { key: 'ins', header: 'Activas', mono: true, render: (p) => String(p.cantidadInscripcionesActivas) },
           ]}
         />
       </Card>

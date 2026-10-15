@@ -34,6 +34,14 @@ public class EmpresaController {
         return EmpresaResponse.from(buscarOFallar(id));
     }
 
+    @PutMapping("/{id}")
+    public EmpresaResponse actualizar(@PathVariable Long id, @Valid @RequestBody EmpresaRequest request) {
+        Empresa empresa = buscarOFallar(id);
+        empresa.setNombre(request.nombre());
+        empresa.setContacto(request.contacto());
+        return EmpresaResponse.from(empresaRepository.save(empresa));
+    }
+
     @GetMapping
     public List<EmpresaResponse> listar() {
         return empresaRepository.findAll().stream().map(EmpresaResponse::from).toList();

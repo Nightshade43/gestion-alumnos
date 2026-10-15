@@ -72,7 +72,14 @@ export const empresas = {
 };
 
 export const contratos = {
-  list:          () => api.get<T.ContratoResponse[]>('/api/contratos'),
+  /** Ambos filtros son opcionales y combinables; sin filtros devuelve todos. */
+  list: (f: { empresaId?: number; estado?: T.EstadoContrato } = {}) => {
+    const qs = new URLSearchParams();
+    if (f.empresaId != null) qs.set('empresaId', String(f.empresaId));
+    if (f.estado) qs.set('estado', f.estado);
+    const s = qs.toString();
+    return api.get<T.ContratoResponse[]>('/api/contratos' + (s ? `?${s}` : ''));
+  },
   get:           (id: number) => api.get<T.ContratoResponse>(`/api/contratos/${id}`),
   createIndividual: (b: T.ContratoRequest) => api.post<T.ContratoResponse>('/api/contratos', b),
   createEmpresa:    (b: T.ContratoEmpresaRequest) => api.post<T.ContratoResponse>('/api/contratos/empresa', b),

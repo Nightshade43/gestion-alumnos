@@ -66,14 +66,15 @@ vía el handler genérico de `DataIntegrityViolationException`.
 
 ## Instituciones
 
-Entidad educativa externa (rama Escolar). **Solo lectura + alta** — no tiene `PUT` ni `DELETE`
-(ver pendiente #6 en `design_handoff_gestion_alumnos/BACKEND.md`).
+Entidad educativa externa (rama Escolar). Alta, lectura y edición del nombre; sin `DELETE`
+(la baja no está definida: ver pendiente #6 en `design_handoff_gestion_alumnos/BACKEND.md`).
 
 | Método | Ruta | Descripción |
 |---|---|---|
 | `POST` | `/api/instituciones` | Crear |
 | `GET` | `/api/instituciones/{id}` | Obtener por id |
 | `GET` | `/api/instituciones` | Listar todas |
+| `PUT` | `/api/instituciones/{id}` | Actualizar el nombre (404 si no existe; 400 si viene vacío; 409 si ya existe otra con ese nombre) |
 
 **`InstitucionRequest`**
 ```json
@@ -113,11 +114,13 @@ Particular no tiene institución).
 **`ProgramaResponse`**
 ```json
 { "id": 1, "nombre": "CENMA Sede", "categoria": "ESCOLAR", "estrategiaEvaluacion": "CENMA_SEDE",
-  "institucionId": 1, "institucionNombre": "CENMA Bº SMATA" }
+  "institucionId": 1, "institucionNombre": "CENMA Bº SMATA",
+  "cantidadModulos": 4, "cantidadInscripcionesActivas": 12, "diasDeGrupo": ["Miércoles", "Sábado"] }
 ```
 
-**Sin contadores**: no trae cantidad de módulos, inscripciones activas ni días de grupo — el cliente
-tiene que pedirlos aparte (ver pendiente #4 en `BACKEND.md`).
+**Contadores**: `cantidadInscripcionesActivas` cuenta solo estado `ACTIVA`. `diasDeGrupo` son los días
+distintos de los grupos del programa, en orden de alta (sin repetir); `[]` si no tiene grupos. Se
+calculan en cada respuesta (listado, detalle y alta), con 3 consultas por programa.
 
 ---
 
@@ -294,7 +297,7 @@ Facturación de inscripciones Particulares — individual o de Empresa con pool 
 | `POST` | `/api/contratos` | Crear individual (1 a 1 con una inscripción) |
 | `POST` | `/api/contratos/empresa` | Crear de Empresa (cubre varias inscripciones) |
 | `GET` | `/api/contratos/{id}` | Obtener por id |
-| `GET` | `/api/contratos` | Listar todos (sin filtros — ver pendiente #5 en `BACKEND.md`) |
+| `GET` | `/api/contratos?empresaId=&estado=` | Listar — ambos filtros opcionales y combinables (`estado`: `ACTIVO` \| `FINALIZADO`); sin filtros devuelve todos |
 | `POST` | `/api/contratos/{id}/consumir-clase` | Descuenta una clase del pool |
 | `POST` | `/api/contratos/{id}/ampliar-cupo?clasesAdicionales={n}` | Suma cupo |
 | `POST` | `/api/contratos/{id}/finalizar` | Cierra el contrato |
@@ -337,14 +340,15 @@ contrato ya `FINALIZADO` también es 409, sin importar el tipo de facturación.
 
 ## Empresas
 
-Pagadora de contratos corporativos. **Solo lectura + alta** — mismo caso que Instituciones (sin
-`PUT`/`DELETE`, pendiente #6 en `BACKEND.md`).
+Pagadora de contratos corporativos. Alta, lectura y edición; sin `DELETE`, mismo caso que
+Instituciones.
 
 | Método | Ruta | Descripción |
 |---|---|---|
 | `POST` | `/api/empresas` | Crear |
 | `GET` | `/api/empresas/{id}` | Obtener por id |
 | `GET` | `/api/empresas` | Listar todas |
+| `PUT` | `/api/empresas/{id}` | Reemplaza nombre y contacto (404 / 400 / 409 como en Instituciones) |
 
 **`EmpresaRequest`**
 ```json
@@ -425,6 +429,6 @@ texto) — así lo consume `ErrorSurface.tsx` en el frontend.
 
 ## Pendiente (no rompe nada de lo de arriba)
 
-Ver `design_handoff_gestion_alumnos/BACKEND.md` para el detalle completo: contadores en
-`ProgramaResponse`, filtros en `GET /api/contratos`, `PUT` de Institución/Empresa y un endpoint de
-métricas para Inicio.
+Ver `design_handoff_gestion_alumnos/BACKEND.md` para el detalle completo. Del backend solo queda un
+endpoint de métricas para Inicio (opcional). Del lado del frontend falta la UI de edición de
+Institución y Empresa (el `PUT` ya existe).

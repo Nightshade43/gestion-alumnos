@@ -32,6 +32,14 @@ public class InstitucionController {
                 .orElseThrow(() -> new RecursoNoEncontradoException("Institucion no encontrada: " + id)));
     }
 
+    @PutMapping("/{id}")
+    public InstitucionResponse actualizar(@PathVariable Long id, @Valid @RequestBody InstitucionRequest request) {
+        Institucion institucion = institucionRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Institucion no encontrada: " + id));
+        institucion.setNombre(request.nombre());
+        return InstitucionResponse.from(institucionRepository.save(institucion));
+    }
+
     @GetMapping
     public List<InstitucionResponse> listar() {
         return institucionRepository.findAll().stream().map(InstitucionResponse::from).toList();

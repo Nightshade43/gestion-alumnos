@@ -1,6 +1,7 @@
 package ar.com.ramallo.gestionalumnos.web;
 
 import ar.com.ramallo.gestionalumnos.domain.Contrato;
+import ar.com.ramallo.gestionalumnos.domain.enums.EstadoContrato;
 import ar.com.ramallo.gestionalumnos.exception.RecursoNoEncontradoException;
 import ar.com.ramallo.gestionalumnos.repository.ContratoRepository;
 import ar.com.ramallo.gestionalumnos.repository.InscripcionRepository;
@@ -46,10 +47,20 @@ public class ContratoController {
     }
 
     @GetMapping
-    public List<ContratoResponse> listar() {
-        return contratoRepository.findAll().stream()
-                .map(this::armarResponse)
-                .toList();
+    public List<ContratoResponse> listar(
+            @RequestParam(required = false) Long empresaId,
+            @RequestParam(required = false) EstadoContrato estado) {
+        List<Contrato> contratos;
+        if (empresaId != null && estado != null) {
+            contratos = contratoRepository.findByEmpresaIdAndEstado(empresaId, estado);
+        } else if (empresaId != null) {
+            contratos = contratoRepository.findByEmpresaId(empresaId);
+        } else if (estado != null) {
+            contratos = contratoRepository.findByEstado(estado);
+        } else {
+            contratos = contratoRepository.findAll();
+        }
+        return contratos.stream().map(this::armarResponse).toList();
     }
 
     @PostMapping("/{id}/consumir-clase")

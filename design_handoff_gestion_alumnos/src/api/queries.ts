@@ -16,6 +16,8 @@ export const qk = {
     ['inscripciones', 'list', f.personaId ?? null, f.categoria ?? null] as const,
   inscripcionesPorPersona: (pid: number) => ['inscripciones', 'persona', pid] as const,
   contratos: ['contratos'] as const,
+  contratosLista: (f: { empresaId?: number; estado?: T.EstadoContrato } = {}) =>
+    ['contratos', 'list', f.empresaId ?? null, f.estado ?? null] as const,
   inscripcion: (id: number) => ['inscripciones', id] as const,
   contrato: (id: number) => ['contratos', id] as const,
   instancias: (iid: number) => ['instancias', iid] as const,
@@ -61,7 +63,9 @@ export const useContrato = (id?: number | null) => useQuery({
 export const useInscripciones = (f: { personaId?: number; categoria?: T.CategoriaPrograma } = {}) =>
   useQuery({ queryKey: qk.inscripciones(f), queryFn: () => ep.inscripciones.list(f) });
 
-export const useContratos = () => useQuery({ queryKey: qk.contratos, queryFn: ep.contratos.list });
+/** `estado` / `empresaId` filtran en el backend; sin argumentos trae todos. */
+export const useContratos = (f: { empresaId?: number; estado?: T.EstadoContrato } = {}) =>
+  useQuery({ queryKey: qk.contratosLista(f), queryFn: () => ep.contratos.list(f) });
 
 /**
  * La estrategia de evaluación del programa decide TODA la UI académica
@@ -92,7 +96,11 @@ export function useCrearInscripcion() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ep.inscripciones.create,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['inscripciones'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['inscripciones'] });
+      // ProgramaResponse trae cantidadInscripcionesActivas.
+      qc.invalidateQueries({ queryKey: qk.programas });
+    },
   });
 }
 
@@ -115,6 +123,8 @@ function useInscripcionMutation(fn: (id: number) => Promise<T.InscripcionRespons
     onSuccess: (ins) => {
       qc.setQueryData(qk.inscripcion(ins.id), ins);
       qc.invalidateQueries({ queryKey: ['inscripciones'] });
+      // Pausar / cancelar / finalizar cambian cantidadInscripcionesActivas del programa.
+      qc.invalidateQueries({ queryKey: qk.programas });
       // EmpleadoCubierto.estado viaja dentro del contrato: sin esto Contratos/Empresas mostrarían el estado viejo.
       qc.invalidateQueries({ queryKey: qk.contratos });
     },
@@ -199,7 +209,10 @@ export function useCrearModulo(programaId: number) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ep.modulos.create,
-    onSuccess: () => qc.invalidateQueries({ queryKey: qk.modulos(programaId) }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.modulos(programaId) });
+      qc.invalidateQueries({ queryKey: qk.programas });   // cantidadModulos
+    },
   });
 }
 
@@ -215,7 +228,10 @@ export function useCrearGrupo(programaId: number) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ep.grupos.create,
-    onSuccess: () => qc.invalidateQueries({ queryKey: qk.grupos(programaId) }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.grupos(programaId) });
+      qc.invalidateQueries({ queryKey: qk.programas });   // diasDeGrupo
+    },
   });
 }
 
