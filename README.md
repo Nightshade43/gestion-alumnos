@@ -132,6 +132,18 @@ Otros comandos:
 
 En este modo el backend sirve la interfaz en el mismo puerto: no hay proxy ni CORS de por medio. El empaquetado del frontend dentro del jar está en el profile `con-frontend` del `pom.xml`, que no se activa en `./mvnw test` ni en el CI.
 
+### Solución de problemas: Windows Defender
+
+Al clonar el repositorio en una computadora nueva, Windows Defender puede poner en cuarentena `iniciar.bat` y `scripts\launcher\lanzador.ps1`. El launcher invoca PowerShell con `-ExecutionPolicy Bypass`, un patrón que algunos antivirus marcan como sospechoso aunque el script sea inofensivo. El síntoma es que `iniciar.bat` falla con el mensaje *"El argumento '...\lanzador.ps1' para el parámetro -File no existe"* y `git status` muestra esos archivos como `deleted`.
+
+Para resolverlo:
+
+1. En *Seguridad de Windows* → *Protección contra virus y amenazas* → *Historial de protección*, restaurá los archivos detectados.
+2. Agregá una exclusión para la carpeta del repositorio (*Configuración de Protección contra virus y amenazas* → *Administrar la configuración* → *Exclusiones*).
+3. Recuperá lo que falte con `git restore iniciar.bat scripts/launcher/lanzador.ps1`.
+
+Esto solo aplica al uso local en Windows con el launcher. Un despliegue en servidor no usa `iniciar.bat` y no lo necesita.
+
 ## Versiones publicadas (jar de release)
 
 Cada tag `v*` (por ejemplo `v1.0.0`) publica en [GitHub Releases](https://github.com/Nightshade43/gestion-alumnos/releases) un jar autocontenido, con el backend y el frontend ya compilado, y su checksum `.sha256`. Sirve para usar el sistema en otra computadora sin clonar el repositorio ni instalar Node: alcanza con JDK 21 y PostgreSQL.
