@@ -63,16 +63,14 @@ Documentación de diseño en `design_handoff_gestion_alumnos/`:
 
 ## Pendientes de backend
 
-`BACKEND.md` lista 8 puntos con contrato propuesto y criterio de aceptación. **Ninguno
+`BACKEND.md` lista 8 puntos (los ítems 1-3 ya están resueltos y adoptados) con contrato propuesto y criterio de aceptación. **Ninguno
 bloquea el frontend.** No implementarlos desde el cliente ni asumir campos que todavía no
 existen. Si se implementa alguno en el backend, borrar el workaround correspondiente en el
 mismo commit.
 
 Workarounds vigentes marcados en el código:
-- `useSeguimientosDe` (Inicio consulta 6 inscripciones porque no hay listado global de seguimientos);
 - `evaluarModulo` en `InscripcionScreen.tsx` (la API no expone "módulo aprobado");
-- el gate de Sede se guarda como `nota` 10/0 porque no existe un campo `aprobado`;
-- el cruce contra `/api/inscripciones` en Contratos y Empresas para completar `EmpleadoCubierto`.
+- el gate de Sede se guarda como `nota` 10/0 porque no existe un campo `aprobado`.
 
 ## Desarrollo
 

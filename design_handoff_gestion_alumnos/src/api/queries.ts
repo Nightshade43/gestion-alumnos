@@ -1,4 +1,4 @@
-import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as ep from './endpoints';
 import type * as T from './types';
 
@@ -20,6 +20,7 @@ export const qk = {
   contrato: (id: number) => ['contratos', id] as const,
   instancias: (iid: number) => ['instancias', iid] as const,
   seguimientos: (iid: number) => ['seguimientos', iid] as const,
+  seguimientosRecientes: (limit: number) => ['seguimientos', 'recientes', limit] as const,
 };
 
 export const usePersonas = () => useQuery({ queryKey: qk.personas, queryFn: ep.personas.list });
@@ -114,6 +115,8 @@ function useInscripcionMutation(fn: (id: number) => Promise<T.InscripcionRespons
     onSuccess: (ins) => {
       qc.setQueryData(qk.inscripcion(ins.id), ins);
       qc.invalidateQueries({ queryKey: ['inscripciones'] });
+      // EmpleadoCubierto.estado viaja dentro del contrato: sin esto Contratos/Empresas mostrarían el estado viejo.
+      qc.invalidateQueries({ queryKey: qk.contratos });
     },
   });
 }
@@ -158,20 +161,17 @@ export function useCrearSeguimiento(inscripcionId: number) {
   return useMutation({
     mutationFn: (b: Omit<T.SeguimientoRequest, 'inscripcionId'>) =>
       ep.seguimientos.create({ ...b, inscripcionId }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: qk.seguimientos(inscripcionId) }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.seguimientos(inscripcionId) });
+      // Inicio muestra las últimas del sistema: una nueva puede desplazar a otra.
+      qc.invalidateQueries({ queryKey: ['seguimientos', 'recientes'] });
+    },
   });
 }
 
-/**
- * La API no expone un listado global de seguimientos (solo ?inscripcionId=), así que
- * Inicio pide los de un conjunto ACOTADO de inscripciones (las 6 activas más recientes).
- * Si el backend agrega GET /api/seguimientos sin filtro, esto pasa a ser una sola request.
- */
-export const useSeguimientosDe = (inscripcionIds: number[]) => useQueries({
-  queries: inscripcionIds.map((id) => ({
-    queryKey: qk.seguimientos(id),
-    queryFn: () => ep.seguimientos.byInscripcion(id),
-  })),
+/** Últimas observaciones del sistema, de cualquier inscripción y estado (una sola request). */
+export const useSeguimientosRecientes = (limit: number) => useQuery({
+  queryKey: qk.seguimientosRecientes(limit), queryFn: () => ep.seguimientos.recientes(limit),
 });
 
 /** PUT reemplaza el registro completo. El nombre viaja denormalizado en las inscripciones. */

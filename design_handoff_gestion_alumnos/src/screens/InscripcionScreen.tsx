@@ -91,7 +91,7 @@ export function InscripcionScreen({ id, from, onNavigate }: {
           >{pausada ? 'Reanudar' : 'Pausar'}</Button>
           <Button
             variant="secondary"
-            disabled={!activa || finalizar.isPending}
+            disabled={!activa || !ins.puedeFinalizar || finalizar.isPending}
             onClick={() => correr(finalizar, 'Inscripción finalizada')}
           >Finalizar</Button>
           <Button
@@ -101,6 +101,16 @@ export function InscripcionScreen({ id, from, onNavigate }: {
           >Cancelar</Button>
         </div>
       </div>
+
+      {/* Solo en ACTIVA: en otro estado el botón ya está apagado por la máquina de estados. */}
+      {activa && !ins.puedeFinalizar && (
+        <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.5, color: 'var(--ga-warn-fg)' }}>
+          {ins.modulosPendientes > 0
+            ? (ins.modulosPendientes === 1 ? 'Queda 1 módulo sin aprobar' : `Quedan ${ins.modulosPendientes} módulos sin aprobar`)
+              + ': no se puede finalizar hasta que estén aprobados.'
+            : 'El programa no tiene módulos cargados: no se puede finalizar hasta cargarlos.'}
+        </p>
+      )}
 
       <Card>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 1, background: 'var(--ga-line-soft)' }}>

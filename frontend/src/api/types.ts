@@ -62,6 +62,10 @@ export interface InscripcionResponse {
   fechaInicio: IsoDate; fechaFin: IsoDate | null; estado: EstadoInscripcion;
   /** null = inscripción particular todavía sin contrato. */
   contratoId: number | null;
+  /** false si POST /finalizar devolvería 422. En particulares siempre true. */
+  puedeFinalizar: boolean;
+  /** Módulos requeridos sin aprobar (0 en particulares y en escolares sin módulos cargados). */
+  modulosPendientes: number;
 }
 
 export interface EmpresaRequest { nombre: string; contacto?: string | null }
@@ -72,7 +76,9 @@ export interface ContratoEmpresaRequest {
   empresaId: number; tipoFacturacion: TipoFacturacion;
   clasesContratadas: number; inscripcionIds: number[];
 }
-export interface EmpleadoCubierto { inscripcionId: number; personaNombre: string }
+export interface EmpleadoCubierto {
+  inscripcionId: number; personaNombre: string; programaNombre: string; estado: EstadoInscripcion;
+}
 export interface ContratoResponse {
   id: number; empresaId: number | null; empresaNombre: string | null;
   tipoFacturacion: TipoFacturacion; clasesContratadas: number; clasesConsumidas: number;
@@ -89,4 +95,7 @@ export interface InstanciaEvaluativaResponse {
 }
 
 export interface SeguimientoRequest { inscripcionId: number; fecha: IsoDate; observacion: string }
-export interface SeguimientoResponse { id: number; inscripcionId: number; fecha: IsoDate; observacion: string }
+export interface SeguimientoResponse {
+  id: number; inscripcionId: number; personaNombre: string; programaNombre: string;
+  fecha: IsoDate; observacion: string;
+}

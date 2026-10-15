@@ -15,20 +15,18 @@ Orden recomendado: **1 → 3 → 2 → 7 → 5 → 4 → 6 → 8**.
 
 ---
 
-## Pendiente de adopción en frontend (backend ya resuelto, sin tocar contrato)
+## Adopción en frontend de los ítems 1-3
 
-Los ítems 1-3 están cerrados del lado del backend hace rato, pero el frontend nunca los
-adoptó — sigue corriendo los workarounds exactos que estos cambios debían eliminar. Es
-trabajo de frontend puro, sin ningún cambio de API pendiente:
+Los ítems 1-3 están resueltos en el backend y **adoptados en el frontend**:
 
-- [ ] **#1** — Borrar `useSeguimientosDe` de `api/queries.ts` y el array de 6 queries en
-      paralelo de `InicioScreen.tsx`; reemplazar por una sola `GET /api/seguimientos?limit=4`.
-- [ ] **#2** — Usar `puedeFinalizar`/`modulosPendientes` de `InscripcionResponse`: sumar la
-      tercera fila de "Requiere atención" en Inicio y deshabilitar el botón Finalizar del
-      detalle cuando `puedeFinalizar === false`, en vez de dejar que falle con 422.
-- [ ] **#3** — Sacar los `useInscripciones({ categoria: 'PARTICULAR' })` redundantes de
-      `ContratosScreen.tsx` (aparece dos veces) y `EmpresasScreen.tsx` — ya no hace falta el
-      cruce en memoria, `programaNombre`/`estado` vienen directo en `EmpleadoCubierto`.
+- [x] **#1** — `useSeguimientosDe` eliminado; Inicio usa `useSeguimientosRecientes(4)`
+      (`GET /api/seguimientos?limit=4`), una sola request.
+- [x] **#2** — `puedeFinalizar`/`modulosPendientes` en `InscripcionResponse`: tercera fila de
+      "Requiere atención" en Inicio y botón Finalizar deshabilitado (con motivo) en el detalle.
+- [x] **#3** — Detalle de contrato (Contratos) y tarjetas de Empresas leen `programaNombre`/`estado`
+      de `EmpleadoCubierto`. El `useInscripciones({ categoria: 'PARTICULAR' })` que queda al
+      inicio de `ContratosScreen` **no es redundante**: alimenta las inscripciones elegibles
+      (sin contrato) de los modales de alta.
 
 ---
 
@@ -50,7 +48,7 @@ trabajo de frontend puro, sin ningún cambio de API pendiente:
 ## 1. Listado global de seguimientos
 
 > **✅ Resuelto en backend** (`GET /api/seguimientos` con `inscripcionId`/`limit` opcionales, ya en `master`).
-> **⚠️ Frontend sin adoptar todavía**: `useSeguimientosDe` sigue en `api/queries.ts` y `InicioScreen.tsx` sigue montando 6 requests en paralelo en vez de una sola llamada con `?limit=4`.
+> **✅ Adoptado en frontend** (`useSeguimientosRecientes(4)`; `useSeguimientosDe` eliminado).
 
 **Hoy.** `SeguimientoController` solo expone `GET /api/seguimientos?inscripcionId={id}`
 (obligatorio) y `POST /api/seguimientos`.
@@ -92,7 +90,7 @@ sistema, de cualquier inscripción y en cualquier estado, sin necesidad de más 
 ## 2. Saber si una inscripción escolar puede finalizar
 
 > **✅ Resuelto en backend** (`puedeFinalizar` + `modulosPendientes` en `InscripcionResponse`, ya en `master`).
-> **⚠️ Frontend sin adoptar todavía**: no hay ninguna referencia a `puedeFinalizar` en el frontend — la tercera fila de "Requiere atención" en Inicio sigue sin mostrarse y el botón Finalizar del detalle sigue sin deshabilitarse preventivamente.
+> **✅ Adoptado en frontend** (tercera fila de "Requiere atención" en Inicio y botón Finalizar deshabilitado en el detalle).
 
 **Hoy.** `POST /api/inscripciones/{id}/finalizar` puede fallar con **422**
 (`RequisitosAcademicosIncompletos`) cuando la escolar tiene módulos sin aprobar. El cliente
@@ -134,7 +132,7 @@ fallar contra la API.
 ## 3. `EmpleadoCubierto` con programa y estado
 
 > **✅ Resuelto en backend** (`programaNombre` + `estado` en `EmpleadoCubierto`, ya en `master`).
-> **⚠️ Frontend a medio adoptar**: `ContratosScreen.tsx` y `EmpresasScreen.tsx` ya leen `programaNombre`/`estado` directo de la respuesta, pero **todavía llaman** a `useInscripciones({ categoria: 'PARTICULAR' })` (dos veces en Contratos, una en Empresas) — el cruce que este cambio debía eliminar sigue ahí, ahora redundante.
+> **✅ Adoptado en frontend** (Contratos y Empresas leen `programaNombre`/`estado` directo de `EmpleadoCubierto`).
 
 **Hoy.**
 

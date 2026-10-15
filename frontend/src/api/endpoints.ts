@@ -90,5 +90,7 @@ export const instanciasEvaluativas = {
 
 export const seguimientos = {
   byInscripcion: (inscripcionId: number) => api.get<T.SeguimientoResponse[]>(`/api/seguimientos?inscripcionId=${inscripcionId}`),
+  /** Listado global, fecha desc / id desc. El backend topea `limit` en 100. */
+  recientes: (limit: number) => api.get<T.SeguimientoResponse[]>(`/api/seguimientos?limit=${limit}`),
   create: (b: T.SeguimientoRequest) => api.post<T.SeguimientoResponse>('/api/seguimientos', b),
 };

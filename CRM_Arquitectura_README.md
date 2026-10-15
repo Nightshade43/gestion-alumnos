@@ -183,5 +183,5 @@ ar.com.ramallo.gestionalumnos
 
 ### Próximo entregable
 
-`API_REFERENCE.md` (documentar el contrato real de los 12 controllers) y, del lado del frontend, adoptar los 3 puntos de `BACKEND.md` ya resueltos en el backend (listado global de seguimientos, `puedeFinalizar`, `EmpleadoCubierto` sin el cruce redundante).
+Los 3 puntos de `BACKEND.md` resueltos en el backend (listado global de seguimientos, `puedeFinalizar`, `EmpleadoCubierto`) ya están adoptados en el frontend. Siguen pendientes los puntos 4-8 de `BACKEND.md`, empezando por el campo `aprobado` del gate de Sede.
 

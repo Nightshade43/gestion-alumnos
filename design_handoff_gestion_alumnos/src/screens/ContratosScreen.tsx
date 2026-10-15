@@ -99,9 +99,6 @@ function ContratoDetalleModal({ id, onClose, onNavigate }: {
   id: number; onClose: () => void; onNavigate: (r: Route) => void;
 }) {
   const { data: c, isPending, error } = useContrato(id);
-  // EmpleadoCubierto solo trae inscripcionId + personaNombre: el programa y el estado
-  // se cruzan contra el listado global de inscripciones particulares.
-  const inscripciones = useInscripciones({ categoria: 'PARTICULAR' });
   const consumir = useConsumirClase(id);
   const ampliar = useAmpliarCupo(id);
   const finalizar = useFinalizarContrato(id);
@@ -120,8 +117,6 @@ function ContratoDetalleModal({ id, onClose, onNavigate }: {
   const empresa = c.empresaId != null;
   const finalizado = c.estado === 'FINALIZADO';
   const agotado = c.tipoFacturacion === 'PAQUETE' && c.clasesConsumidas >= c.clasesContratadas;
-  const detalleDe = (inscripcionId: number): InscripcionResponse | undefined =>
-    (inscripciones.data ?? []).find((i) => i.id === inscripcionId);
 
   return (
     <Modal
@@ -175,7 +170,6 @@ function ContratoDetalleModal({ id, onClose, onNavigate }: {
           {c.inscripciones.length === 0
             ? <span style={{ fontSize: 13.5, color: 'var(--ga-muted)' }}>Ninguna inscripción asociada.</span>
             : c.inscripciones.map((e) => {
-                const ins = detalleDe(e.inscripcionId);
                 return (
                   <div
                     key={e.inscripcionId}
@@ -189,8 +183,8 @@ function ContratoDetalleModal({ id, onClose, onNavigate }: {
                   >
                     <span style={{ width: 8, height: 8, borderRadius: 3, flex: 'none', background: 'var(--ga-particular)' }} />
                     <span style={{ fontSize: 14, fontWeight: 500 }}>{e.personaNombre}</span>
-                    <span style={{ fontSize: 13, color: 'var(--ga-muted)', minWidth: 0 }}>{ins?.programaNombre ?? ''}</span>
-                    {ins && <span style={{ marginLeft: 'auto' }}><StatusBadge estado={ins.estado} /></span>}
+                    <span style={{ fontSize: 13, color: 'var(--ga-muted)', minWidth: 0 }}>{e.programaNombre}</span>
+                    <span style={{ marginLeft: 'auto' }}><StatusBadge estado={e.estado} /></span>
                   </div>
                 );
               })}

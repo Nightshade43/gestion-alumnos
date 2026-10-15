@@ -343,18 +343,15 @@ guarda como `nota: 10 | 0` con `cuentaParaPromedio: false` y la UI lo lee como
 aprobado / no aprobado. Si el backend agrega un campo propio, ese mapeo se borra (está
 marcado con comentario en `NotaModal`).
 
-## 23. Dos huecos de API que la UI resuelve explícitamente
+## 23. Dos huecos de API, ya resueltos
 
-1. **Sin listado global de seguimientos.** `GET /api/seguimientos` solo acepta
-   `?inscripcionId=`, así que "Últimas observaciones" de Inicio consulta un conjunto
-   **acotado** (las 6 inscripciones activas más recientes, vía `useSeguimientosDe`) en lugar
-   de hacer fan-out sobre todas. Si el backend expone el listado sin filtro, pasa a ser una
-   sola request y el hook se borra.
-2. **El aviso de "escolar con módulos sin aprobar" no se puede calcular en Inicio.** Depende
-   de las instancias evaluativas de cada inscripción (una request por inscripción escolar).
-   La card lo dice en una línea al pie y el 422 se sigue explicando en el detalle, donde los
-   datos ya están cargados. Se resolvería con un flag `puedeFinalizar` en
-   `InscripcionResponse`.
+1. **Listado global de seguimientos.** "Últimas observaciones" de Inicio usa una sola request,
+   `GET /api/seguimientos?limit=4` (`useSeguimientosRecientes`), sin importar la inscripción
+   ni su estado.
+2. **Escolares con módulos sin aprobar.** Inicio lee `puedeFinalizar`/`modulosPendientes` de
+   `InscripcionResponse` y muestra la tercera fila de "Requiere atención" (ámbar); se listan
+   hasta 5 y el resto se resume en una línea. El botón Finalizar del detalle se deshabilita
+   con el motivo visible.
 
 Alta de programa: la estrategia se elige con su consecuencia escrita en cada opción
 (Sede / Base / Seguimiento libre) y se filtra por categoría — un programa particular no
@@ -373,9 +370,9 @@ campo lo reemplazaría.
 
 | # | Hueco | Workaround actual | Propuesta de backend |
 |---|---|---|---|
-| 1 | Sin listado global de seguimientos: `GET /api/seguimientos` exige `inscripcionId` | Inicio pide los de las **6** inscripciones activas más recientes (`useSeguimientosDe`) | `GET /api/seguimientos` sin filtro, orden por fecha desc + `?limit=` |
-| 2 | No se puede saber si una escolar puede finalizar sin traer todas sus instancias | El aviso no se muestra en Inicio (se declara al pie de la card); el 422 se explica en el detalle | `puedeFinalizar: boolean` en `InscripcionResponse`, o `modulosPendientes: int` |
-| 3 | `EmpleadoCubierto` solo trae `inscripcionId` + `personaNombre` | Contratos y Empresas cruzan contra `GET /api/inscripciones?categoria=PARTICULAR` para mostrar programa y estado | agregar `programaNombre` y `estado` a `EmpleadoCubierto` |
+| 1 | Sin listado global de seguimientos: `GET /api/seguimientos` exige `inscripcionId` | ~~Inicio pide los de las 6 inscripciones activas más recientes~~ Resuelto: `?limit=4` | `GET /api/seguimientos` sin filtro, orden por fecha desc + `?limit=` |
+| 2 | No se puede saber si una escolar puede finalizar sin traer todas sus instancias | ~~El aviso no se muestra en Inicio~~ Resuelto: Inicio y detalle leen el flag | `puedeFinalizar: boolean` en `InscripcionResponse`, o `modulosPendientes: int` |
+| 3 | `EmpleadoCubierto` solo trae `inscripcionId` + `personaNombre` | ~~Cruce contra `/api/inscripciones`~~ Resuelto: viene en `EmpleadoCubierto` | agregar `programaNombre` y `estado` a `EmpleadoCubierto` |
 | 4 | Módulos, planes y grupos solo se consultan por `programaId` | Instituciones los pide **solo al desplegar** una fila: 1 request por programa abierto | `cantidadModulos` y `dias` en `ProgramaResponse`, o `GET /api/programas?institucionId=` con contadores |
 | 5 | `GET /api/contratos` no acepta filtros | Contratos y Empresas filtran estado y empresa en cliente | `?empresaId=` y `?estado=`, mismo criterio que `/api/inscripciones` |
 | 6 | `InstitucionController` y `EmpresaController` solo tienen list/get/create | La UI no ofrece editar ni dar de baja instituciones ni empresas | `PUT /{id}` en ambos; baja lógica cuando hay contratos o programas asociados |

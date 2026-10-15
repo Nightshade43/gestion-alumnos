@@ -1,5 +1,5 @@
 import React from 'react';
-import { useEmpresas, useContratos, useInscripciones, useCrearEmpresa } from '../api/queries';
+import { useEmpresas, useContratos, useCrearEmpresa } from '../api/queries';
 import { Button, Card, EmptyState, Field, Input, Modal, MonoChip, PoolBar, SkeletonList, StatusBadge } from '../components/primitives';
 import { ErrorScreen, useApiErrorHandler } from '../components/ErrorSurface';
 import { ScreenHeader, type Route } from '../shell/AppShell';
@@ -16,7 +16,6 @@ import type { ContratoResponse } from '../api/types';
 export function EmpresasScreen({ onNavigate }: { onNavigate: (r: Route) => void }) {
   const { data, isPending, error, refetch } = useEmpresas();
   const contratos = useContratos();
-  const inscripciones = useInscripciones({ categoria: 'PARTICULAR' });
   const [abierta, setAbierta] = React.useState<number | null>(null);
   const [nueva, setNueva] = React.useState(false);
 
@@ -80,7 +79,6 @@ export function EmpresasScreen({ onNavigate }: { onNavigate: (r: Route) => void 
                               <TarjetaContratoEmpresa
                                 key={c.id}
                                 contrato={c}
-                                inscripciones={inscripciones.data ?? []}
                                 onAbrirContrato={() => onNavigate({ name: 'contratos', contratoId: c.id })}
                                 onAbrirInscripcion={(id) => onNavigate({ name: 'inscripcion', id })}
                               />
@@ -98,9 +96,8 @@ export function EmpresasScreen({ onNavigate }: { onNavigate: (r: Route) => void 
   );
 }
 
-function TarjetaContratoEmpresa({ contrato: c, inscripciones, onAbrirContrato, onAbrirInscripcion }: {
+function TarjetaContratoEmpresa({ contrato: c, onAbrirContrato, onAbrirInscripcion }: {
   contrato: ContratoResponse;
-  inscripciones: { id: number; programaNombre: string; estado: 'ACTIVA' | 'PAUSADA' | 'FINALIZADA' | 'CANCELADA' }[];
   onAbrirContrato: () => void;
   onAbrirInscripcion: (id: number) => void;
 }) {
@@ -125,7 +122,6 @@ function TarjetaContratoEmpresa({ contrato: c, inscripciones, onAbrirContrato, o
           {c.inscripciones.length === 0
             ? <span style={{ fontSize: 13, color: 'var(--ga-muted)' }}>Sin empleados cubiertos.</span>
             : c.inscripciones.map((e) => {
-                const ins = inscripciones.find((i) => i.id === e.inscripcionId);
                 return (
                   <div
                     key={e.inscripcionId}
@@ -134,8 +130,8 @@ function TarjetaContratoEmpresa({ contrato: c, inscripciones, onAbrirContrato, o
                   >
                     <span style={{ width: 8, height: 8, borderRadius: 3, flex: 'none', background: 'var(--ga-particular)' }} />
                     <span style={{ fontSize: 13.5, fontWeight: 500 }}>{e.personaNombre}</span>
-                    <span style={{ fontSize: 12.5, color: 'var(--ga-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ins?.programaNombre ?? ''}</span>
-                    {ins && <span style={{ marginLeft: 'auto' }}><StatusBadge estado={ins.estado} /></span>}
+                    <span style={{ fontSize: 12.5, color: 'var(--ga-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.programaNombre}</span>
+                    <span style={{ marginLeft: 'auto' }}><StatusBadge estado={e.estado} /></span>
                   </div>
                 );
               })}

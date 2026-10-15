@@ -1,17 +1,17 @@
 import React from 'react';
-import { useInscripciones, useContratos, useSeguimientosDe } from '../api/queries';
+import { useInscripciones, useContratos, useSeguimientosRecientes } from '../api/queries';
 import { Card, EmptyState, SkeletonList } from '../components/primitives';
 import { ErrorScreen } from '../components/ErrorSurface';
 import { ScreenHeader, type Route } from '../shell/AppShell';
-import type { InscripcionResponse } from '../api/types';
 
 /**
- * Tablero de entrada. Todo se calcula en cliente sobre DOS requests
+ * Tablero de entrada. Los KPIs y los avisos se calculan en cliente sobre DOS requests
  * (GET /api/inscripciones + GET /api/contratos): no hay endpoint de métricas
- * y no se hace fan-out por inscripción.
+ * y no se hace fan-out por inscripción. "Últimas observaciones" suma una tercera
+ * (GET /api/seguimientos?limit=4).
  *
  * "Requiere atención" anticipa los rechazos de la API: cada fila es una request
- * que hoy fallaría (409 por pool agotado, alta de contrato faltante).
+ * que hoy fallaría (409 por pool agotado, alta de contrato faltante, 422 al finalizar).
  */
 export function InicioScreen({ onNavigate }: { onNavigate: (r: Route) => void }) {
   const ins = useInscripciones();
@@ -40,6 +40,12 @@ export function InicioScreen({ onNavigate }: { onNavigate: (r: Route) => void })
 
   const agotados = paquetes.filter((c) => c.clasesConsumidas >= c.clasesContratadas);
   const sinContrato = activas.filter((i) => i.categoria === 'PARTICULAR' && i.contratoId === null);
+  // El backend ya evaluó la regla académica (InscripcionService.evaluarEstadoAcademico):
+  // acá solo se lee el flag, no se duplica Sede/Base. Solo ACTIVA: finalizar desde otro estado falla por otra causa.
+  const sinAprobar = activas.filter((i) => i.categoria === 'ESCOLAR' && !i.puedeFinalizar);
+  const pendientes = agotados.length + sinContrato.length + sinAprobar.length;
+  // La fila escolar es la más numerosa (toda inscripción en curso la tiene): se acota para no tapar las otras dos.
+  const MAX_SIN_APROBAR = 5;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
@@ -64,11 +70,11 @@ export function InicioScreen({ onNavigate }: { onNavigate: (r: Route) => void })
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(330px,1fr))', gap: 18, alignItems: 'start' }}>
-        <Card title="Requiere atención" meta={(agotados.length + sinContrato.length) + ' pendientes'}>
-          {agotados.length + sinContrato.length === 0
+        <Card title="Requiere atención" meta={pendientes + ' pendientes'}>
+          {pendientes === 0
             ? <EmptyState
                 title="Nada pendiente"
-                text="Todos los contratos tienen cupo y todas las inscripciones particulares están cubiertas." />
+                text="Todos los contratos tienen cupo, las particulares están cubiertas y las escolares pueden finalizar." />
             : <div style={{ display: 'flex', flexDirection: 'column' }}>
                 {agotados.map((c) => (
                   <Aviso
@@ -88,16 +94,28 @@ export function InicioScreen({ onNavigate }: { onNavigate: (r: Route) => void })
                     onClick={() => onNavigate({ name: 'inscripcion', id: i.id })}
                   />
                 ))}
+                {sinAprobar.slice(0, MAX_SIN_APROBAR).map((i) => (
+                  <Aviso
+                    key={'e' + i.id}
+                    tone="warn"
+                    title={i.personaNombre + ' — ' + i.programaNombre}
+                    text={i.modulosPendientes > 0
+                      ? (i.modulosPendientes === 1 ? 'Queda 1 módulo sin aprobar' : 'Quedan ' + i.modulosPendientes + ' módulos sin aprobar')
+                        + ': finalizar la inscripción devuelve 422.'
+                      : 'El programa no tiene módulos cargados: finalizar la inscripción devuelve 422.'}
+                    onClick={() => onNavigate({ name: 'inscripcion', id: i.id })}
+                  />
+                ))}
+                {sinAprobar.length > MAX_SIN_APROBAR && (
+                  <div
+                    onClick={() => onNavigate({ name: 'inscripciones', rama: 'ESCOLAR' })}
+                    style={{ padding: '12px 22px', fontSize: 13, color: 'var(--ga-muted)', cursor: 'pointer' }}
+                  >y {sinAprobar.length - MAX_SIN_APROBAR} inscripciones escolares más con módulos sin aprobar</div>
+                )}
               </div>}
-          {/* Honestidad de datos: el 422 al finalizar depende de las instancias de cada
-              inscripción y detectarlo acá sería una request por inscripción escolar. */}
-          <div style={{ padding: '12px 22px', borderTop: '1px solid var(--ga-line-soft)', fontSize: 12.5, lineHeight: 1.5, color: 'var(--ga-soft)' }}>
-            Las escolares con módulos sin aprobar (422 al finalizar) se avisan en el detalle:
-            detectarlas acá pediría las instancias de cada inscripción.
-          </div>
         </Card>
 
-        <Observaciones activas={activas} onNavigate={onNavigate} />
+        <Observaciones onNavigate={onNavigate} />
       </div>
     </div>
   );
@@ -154,28 +172,18 @@ function Aviso({ tone, title, text, onClick }: {
   );
 }
 
-/**
- * Últimas observaciones. Ver useSeguimientosDe: sin listado global de seguimientos,
- * se consultan solo las 6 inscripciones activas más recientes.
- */
-function Observaciones({ activas, onNavigate }: {
-  activas: InscripcionResponse[]; onNavigate: (r: Route) => void;
-}) {
-  const recientes = [...activas]
-    .sort((a, b) => b.fechaInicio.localeCompare(a.fechaInicio))
-    .slice(0, 6);
-  const queries = useSeguimientosDe(recientes.map((i) => i.id));
-
-  const filas = queries
-    .flatMap((res, idx) => (res.data ?? []).map((s) => ({ ...s, inscripcion: recientes[idx] })))
-    .sort((a, b) => b.fecha.localeCompare(a.fecha))
-    .slice(0, 4);
+/** Últimas observaciones del sistema (GET /api/seguimientos?limit=4): cualquier inscripción, cualquier estado. */
+function Observaciones({ onNavigate }: { onNavigate: (r: Route) => void }) {
+  const seg = useSeguimientosRecientes(4);
+  const filas = seg.data ?? [];
 
   return (
-    <Card title="Últimas observaciones" meta="Rama particular">
-      {queries.some((r) => r.isPending)
+    <Card title="Últimas observaciones" meta="Las 4 más recientes">
+      {seg.isPending
         ? <SkeletonList rows={4} />
-        : filas.length === 0
+        : seg.error
+          ? <ErrorScreen error={seg.error} onRetry={seg.refetch} entidad="observaciones" />
+          : filas.length === 0
           ? <EmptyState
               title="Sin observaciones todavía"
               text="El seguimiento se carga desde el detalle de cada inscripción particular." />
@@ -192,7 +200,7 @@ function Observaciones({ activas, onNavigate }: {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
-                    <span style={{ fontSize: 14, fontWeight: 500 }}>{s.inscripcion.personaNombre}</span>
+                    <span style={{ fontSize: 14, fontWeight: 500 }}>{s.personaNombre}</span>
                     <span style={{ marginLeft: 'auto', fontFamily: 'var(--ga-font-mono)', fontSize: 12.5, color: 'var(--ga-soft)' }}>{s.fecha}</span>
                   </div>
                   <span style={{ fontSize: 13.5, color: 'var(--ga-muted)', lineHeight: 1.5 }}>{s.observacion}</span>
