@@ -138,6 +138,52 @@ class CenmaBaseEvaluacionServiceTest {
         assertThat(detalle.promedio()).contains(new BigDecimal("8.00"));
     }
 
+    // --- Versión sobre instancias ya cargadas (evaluación por lotes): misma regla, sin tocar el repositorio ---
+
+    @Test
+    void porListaAprobadoConTresNotasPromedioSeisEIntegrador() {
+        assertThat(service.moduloAprobado(List.of(
+                nota("6.00"), nota("7.00"), nota("8.00"), integrador("6.00", LocalDate.now())))).isTrue();
+    }
+
+    @Test
+    void porListaNoAprobadoSinIntegradorConMenosDeTresNotasOVacia() {
+        assertThat(service.moduloAprobado(List.of(nota("8.00"), nota("9.00"), nota("10.00")))).isFalse();
+        assertThat(service.moduloAprobado(List.of(nota("9.00"), nota("9.00"), integrador("9.00", LocalDate.now())))).isFalse();
+        assertThat(service.moduloAprobado(List.of())).isFalse();
+    }
+
+    @Test
+    void porListaElIntegradorMasRecienteEsElQueVale() {
+        assertThat(service.moduloAprobado(List.of(
+                nota("7.00"), nota("7.00"), nota("7.00"),
+                integrador("3.00", LocalDate.now().minusDays(10)), integrador("8.00", LocalDate.now())))).isTrue();
+        assertThat(service.moduloAprobado(List.of(
+                nota("7.00"), nota("7.00"), nota("7.00"),
+                integrador("8.00", LocalDate.now().minusDays(10)), integrador("3.00", LocalDate.now())))).isFalse();
+    }
+
+    @Test
+    void porListaLaNotaRecuperadaNoCuentaParaElPromedio() {
+        InstanciaEvaluativa original = nota("1.00", 300L);
+        InstanciaEvaluativa recuperatorio = nota("8.00", 301L);
+        recuperatorio.setRecuperaA(original);
+
+        // con la original el promedio sería 5,50 (desaprobado); sin ella, (8 + 7 + 6) / 3 = 7,00
+        assertThat(service.moduloAprobado(List.of(
+                original, recuperatorio, nota("7.00", 302L), nota("6.00", 303L), integrador("6.00", LocalDate.now()))))
+                .isTrue();
+    }
+
+    @Test
+    void laVersionPorListaCoincideConLaQueConsultaLaBase() {
+        List<InstanciaEvaluativa> instancias = List.of(
+                nota("5.00"), nota("6.00"), nota("7.00"), integrador("6.00", LocalDate.now()));
+        mockearInstancias(instancias.toArray(new InstanciaEvaluativa[0]));
+
+        assertThat(service.moduloAprobado(inscripcion, modulo)).isEqualTo(service.moduloAprobado(instancias));
+    }
+
     private InstanciaEvaluativa integrador(String valor, LocalDate fecha) {
         return InstanciaEvaluativa.builder()
                 .inscripcion(inscripcion).modulo(modulo)

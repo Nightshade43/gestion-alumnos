@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 @RestController
 @RequestMapping("/api/inscripciones")
@@ -74,7 +75,14 @@ public class InscripcionController {
                     .toList();
         }
 
-        return inscripciones.stream().map(this::armarResponse).toList();
+        // Una sola evaluación por lotes para todo el listado (ver InscripcionService.evaluarEstadosAcademicos).
+        // `inscripciones` se reasigna al filtrar, así que no se puede usar dentro de la lambda: se fija en una copia.
+        List<Inscripcion> listado = inscripciones;
+        List<InscripcionService.EstadoAcademico> estados = inscripcionService.evaluarEstadosAcademicos(listado);
+        return IntStream.range(0, listado.size())
+                .mapToObj(i -> InscripcionResponse.from(
+                        listado.get(i), estados.get(i).puedeFinalizar(), estados.get(i).modulosPendientes()))
+                .toList();
     }
 
     @PostMapping("/{id}/pausar")

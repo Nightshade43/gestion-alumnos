@@ -15,7 +15,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +33,7 @@ public class InscripcionService {
     private final ProgramaRepository programaRepository;
     private final PlanRepository planRepository;
     private final GrupoRepository grupoRepository;
+    private final InstanciaEvaluativaRepository instanciaEvaluativaRepository;
 
     public record EstadoAcademico(boolean puedeFinalizar, int modulosPendientes) {}
 
@@ -135,6 +140,58 @@ public class InscripcionService {
         EstrategiaEvaluacionService estrategia = evaluacionServiceFactory.resolver(inscripcion.getPrograma());
         List<Modulo> modulos = moduloRepository.findByProgramaIdOrderByOrden(inscripcion.getPrograma().getId());
 
+        return calcularEstadoAcademico(inscripcion, modulos, modulo -> estrategia.moduloAprobado(inscripcion, modulo));
+    }
+
+    /**
+     * Evalúa varias inscripciones juntas y devuelve los resultados en el mismo orden que la lista recibida.
+     * Aplica exactamente la regla de {@link #evaluarEstadoAcademico(Inscripcion)}, pero en lugar de consultar
+     * módulos e instancias por cada inscripción (y por cada módulo) las carga una sola vez para todas:
+     * el costo pasa de crecer con alumnos x módulos a ser constante (dos consultas).
+     */
+    public List<EstadoAcademico> evaluarEstadosAcademicos(List<Inscripcion> inscripciones) {
+        List<Inscripcion> escolares = inscripciones.stream()
+                .filter(i -> i.getPrograma().getCategoria() == CategoriaPrograma.ESCOLAR)
+                .toList();
+        if (escolares.isEmpty()) {
+            return inscripciones.stream().map(i -> new EstadoAcademico(true, 0)).toList();
+        }
+
+        List<Long> programaIds = escolares.stream().map(i -> i.getPrograma().getId()).distinct().toList();
+        Map<Long, List<Modulo>> modulosPorPrograma = new HashMap<>();
+        for (Modulo modulo : moduloRepository.findByProgramaIdInOrderByOrden(programaIds)) {
+            modulosPorPrograma.computeIfAbsent(modulo.getPrograma().getId(), id -> new ArrayList<>()).add(modulo);
+        }
+
+        List<Long> inscripcionIds = escolares.stream().map(Inscripcion::getId).toList();
+        // inscripcionId -> moduloId -> instancias de esa inscripción en ese módulo
+        Map<Long, Map<Long, List<InstanciaEvaluativa>>> instanciasPorInscripcion = new HashMap<>();
+        for (InstanciaEvaluativa instancia : instanciaEvaluativaRepository.findByInscripcionIdIn(inscripcionIds)) {
+            instanciasPorInscripcion
+                    .computeIfAbsent(instancia.getInscripcion().getId(), id -> new HashMap<>())
+                    .computeIfAbsent(instancia.getModulo().getId(), id -> new ArrayList<>())
+                    .add(instancia);
+        }
+
+        List<EstadoAcademico> resultado = new ArrayList<>(inscripciones.size());
+        for (Inscripcion inscripcion : inscripciones) {
+            if (inscripcion.getPrograma().getCategoria() != CategoriaPrograma.ESCOLAR) {
+                resultado.add(new EstadoAcademico(true, 0));
+                continue;
+            }
+            EstrategiaEvaluacionService estrategia = evaluacionServiceFactory.resolver(inscripcion.getPrograma());
+            List<Modulo> modulos = modulosPorPrograma.getOrDefault(inscripcion.getPrograma().getId(), List.of());
+            Map<Long, List<InstanciaEvaluativa>> delAlumno =
+                    instanciasPorInscripcion.getOrDefault(inscripcion.getId(), Map.of());
+            resultado.add(calcularEstadoAcademico(inscripcion, modulos,
+                    modulo -> estrategia.moduloAprobado(delAlumno.getOrDefault(modulo.getId(), List.of()))));
+        }
+        return resultado;
+    }
+
+    /** La regla común a ambos caminos: qué módulos se exigen según el plan y cuántos faltan aprobar. */
+    private EstadoAcademico calcularEstadoAcademico(
+            Inscripcion inscripcion, List<Modulo> modulos, Predicate<Modulo> moduloAprobado) {
         Integer moduloInicio = inscripcion.getPlan() != null ? inscripcion.getPlan().getModuloInicio() : null;
 
         List<Modulo> modulosRequeridos = modulos.stream()
@@ -142,7 +199,7 @@ public class InscripcionService {
                 .toList();
 
         long pendientes = modulosRequeridos.stream()
-                .filter(modulo -> !estrategia.moduloAprobado(inscripcion, modulo))
+                .filter(modulo -> !moduloAprobado.test(modulo))
                 .count();
 
         boolean puedeFinalizar = !modulosRequeridos.isEmpty() && pendientes == 0;

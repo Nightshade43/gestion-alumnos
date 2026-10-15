@@ -30,14 +30,19 @@ public class CenmaBaseEvaluacionService implements EstrategiaEvaluacionService {
 
     @Override
     public boolean moduloAprobado(Inscripcion inscripcion, Modulo modulo) {
-        List<InstanciaEvaluativa> vigentes = notasVigentesParaPromedio(inscripcion, modulo);
+        return moduloAprobado(instanciasDe(inscripcion, modulo));
+    }
+
+    @Override
+    public boolean moduloAprobado(List<InstanciaEvaluativa> instancias) {
+        List<InstanciaEvaluativa> vigentes = notasVigentesParaPromedio(instancias);
         if (vigentes.size() < MINIMO_NOTAS_POR_MODULO) {
             return false;
         }
         boolean promedioAprobado = promedio(vigentes)
                 .map(nota -> nota.compareTo(NOTA_APROBACION) >= 0)
                 .orElse(false);
-        return promedioAprobado && integradorAprobado(inscripcion, modulo);
+        return promedioAprobado && integradorAprobado(instancias);
     }
 
     /**
@@ -45,8 +50,11 @@ public class CenmaBaseEvaluacionService implements EstrategiaEvaluacionService {
      * de nuevo vale el más reciente. No entra al promedio: es un requisito aparte de las 3 notas.
      */
     public boolean integradorAprobado(Inscripcion inscripcion, Modulo modulo) {
-        return instanciaEvaluativaRepository.findByInscripcionIdAndModuloId(inscripcion.getId(), modulo.getId())
-                .stream()
+        return integradorAprobado(instanciasDe(inscripcion, modulo));
+    }
+
+    private boolean integradorAprobado(List<InstanciaEvaluativa> instancias) {
+        return instancias.stream()
                 .filter(instancia -> instancia.getTipo() == TipoInstanciaEvaluativa.INTEGRADOR)
                 .max(Comparator.comparing(InstanciaEvaluativa::getFecha))
                 .map(InstanciaEvaluativa::getNota)
@@ -56,19 +64,19 @@ public class CenmaBaseEvaluacionService implements EstrategiaEvaluacionService {
 
     @Override
     public Optional<BigDecimal> notaModulo(Inscripcion inscripcion, Modulo modulo) {
-        return promedio(notasVigentesParaPromedio(inscripcion, modulo));
+        return promedio(notasVigentesParaPromedio(instanciasDe(inscripcion, modulo)));
     }
 
     public DetalleNotasModulo detalleNotas(Inscripcion inscripcion, Modulo modulo) {
-        List<InstanciaEvaluativa> todasLasNotas = instanciaEvaluativaRepository
-                .findByInscripcionIdAndModuloId(inscripcion.getId(), modulo.getId());
-        return new DetalleNotasModulo(todasLasNotas, notaModulo(inscripcion, modulo));
+        List<InstanciaEvaluativa> todasLasNotas = instanciasDe(inscripcion, modulo);
+        return new DetalleNotasModulo(todasLasNotas, promedio(notasVigentesParaPromedio(todasLasNotas)));
     }
 
-    private List<InstanciaEvaluativa> notasVigentesParaPromedio(Inscripcion inscripcion, Modulo modulo) {
-        List<InstanciaEvaluativa> todas = instanciaEvaluativaRepository
-                .findByInscripcionIdAndModuloId(inscripcion.getId(), modulo.getId());
+    private List<InstanciaEvaluativa> instanciasDe(Inscripcion inscripcion, Modulo modulo) {
+        return instanciaEvaluativaRepository.findByInscripcionIdAndModuloId(inscripcion.getId(), modulo.getId());
+    }
 
+    private List<InstanciaEvaluativa> notasVigentesParaPromedio(List<InstanciaEvaluativa> todas) {
         Set<Long> reemplazadasPorRecuperatorio = todas.stream()
                 .map(InstanciaEvaluativa::getRecuperaA)
                 .filter(Objects::nonNull)

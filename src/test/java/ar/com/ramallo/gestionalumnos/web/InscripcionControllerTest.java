@@ -155,7 +155,7 @@ class InscripcionControllerTest {
     void listaInscripcionesPorPersona() throws Exception {
         when(inscripcionRepository.findByPersonaId(1L))
                 .thenReturn(List.of(inscripcionDe(10L, EstadoInscripcion.ACTIVA)));
-        when(inscripcionService.evaluarEstadoAcademico(any())).thenReturn(PUEDE_FINALIZAR);
+        when(inscripcionService.evaluarEstadosAcademicos(anyList())).thenReturn(List.of(PUEDE_FINALIZAR));
         mockMvc.perform(get("/api/inscripciones").param("personaId", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1));
@@ -165,7 +165,7 @@ class InscripcionControllerTest {
     void listaTodasLasInscripcionesSinFiltro() throws Exception {
         when(inscripcionRepository.findAll())
                 .thenReturn(List.of(inscripcionDe(10L, EstadoInscripcion.ACTIVA)));
-        when(inscripcionService.evaluarEstadoAcademico(any())).thenReturn(PUEDE_FINALIZAR);
+        when(inscripcionService.evaluarEstadosAcademicos(anyList())).thenReturn(List.of(PUEDE_FINALIZAR));
         mockMvc.perform(get("/api/inscripciones"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1));
@@ -177,7 +177,6 @@ class InscripcionControllerTest {
     void filtraInscripcionesPorCategoria() throws Exception {
         when(inscripcionRepository.findAll())
                 .thenReturn(List.of(inscripcionDe(10L, EstadoInscripcion.ACTIVA)));
-        when(inscripcionService.evaluarEstadoAcademico(any())).thenReturn(PUEDE_FINALIZAR);
         mockMvc.perform(get("/api/inscripciones").param("categoria", "PARTICULAR"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0)); // inscripcionDe() usa programa ESCOLAR
@@ -194,7 +193,7 @@ class InscripcionControllerTest {
     void filtraPorVariosEstadosEnLaConsulta() throws Exception {
         when(inscripcionRepository.findByEstadoIn(List.of(EstadoInscripcion.ACTIVA, EstadoInscripcion.PAUSADA)))
                 .thenReturn(List.of(inscripcionDe(10L, EstadoInscripcion.ACTIVA), inscripcionDe(11L, EstadoInscripcion.PAUSADA)));
-        when(inscripcionService.evaluarEstadoAcademico(any())).thenReturn(PUEDE_FINALIZAR);
+        when(inscripcionService.evaluarEstadosAcademicos(anyList())).thenReturn(List.of(PUEDE_FINALIZAR, PUEDE_FINALIZAR));
         mockMvc.perform(get("/api/inscripciones").param("estado", "ACTIVA", "PAUSADA"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2));
@@ -206,15 +205,15 @@ class InscripcionControllerTest {
     void conPersonaYEstadoFiltraElEstadoSobreLasInscripcionesDeLaPersona() throws Exception {
         when(inscripcionRepository.findByPersonaId(1L))
                 .thenReturn(List.of(inscripcionDe(10L, EstadoInscripcion.ACTIVA), inscripcionDe(11L, EstadoInscripcion.FINALIZADA)));
-        when(inscripcionService.evaluarEstadoAcademico(any())).thenReturn(PUEDE_FINALIZAR);
+        when(inscripcionService.evaluarEstadosAcademicos(anyList())).thenReturn(List.of(PUEDE_FINALIZAR));
         mockMvc.perform(get("/api/inscripciones").param("personaId", "1").param("estado", "ACTIVA"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").value(10));
 
         verify(inscripcionRepository, never()).findByEstadoIn(any());
-        // Solo se evalúa lo que se devuelve: la finalizada descartada no cuesta consultas.
-        verify(inscripcionService, times(1)).evaluarEstadoAcademico(any());
+        // Solo se evalúa lo que se devuelve (y de una vez): la finalizada descartada no entra al lote.
+        verify(inscripcionService, times(1)).evaluarEstadosAcademicos(argThat(lote -> lote.size() == 1));
     }
 
     @Test

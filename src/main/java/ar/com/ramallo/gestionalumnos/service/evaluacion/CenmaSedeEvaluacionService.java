@@ -27,15 +27,23 @@ public class CenmaSedeEvaluacionService implements EstrategiaEvaluacionService {
     }
 
     @Override
+    public boolean moduloAprobado(List<InstanciaEvaluativa> instancias) {
+        return tpAprobado(ultima(instancias, TipoInstanciaEvaluativa.TP_INTEGRADOR))
+                && evaluacionFinalAprobada(ultima(instancias, TipoInstanciaEvaluativa.EVALUACION_FINAL));
+    }
+
+    @Override
     public Optional<BigDecimal> notaModulo(Inscripcion inscripcion, Modulo modulo) {
         return ultimaInstancia(inscripcion, modulo, TipoInstanciaEvaluativa.EVALUACION_FINAL)
                 .map(InstanciaEvaluativa::getNota);
     }
 
     public boolean tpAprobado(Inscripcion inscripcion, Modulo modulo) {
-        return ultimaInstancia(inscripcion, modulo, TipoInstanciaEvaluativa.TP_INTEGRADOR)
-                .map(this::gateAprobado)
-                .orElse(false);
+        return tpAprobado(ultimaInstancia(inscripcion, modulo, TipoInstanciaEvaluativa.TP_INTEGRADOR));
+    }
+
+    private boolean tpAprobado(Optional<InstanciaEvaluativa> ultimoTp) {
+        return ultimoTp.map(this::gateAprobado).orElse(false);
     }
 
     /** Campo propio si existe; si no (filas previas al campo), la nota 10/0 con que se guardaba el gate. */
@@ -47,9 +55,20 @@ public class CenmaSedeEvaluacionService implements EstrategiaEvaluacionService {
     }
 
     private boolean evaluacionFinalAprobada(Inscripcion inscripcion, Modulo modulo) {
-        return notaModulo(inscripcion, modulo)
+        return evaluacionFinalAprobada(ultimaInstancia(inscripcion, modulo, TipoInstanciaEvaluativa.EVALUACION_FINAL));
+    }
+
+    private boolean evaluacionFinalAprobada(Optional<InstanciaEvaluativa> ultimaFinal) {
+        return ultimaFinal
+                .map(InstanciaEvaluativa::getNota)
                 .map(nota -> nota.compareTo(NOTA_APROBACION) >= 0)
                 .orElse(false);
+    }
+
+    private Optional<InstanciaEvaluativa> ultima(List<InstanciaEvaluativa> instancias, TipoInstanciaEvaluativa tipo) {
+        return instancias.stream()
+                .filter(instancia -> instancia.getTipo() == tipo)
+                .max(Comparator.comparing(InstanciaEvaluativa::getFecha));
     }
 
     private Optional<InstanciaEvaluativa> ultimaInstancia(

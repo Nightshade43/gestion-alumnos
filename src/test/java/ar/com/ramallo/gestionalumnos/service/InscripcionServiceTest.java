@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -38,6 +39,7 @@ class InscripcionServiceTest {
     @Mock private ProgramaRepository programaRepository;
     @Mock private PlanRepository planRepository;
     @Mock private GrupoRepository grupoRepository;
+    @Mock private InstanciaEvaluativaRepository instanciaEvaluativaRepository;
 
     private InscripcionService inscripcionService;
 
@@ -50,7 +52,8 @@ class InscripcionServiceTest {
 // setUp() actualizado
         inscripcionService = new InscripcionService(
                 inscripcionRepository, historialGrupoRepository, moduloRepository, evaluacionServiceFactory,
-                personaRepository, programaRepository, planRepository, grupoRepository);
+                personaRepository, programaRepository, planRepository, grupoRepository,
+                instanciaEvaluativaRepository);
 
         persona = Persona.builder().nombre("Test Persona").build();
         programaEscolar = Programa.builder().id(1L).nombre("Ingles Base").categoria(CategoriaPrograma.ESCOLAR)
@@ -336,6 +339,75 @@ class InscripcionServiceTest {
 
         assertThat(resultado.puedeFinalizar()).isFalse();
         assertThat(resultado.modulosPendientes()).isZero();
+    }
+
+    // --- Evaluación por lotes (listado de inscripciones) ---
+
+    private Inscripcion inscripcionEscolar(Long id, Plan plan) {
+        return Inscripcion.builder().id(id).persona(persona).programa(programaEscolar).plan(plan)
+                .fechaInicio(LocalDate.now().minusMonths(1)).estado(EstadoInscripcion.ACTIVA).build();
+    }
+
+    private InstanciaEvaluativa instanciaDe(Inscripcion inscripcion, Modulo modulo) {
+        return InstanciaEvaluativa.builder().inscripcion(inscripcion).modulo(modulo)
+                .tipo(TipoInstanciaEvaluativa.NOTA).nota(new java.math.BigDecimal("8.00")).fecha(LocalDate.now()).build();
+    }
+
+    @Test
+    void evaluarEstadosAcademicosEvaluaTodoElListadoConUnaConsultaDeModulosYUnaDeInstancias() {
+        Modulo modulo1 = Modulo.builder().id(60L).orden(1).esSecuencial(false).programa(programaEscolar).build();
+        Modulo modulo2 = Modulo.builder().id(61L).orden(2).esSecuencial(false).programa(programaEscolar).build();
+        Plan desdeModulo2 = Plan.builder().id(5L).codigo("B").moduloInicio(2).programa(programaEscolar).build();
+        Inscripcion ana = inscripcionEscolar(100L, null);
+        Inscripcion bruno = inscripcionEscolar(101L, desdeModulo2);
+        Inscripcion particular = Inscripcion.builder().id(102L).persona(persona).programa(programaParticular)
+                .fechaInicio(LocalDate.now()).estado(EstadoInscripcion.ACTIVA).build();
+        InstanciaEvaluativa deAnaEnModulo1 = instanciaDe(ana, modulo1);
+        InstanciaEvaluativa deBrunoEnModulo2 = instanciaDe(bruno, modulo2);
+
+        when(moduloRepository.findByProgramaIdInOrderByOrden(List.of(1L))).thenReturn(List.of(modulo1, modulo2));
+        when(instanciaEvaluativaRepository.findByInscripcionIdIn(List.of(100L, 101L)))
+                .thenReturn(List.of(deAnaEnModulo1, deBrunoEnModulo2));
+        when(evaluacionServiceFactory.resolver(programaEscolar)).thenReturn(estrategiaEvaluacionService);
+        // Un módulo se da por aprobado si llegó con instancias; sin instancias (lista vacía) queda pendiente.
+        // any() y no anyList(): esta clase define su propio anyList() de EstadoInscripcion (ver el final del archivo).
+        when(estrategiaEvaluacionService.moduloAprobado(ArgumentMatchers.<List<InstanciaEvaluativa>>any()))
+                .thenAnswer(invocacion -> !invocacion.<List<?>>getArgument(0).isEmpty());
+
+        List<InscripcionService.EstadoAcademico> resultado =
+                inscripcionService.evaluarEstadosAcademicos(List.of(ana, particular, bruno));
+
+        assertThat(resultado).containsExactly(
+                new InscripcionService.EstadoAcademico(false, 1),   // ana: módulo 1 aprobado, falta el 2
+                new InscripcionService.EstadoAcademico(true, 0),    // particular: no se evalúa
+                new InscripcionService.EstadoAcademico(true, 0));   // bruno: el plan B exige solo el módulo 2
+        verify(moduloRepository, times(1)).findByProgramaIdInOrderByOrden(any());
+        verify(instanciaEvaluativaRepository, times(1)).findByInscripcionIdIn(any());
+        verify(moduloRepository, never()).findByProgramaIdOrderByOrden(any());
+        verify(instanciaEvaluativaRepository, never()).findByInscripcionId(any());
+        verify(instanciaEvaluativaRepository, never()).findByInscripcionIdAndModuloId(any(), any());
+    }
+
+    @Test
+    void evaluarEstadosAcademicosNoConsultaNadaSiNoHayInscripcionesEscolares() {
+        Inscripcion particular = Inscripcion.builder().id(102L).persona(persona).programa(programaParticular)
+                .fechaInicio(LocalDate.now()).estado(EstadoInscripcion.ACTIVA).build();
+
+        assertThat(inscripcionService.evaluarEstadosAcademicos(List.of(particular)))
+                .containsExactly(new InscripcionService.EstadoAcademico(true, 0));
+        assertThat(inscripcionService.evaluarEstadosAcademicos(List.of())).isEmpty();
+        verifyNoInteractions(moduloRepository, instanciaEvaluativaRepository, evaluacionServiceFactory);
+    }
+
+    @Test
+    void evaluarEstadosAcademicosConProgramaSinModulosNoPuedeFinalizarNiTienePendientes() {
+        Inscripcion ana = inscripcionEscolar(100L, null);
+        when(moduloRepository.findByProgramaIdInOrderByOrden(any())).thenReturn(List.of());
+        when(instanciaEvaluativaRepository.findByInscripcionIdIn(any())).thenReturn(List.of());
+        when(evaluacionServiceFactory.resolver(programaEscolar)).thenReturn(estrategiaEvaluacionService);
+
+        assertThat(inscripcionService.evaluarEstadosAcademicos(List.of(ana)))
+                .containsExactly(new InscripcionService.EstadoAcademico(false, 0));
     }
 
     private Inscripcion inscripcionConEstado(EstadoInscripcion estado) {

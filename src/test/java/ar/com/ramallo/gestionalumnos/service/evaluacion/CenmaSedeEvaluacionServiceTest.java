@@ -120,6 +120,66 @@ class CenmaSedeEvaluacionServiceTest {
         assertThat(service.tpAprobado(inscripcion, modulo)).isFalse();
     }
 
+    // --- Versión sobre instancias ya cargadas (evaluación por lotes): misma regla, sin tocar el repositorio ---
+
+    @Test
+    void porListaAprobadoConTpYEvaluacionFinalAprobados() {
+        assertThat(service.moduloAprobado(List.of(
+                instancia(TipoInstanciaEvaluativa.TP_INTEGRADOR, "7.00", LocalDate.now()),
+                instancia(TipoInstanciaEvaluativa.EVALUACION_FINAL, "6.00", LocalDate.now())))).isTrue();
+    }
+
+    @Test
+    void porListaNoAprobadoSiFaltaElTpLaFinalOSiEstaDesaprobada() {
+        InstanciaEvaluativa tp = instancia(TipoInstanciaEvaluativa.TP_INTEGRADOR, "7.00", LocalDate.now());
+        InstanciaEvaluativa finalAprobada = instancia(TipoInstanciaEvaluativa.EVALUACION_FINAL, "8.00", LocalDate.now());
+
+        assertThat(service.moduloAprobado(List.of(finalAprobada))).isFalse();
+        assertThat(service.moduloAprobado(List.of(tp))).isFalse();
+        assertThat(service.moduloAprobado(List.of(
+                tp, instancia(TipoInstanciaEvaluativa.EVALUACION_FINAL, "5.00", LocalDate.now())))).isFalse();
+        assertThat(service.moduloAprobado(List.of())).isFalse();
+    }
+
+    @Test
+    void porListaVale_laInstanciaMasRecienteDeCadaTipo() {
+        assertThat(service.moduloAprobado(List.of(
+                instancia(TipoInstanciaEvaluativa.TP_INTEGRADOR, "3.00", LocalDate.now().minusDays(9)),
+                instancia(TipoInstanciaEvaluativa.TP_INTEGRADOR, "7.00", LocalDate.now()),
+                instancia(TipoInstanciaEvaluativa.EVALUACION_FINAL, "4.00", LocalDate.now().minusDays(3)),
+                instancia(TipoInstanciaEvaluativa.EVALUACION_FINAL, "6.00", LocalDate.now())))).isTrue();
+        assertThat(service.moduloAprobado(List.of(
+                instancia(TipoInstanciaEvaluativa.TP_INTEGRADOR, "7.00", LocalDate.now().minusDays(9)),
+                instancia(TipoInstanciaEvaluativa.TP_INTEGRADOR, "3.00", LocalDate.now()),
+                instancia(TipoInstanciaEvaluativa.EVALUACION_FINAL, "9.00", LocalDate.now())))).isFalse();
+    }
+
+    @Test
+    void porListaElCampoAprobadoMandaSobreLaNotaDelTp() {
+        InstanciaEvaluativa tp = instancia(TipoInstanciaEvaluativa.TP_INTEGRADOR, "10.00", LocalDate.now());
+        tp.setAprobado(false);
+
+        assertThat(service.moduloAprobado(List.of(
+                tp, instancia(TipoInstanciaEvaluativa.EVALUACION_FINAL, "9.00", LocalDate.now())))).isFalse();
+    }
+
+    @Test
+    void porListaIgnoraInstanciasDeOtrosTipos() {
+        assertThat(service.moduloAprobado(List.of(
+                instancia(TipoInstanciaEvaluativa.NOTA, "10.00", LocalDate.now()),
+                instancia(TipoInstanciaEvaluativa.INTEGRADOR, "10.00", LocalDate.now())))).isFalse();
+    }
+
+    @Test
+    void laVersionPorListaCoincideConLaQueConsultaLaBase() {
+        InstanciaEvaluativa tp = instancia(TipoInstanciaEvaluativa.TP_INTEGRADOR, "7.00", LocalDate.now());
+        InstanciaEvaluativa evaluacionFinal = instancia(TipoInstanciaEvaluativa.EVALUACION_FINAL, "6.00", LocalDate.now());
+        mockearTp(tp);
+        mockearFinal(evaluacionFinal);
+
+        assertThat(service.moduloAprobado(inscripcion, modulo)).isEqualTo(service.moduloAprobado(List.of(tp, evaluacionFinal)));
+    }
+
     private InstanciaEvaluativa instancia(TipoInstanciaEvaluativa tipo, String nota, LocalDate fecha) {
         return InstanciaEvaluativa.builder()
                 .inscripcion(inscripcion).modulo(modulo).tipo(tipo)
