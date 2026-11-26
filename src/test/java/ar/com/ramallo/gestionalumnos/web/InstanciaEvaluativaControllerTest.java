@@ -22,6 +22,8 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -93,6 +95,49 @@ class InstanciaEvaluativaControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"inscripcionId\":1,\"moduloId\":99,\"tipo\":\"NOTA\",\"fecha\":\"2026-03-01\"}"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void unRecuperatorioDeOtroModuloDevuelve422SinGuardar() throws Exception {
+        Inscripcion inscripcion = Inscripcion.builder().id(1L).build();
+        Modulo modulo1 = Modulo.builder().id(1L).orden(1).build();
+        Modulo modulo2 = Modulo.builder().id(2L).orden(2).build();
+        InstanciaEvaluativa original = InstanciaEvaluativa.builder().id(30L).inscripcion(inscripcion).modulo(modulo1)
+                .tipo(TipoInstanciaEvaluativa.NOTA).nota(new BigDecimal("4.00")).fecha(LocalDate.now()).build();
+        when(inscripcionRepository.findById(1L)).thenReturn(Optional.of(inscripcion));
+        when(moduloRepository.findById(2L)).thenReturn(Optional.of(modulo2));
+        when(instanciaEvaluativaRepository.findById(30L)).thenReturn(Optional.of(original));
+
+        mockMvc.perform(post("/api/instancias-evaluativas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"inscripcionId\":1,\"moduloId\":2,\"tipo\":\"NOTA\",\"nota\":8,"
+                                + "\"fecha\":\"2026-03-01\",\"recuperaAId\":30}"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.message").value(
+                        "recuperaAId: la instancia 30 es del módulo 1; el recuperatorio tiene que cargarse en ese mismo módulo"));
+        verify(instanciaEvaluativaRepository, never()).save(any());
+    }
+
+    @Test
+    void unRecuperatorioDelMismoModuloSeGuarda() throws Exception {
+        Inscripcion inscripcion = Inscripcion.builder().id(1L).build();
+        Modulo modulo = Modulo.builder().id(1L).orden(1).build();
+        InstanciaEvaluativa original = InstanciaEvaluativa.builder().id(30L).inscripcion(inscripcion).modulo(modulo)
+                .tipo(TipoInstanciaEvaluativa.NOTA).nota(new BigDecimal("4.00")).fecha(LocalDate.now()).build();
+        InstanciaEvaluativa guardada = InstanciaEvaluativa.builder().id(31L).inscripcion(inscripcion).modulo(modulo)
+                .tipo(TipoInstanciaEvaluativa.NOTA).nota(new BigDecimal("8.00")).fecha(LocalDate.now())
+                .cuentaParaPromedio(true).recuperaA(original).build();
+        when(inscripcionRepository.findById(1L)).thenReturn(Optional.of(inscripcion));
+        when(moduloRepository.findById(1L)).thenReturn(Optional.of(modulo));
+        when(instanciaEvaluativaRepository.findById(30L)).thenReturn(Optional.of(original));
+        when(instanciaEvaluativaRepository.save(any())).thenReturn(guardada);
+
+        mockMvc.perform(post("/api/instancias-evaluativas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"inscripcionId\":1,\"moduloId\":1,\"tipo\":\"NOTA\",\"nota\":8,"
+                                + "\"fecha\":\"2026-03-01\",\"recuperaAId\":30}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.recuperaAId").value(30));
     }
 
     @Test

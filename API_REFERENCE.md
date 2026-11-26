@@ -293,7 +293,8 @@ si falta; el gate de Sede se carga como aprobado / no aprobado, con `nota` opcio
 tipos se ignora y se guarda `null`. El `INTEGRADOR` de Base **lleva nota** (se aprueba con 6 o más) y
 se carga con `cuentaParaPromedio: false`. `cuentaParaPromedio`: si se omite,
 default `true`. `recuperaAId`: id de la instancia que este registro recupera — si viene, debe existir
-(404 si no).
+(404 si no) y ser del mismo módulo que `moduloId` (422 si no: el recuperatorio hereda el módulo del
+original y la API no lo corrige sola).
 
 - `tipo`: `NOTA` | `INTEGRADOR` | `TP_INTEGRADOR` | `EVALUACION_FINAL`
 
@@ -429,7 +430,7 @@ Todo error de la API devuelve el mismo shape (`ErrorResponse`):
 | `405` | Verbo que la ruta no admite (por ejemplo `DELETE`: la API no da de baja entidades) — `"Método DELETE no permitido para esta ruta"` | `HttpRequestMethodNotSupportedException` |
 | `415` | Body con un `Content-Type` distinto de `application/json` — `"Content-Type 'text/plain' no soportado (se espera application/json)"` | `HttpMediaTypeNotSupportedException` |
 | `409` | Transición de estado inválida; duplicado (unique constraint de Módulo/Plan, o de cualquier otra entidad vía `DataIntegrityViolationException`); contrato ya asociado a una inscripción; límite de clases del pool excedido | `EstadoInvalidoException` / `RegistroDuplicadoException` / `DataIntegrityViolationException` / `LimiteClasesExcedidoException` |
-| `422` | Regla académica incompleta al finalizar una inscripción escolar; categoría inválida para crear un contrato | `RequisitosAcademicosIncompletosException` / `CategoriaInvalidaException` |
+| `422` | Regla académica incompleta al finalizar una inscripción escolar; categoría inválida para crear un contrato; recuperatorio de otro módulo | `RequisitosAcademicosIncompletosException` / `CategoriaInvalidaException` / `RecuperatorioInvalidoException` |
 | `500` | Cualquier excepción no mapeada explícitamente | handler genérico — nunca expone el detalle interno, mensaje fijo `"Error interno del servidor"` |
 
 `message` es siempre texto plano pensado para mostrar directo en la UI (no un código a mapear a otro

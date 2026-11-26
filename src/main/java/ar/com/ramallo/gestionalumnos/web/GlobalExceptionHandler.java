@@ -58,6 +58,11 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
     }
 
+    @ExceptionHandler(RecuperatorioInvalidoException.class)
+    public ResponseEntity<ErrorResponse> handleRecuperatorioInvalido(RecuperatorioInvalidoException ex) {
+        return build(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+    }
+
     @ExceptionHandler(SolicitudInvalidaException.class)
     public ResponseEntity<ErrorResponse> handleSolicitudInvalida(SolicitudInvalidaException ex) {
         return build(HttpStatus.BAD_REQUEST, ex.getMessage());

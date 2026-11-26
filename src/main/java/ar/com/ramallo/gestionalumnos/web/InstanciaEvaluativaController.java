@@ -4,6 +4,7 @@ import ar.com.ramallo.gestionalumnos.domain.Inscripcion;
 import ar.com.ramallo.gestionalumnos.domain.InstanciaEvaluativa;
 import ar.com.ramallo.gestionalumnos.domain.Modulo;
 import ar.com.ramallo.gestionalumnos.domain.enums.TipoInstanciaEvaluativa;
+import ar.com.ramallo.gestionalumnos.exception.RecuperatorioInvalidoException;
 import ar.com.ramallo.gestionalumnos.exception.RecursoNoEncontradoException;
 import ar.com.ramallo.gestionalumnos.exception.SolicitudInvalidaException;
 import ar.com.ramallo.gestionalumnos.repository.InscripcionRepository;
@@ -42,6 +43,13 @@ public class InstanciaEvaluativaController {
                 ? instanciaEvaluativaRepository.findById(request.recuperaAId())
                 .orElseThrow(() -> new RecursoNoEncontradoException("Instancia a recuperar no encontrada: " + request.recuperaAId()))
                 : null;
+        // Regla del CRM Flask: el recuperatorio hereda el módulo del original. Se rechaza en vez de corregirlo en
+        // silencio, para que un importador o un cliente con el moduloId equivocado se entere.
+        if (recuperaA != null && !recuperaA.getModulo().getId().equals(modulo.getId())) {
+            throw new RecuperatorioInvalidoException("recuperaAId: la instancia " + recuperaA.getId()
+                    + " es del módulo " + recuperaA.getModulo().getOrden()
+                    + "; el recuperatorio tiene que cargarse en ese mismo módulo");
+        }
 
         InstanciaEvaluativa instancia = InstanciaEvaluativa.builder()
                 .inscripcion(inscripcion).modulo(modulo).tipo(request.tipo())
