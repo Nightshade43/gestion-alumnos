@@ -49,6 +49,7 @@ ARGENTINA = timezone(timedelta(hours=-3))
 # Hora local de Córdoba en 1900 (LMT, -4:16:48): Sheets convierte un número a fecha con esa zona.
 LMT_1900 = timezone(-timedelta(hours=4, minutes=16, seconds=48))
 SERIAL_CERO = date(1899, 12, 30)
+EPOCA = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -77,7 +78,9 @@ def parse_nota(valor):
         return None, None
     if 0 <= valor <= 10:
         return valor, None
-    fecha_local = datetime.fromtimestamp(valor / 1000, tz=timezone.utc).astimezone(LMT_1900).date()
+    # Época + timedelta y no datetime.fromtimestamp: en Windows, fromtimestamp no acepta valores anteriores
+    # a 1970 (OSError: Invalid argument), y estas notas caen en 1900.
+    fecha_local = (EPOCA + timedelta(milliseconds=valor)).astimezone(LMT_1900).date()
     dias = (fecha_local - SERIAL_CERO).days
     if 0 <= dias <= 10:
         return dias, "nota guardada como fecha de Sheets (%s): se leyó %d" % (fecha_local.isoformat(), dias)
