@@ -86,8 +86,8 @@ Todas las relaciones son **unidireccionales** (el lado "muchos" conoce al "uno",
 - 1 clase semanal, único curso (1er año), único Grupo por ciclo lectivo (lunes 19–21).
 - 2 módulos por ciclo lectivo, cada uno con actividad integradora interdisciplinaria (`cuentaParaPromedio = false`).
 - Mínimo 3 notas por módulo (sin contar el integrador). El módulo se aprueba con promedio ≥ 6 **y** el integrador interdisciplinario con nota ≥ 6 (si se rinde de nuevo vale el más reciente).
-- Recuperatorio: la nota reemplaza a la original en el promedio; el original se conserva vía `recuperaA`.
-- Promedio de módulo y de ciclo lectivo con 2 decimales (`BigDecimal`, no `double`).
+- Recuperatorio: la nota reemplaza a la original en el promedio; el original se conserva vía `recuperaA`. Tiene que cargarse en el mismo módulo que la original (422 si no; vale para todas las líneas).
+- Promedio de módulo y de ciclo lectivo con 2 decimales (`BigDecimal`, no `double`), redondeado `HALF_UP` antes de comparar con 6.
 
 ### 4.2 CENMA Bº SMATA — Sede
 - Sin ciclo lectivo fijo: 9 módulos consecutivos, 1–7 a cargo del docente.
@@ -166,12 +166,12 @@ ar.com.ramallo.gestionalumnos
 
 ---
 
-## 8. Estado actual — v1.0.0
+## 8. Estado actual — v1.1.0
 
-**Completo y testeado (201 tests, `./mvnw test`):**
+**Completo y testeado (217 tests, `./mvnw test`):**
 - Las 13 entidades del modelo de dominio, persistidas contra PostgreSQL real (no H2), con tests de integración (`@DataJpaTest` + `@AutoConfigureTestDatabase(Replace.NONE)`) cubriendo: mapeo de relaciones, unique constraints compuestas, recuperatorio auto-referenciado, defaults de builder, y ambas ramas de negocio (escolar y particular) de punta a punta.
 - `repository/`: interfaces `JpaRepository` completas.
-- `service/`: `InscripcionService` (máquina de estados, validación de unicidad ESCOLAR), `ContratoService` (individuales y de Empresa con pool compartido), `SeguimientoService`, y `service/evaluacion/` (Strategy pattern por `estrategiaEvaluacion`).
+- `service/`: `InscripcionService` (máquina de estados, validación de unicidad ESCOLAR, estado académico y estado por módulo), `ContratoService` (individuales y de Empresa con pool compartido), `SeguimientoService`, y `service/evaluacion/` (Strategy pattern por `estrategiaEvaluacion`).
 - `web/`: 12 controllers REST, autenticación JWT stateless (`AuthController` + filtro), manejo de errores centralizado con el shape único `{ timestamp, status, error, message }`.
 - `frontend/`: las 11 pantallas (Vite + React 19 + TypeScript + TanStack Query) consumiendo esta API, con tema visual propio (Dark CENMA) documentado en `design_handoff_gestion_alumnos/`.
 - Errores del cliente mapeados a 400/404/405/415 con el mismo shape (antes caían en 500).
@@ -180,7 +180,13 @@ ar.com.ramallo.gestionalumnos
 - Lanzador local de doble clic para Windows (`iniciar.bat` / `construir.bat`), probado en las dos PCs.
 - Dependencias del frontend sin vulnerabilidades conocidas (`npm audit`); las alertas eran de herramientas de desarrollo (Vite) y no llegaban al jar.
 
+**Nuevo en v1.1.0:**
+- `GET /api/inscripciones/{id}/modulos`: estado de cada módulo (`APROBADO` / `PENDIENTE` / `EXIMIDO`), nota, integrador y, en Base, notas vigentes y mínimo exigido. Usa la misma regla que `puedeFinalizar`. El frontend dejó de calcular el estado del módulo por su cuenta: se apartaba del backend en recuperatorios, redondeo y orden de las finales de Sede.
+- Un recuperatorio de otro módulo que el original devuelve 422 (`RecuperatorioInvalidoException`).
+
 **Pendiente** (detalle en la sección 6 de este documento y en `design_handoff_gestion_alumnos/BACKEND.md`):
 - Los 7 puntos funcionales de `BACKEND.md` están resueltos; el 8 (métricas de Inicio) quedó fuera de alcance tras medir con datos sintéticos (`scripts/benchmark/`).
+- Importadores de los datos históricos de CENMA Sede y Base (los exports con datos reales van en `Datos/`, que está en `.gitignore`).
+- Ventanas de fecha por cohorte en Base y estado `REPROBADO`.
 - Tests automatizados del frontend.
 - CORS, Docker/deploy, Actuator, migraciones versionadas, logging estructurado.

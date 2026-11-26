@@ -9,6 +9,10 @@ target/
 application-local.properties
 Thumbs.db
 
+### Datos reales (exports de CENMA para los importadores) ###
+# Nombres, DNI y notas de alumnos: el repo es público, así que nunca se versionan.
+/[Dd]atos/
+
 ### STS ###
 .apt_generated
 .classpath

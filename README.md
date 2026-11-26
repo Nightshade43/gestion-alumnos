@@ -18,9 +18,9 @@ Desarrollado como ejercicio de diseño de dominio y arquitectura backend con Jav
 
 ---
 
-## Estado del proyecto — V1.0
+## Estado del proyecto — v1.1
 
-Backend y frontend funcionales: **201/201 tests de backend pasando**, con integración continua en cada push a `master`.
+Backend y frontend funcionales: **217/217 tests de backend pasando**, con integración continua en cada push a `master`. Novedades de cada versión en [Releases](https://github.com/Nightshade43/gestion-alumnos/releases).
 
 **Backend**
 
@@ -30,11 +30,14 @@ Backend y frontend funcionales: **201/201 tests de backend pasando**, con integr
 - ✅ 12 controllers REST + manejo de errores centralizado: los errores del cliente (cuerpo ilegible, parámetro faltante o inválido, ruta inexistente, método o `Content-Type` no soportado) responden 400, 404, 405 o 415 con el mismo formato de error, no 500
 - ✅ Autenticación JWT stateless, con test de integración end-to-end
 - ✅ Listados con costo constante en consultas: `GET /api/inscripciones` evalúa el estado académico de todo el listado por lotes (3 consultas SQL con 300 alumnos, medido con datos sintéticos; ver [Benchmark de carga](#benchmark-de-carga))
+- ✅ Estado de cada módulo calculado en el backend (`GET /api/inscripciones/{id}/modulos`: aprobado, pendiente o eximido por el plan, con su nota), con la misma regla que decide si una inscripción puede finalizar
+- ✅ Validaciones de negocio con 422: finalizar sin los módulos aprobados, contrato sobre una inscripción escolar, recuperatorio cargado en otro módulo que la nota original
 
 **Frontend** (`/frontend`)
 
 - ✅ 11 pantallas: inicio, login, personas, inscripciones (escolares y particulares), contratos, programas, instituciones y empresas
 - ✅ Consume la API sin endpoints ni campos propios: los tipos de `src/api/types.ts` están escritos 1:1 contra los DTOs del backend
+- ✅ Sin reglas de negocio duplicadas: el estado académico (aprobado, pendiente, eximido, promedio) lo calcula siempre el backend
 - ⚪ Sin tests automatizados; en CI se verifica que los tipos y el build pasen
 
 **Herramientas**
@@ -42,6 +45,8 @@ Backend y frontend funcionales: **201/201 tests de backend pasando**, con integr
 - ✅ CI en GitHub Actions: tests de backend contra PostgreSQL y chequeo de tipos y build del frontend
 - ✅ Benchmark de carga con datos sintéticos (`scripts/benchmark/`)
 - ✅ Launcher local de doble clic (`iniciar.bat`): verifica Java y PostgreSQL, crea la base si falta y abre el sistema en el navegador
+
+En curso: importación de los datos históricos de CENMA (Sede y Base) desde los sistemas anteriores.
 
 Pendiente (no bloqueante, ver sección 6 de `CRM_Arquitectura_README.md`): nivel MCER en Seguimiento, registro de sesión individual, pagos reales, roles/multi-usuario, CORS, logging estructurado. Para un despliegue: CORS, Docker y Actuator.
 
@@ -112,6 +117,8 @@ Una vez levantado el backend, la API queda disponible en `http://localhost:8080`
 
 Para cargar datos de prueba (CENMA Base, CENMA Sede y particulares), copiá `seed-data.sh.example` a `seed-data.sh` (que está en `.gitignore`), completá tu usuario y clave de admin y corré `bash seed-data.sh` con el backend levantado.
 
+**Datos reales:** los exports de CENMA (nombres, DNI y notas de alumnos) van en la carpeta `Datos/`, que está en `.gitignore`. El repositorio es público: no guardes datos de alumnos en ninguna otra carpeta del repo.
+
 ## Uso diario: abrir el sistema con doble clic (Windows)
 
 Requisitos: JDK 21 y PostgreSQL con el servicio iniciado. Node.js solo hace falta cuando hay que construir.
@@ -154,9 +161,11 @@ Cada tag `v*` (por ejemplo `v1.0.0`) publica en [GitHub Releases](https://github
 
 Para publicar una versión nueva:
 
-1. Subí `<version>` en `pom.xml` (por ejemplo a `1.0.1`), hacé commit y push, y esperá a que el CI esté en verde.
-2. Etiquetá ese commit y subí el tag: `git tag v1.0.1` y `git push origin v1.0.1`.
+1. Subí `<version>` en `pom.xml` (por ejemplo a `1.1.1`), hacé commit y push, y esperá a que el CI esté en verde.
+2. Recién entonces etiquetá ese commit y subí el tag: `git tag v1.1.1` y `git push origin v1.1.1`.
 3. El workflow [`release.yml`](./.github/workflows/release.yml) construye el jar y crea el release. Si el tag no coincide con la versión del `pom.xml`, se detiene sin publicar.
+
+Si el tag se subió antes de cambiar el `pom.xml`, borralo (`git push --delete origin v1.1.1` y `git tag -d v1.1.1`), corregí la versión, hacé push y volvé a etiquetar.
 
 El workflow no corre los tests (ya corrieron en el CI del push) y también se puede lanzar a mano desde la pestaña Actions: en ese caso deja el jar como artefacto del run, sin crear un release.
 
@@ -208,6 +217,7 @@ src/main/java/ar/com/ramallo/gestionalumnos/
 frontend/                        App React + TypeScript (Vite)
 iniciar.bat / construir.bat      Launcher local (la lógica está en scripts/launcher/lanzador.ps1)
 design_handoff_gestion_alumnos/  Diseño del frontend: pantallas, tokens y pendientes de backend
+Datos/                           Exports con datos reales de alumnos (en .gitignore, nunca se versiona)
 scripts/benchmark/               Benchmark de carga con datos sintéticos
 .github/workflows/               Integración continua (ci.yml) y jar de release (release.yml)
 ```
