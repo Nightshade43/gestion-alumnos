@@ -38,6 +38,19 @@ public class CenmaSedeEvaluacionService implements EstrategiaEvaluacionService {
                 .map(InstanciaEvaluativa::getNota);
     }
 
+    @Override
+    public EvaluacionModulo evaluarModulo(List<InstanciaEvaluativa> instancias) {
+        // La final más reciente por fecha, no la última de la lista: el repositorio no garantiza orden.
+        Optional<InstanciaEvaluativa> ultimoTp = ultima(instancias, TipoInstanciaEvaluativa.TP_INTEGRADOR);
+        Optional<InstanciaEvaluativa> ultimaFinal = ultima(instancias, TipoInstanciaEvaluativa.EVALUACION_FINAL);
+        return new EvaluacionModulo(
+                tpAprobado(ultimoTp) && evaluacionFinalAprobada(ultimaFinal),
+                ultimaFinal.map(InstanciaEvaluativa::getNota).orElse(null),
+                tpAprobado(ultimoTp),
+                null,
+                null);
+    }
+
     public boolean tpAprobado(Inscripcion inscripcion, Modulo modulo) {
         return tpAprobado(ultimaInstancia(inscripcion, modulo, TipoInstanciaEvaluativa.TP_INTEGRADOR));
     }

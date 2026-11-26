@@ -8,6 +8,7 @@ import ar.com.ramallo.gestionalumnos.repository.InscripcionRepository;
 import ar.com.ramallo.gestionalumnos.security.JwtAuthenticationEntryPoint;
 import ar.com.ramallo.gestionalumnos.security.JwtAuthenticationFilter;
 import ar.com.ramallo.gestionalumnos.service.InscripcionService;
+import ar.com.ramallo.gestionalumnos.service.evaluacion.EvaluacionModulo;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -20,6 +21,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -222,5 +224,59 @@ class InscripcionControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message")
                         .value("estado: valor inválido 'OTRO' (permitidos: ACTIVA, PAUSADA, FINALIZADA, CANCELADA)"));
+    }
+
+    // --- GET /api/inscripciones/{id}/modulos ---
+
+    @Test
+    void devuelveElEstadoDeCadaModuloEnOrden() throws Exception {
+        Inscripcion inscripcion = inscripcionDe(10L, EstadoInscripcion.ACTIVA);
+        Modulo modulo1 = Modulo.builder().id(1L).orden(1).programa(inscripcion.getPrograma()).build();
+        Modulo modulo2 = Modulo.builder().id(2L).orden(2).programa(inscripcion.getPrograma()).build();
+        when(inscripcionRepository.findById(10L)).thenReturn(Optional.of(inscripcion));
+        when(inscripcionService.evaluarModulos(inscripcion)).thenReturn(List.of(
+                new InscripcionService.EstadoDeModulo(modulo1, EstadoModulo.APROBADO,
+                        new EvaluacionModulo(true, new java.math.BigDecimal("7.50"), true, 3, 3)),
+                new InscripcionService.EstadoDeModulo(modulo2, EstadoModulo.PENDIENTE,
+                        new EvaluacionModulo(false, null, false, 1, 3))));
+
+        mockMvc.perform(get("/api/inscripciones/10/modulos"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].moduloId").value(1))
+                .andExpect(jsonPath("$[0].orden").value(1))
+                .andExpect(jsonPath("$[0].estado").value("APROBADO"))
+                .andExpect(jsonPath("$[0].nota").value(7.5))
+                .andExpect(jsonPath("$[0].integradorAprobado").value(true))
+                .andExpect(jsonPath("$[0].notasVigentes").value(3))
+                .andExpect(jsonPath("$[0].notasMinimas").value(3))
+                .andExpect(jsonPath("$[1].estado").value("PENDIENTE"))
+                .andExpect(jsonPath("$[1].nota").value(nullValue()))
+                .andExpect(jsonPath("$[1].notasVigentes").value(1));
+    }
+
+    @Test
+    void enSedeLosCamposDeConteoVanEnNull() throws Exception {
+        Inscripcion inscripcion = inscripcionDe(11L, EstadoInscripcion.ACTIVA);
+        Modulo modulo1 = Modulo.builder().id(1L).orden(1).programa(inscripcion.getPrograma()).build();
+        when(inscripcionRepository.findById(11L)).thenReturn(Optional.of(inscripcion));
+        when(inscripcionService.evaluarModulos(inscripcion)).thenReturn(List.of(
+                new InscripcionService.EstadoDeModulo(modulo1, EstadoModulo.EXIMIDO,
+                        new EvaluacionModulo(false, null, false, null, null))));
+
+        mockMvc.perform(get("/api/inscripciones/11/modulos"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].estado").value("EXIMIDO"))
+                .andExpect(jsonPath("$[0].notasVigentes").value(nullValue()))
+                .andExpect(jsonPath("$[0].notasMinimas").value(nullValue()));
+    }
+
+    @Test
+    void devuelve404SiLaInscripcionNoExisteAlPedirModulos() throws Exception {
+        when(inscripcionRepository.findById(999L)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/api/inscripciones/999/modulos"))
+                .andExpect(status().isNotFound());
+        verify(inscripcionService, never()).evaluarModulos(any());
     }
 }

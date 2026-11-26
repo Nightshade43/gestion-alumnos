@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  useInscripcion, useModulos, useInstancias, useSeguimientos, useContrato, usePrograma,
+  useInscripcion, useModulos, useInstancias, useEstadoModulos, useSeguimientos, useContrato, usePrograma,
   usePausar, useReanudar, useFinalizar, useCancelar,
   useConsumirClase, useAmpliarCupo, useCrearSeguimiento, useCrearInstancia,
 } from '../api/queries';
@@ -12,7 +12,8 @@ import { ErrorScreen, useApiErrorHandler, BusinessRuleModal } from '../component
 import { useToasts } from '../components/Toasts';
 import type { Route } from '../shell/AppShell';
 import type {
-  EstrategiaEvaluacion, InstanciaEvaluativaResponse, ModuloResponse, TipoInstanciaEvaluativa,
+  EstadoModulo, EstadoModuloResponse, EstrategiaEvaluacion, InstanciaEvaluativaResponse, ModuloResponse,
+  TipoInstanciaEvaluativa,
 } from '../api/types';
 
 /**
@@ -173,8 +174,9 @@ function Meta({ label, value, mono }: { label: string; value: React.ReactNode; m
 
 /* ─────────────── Rama escolar: evaluaciones por módulo ─────────────── */
 
+// Solo para el detalle de cada fila (color de la nota, "Promedia"). El estado del módulo lo calcula el backend:
+// GET /api/inscripciones/{id}/modulos.
 const NOTA_APROBACION = 6;
-const MIN_NOTAS_BASE = 3;   // CENMA Base: mínimo 3 notas por módulo, sin contar el integrador
 
 const esGate = (t: TipoInstanciaEvaluativa) => t === 'TP_INTEGRADOR' || t === 'INTEGRADOR';
 
@@ -187,53 +189,12 @@ const esGate = (t: TipoInstanciaEvaluativa) => t === 'TP_INTEGRADOR' || t === 'I
 const gateAprobado = (n: InstanciaEvaluativaResponse) =>
   n.tipo === 'TP_INTEGRADOR' ? (n.aprobado ?? (n.nota ?? 0) >= NOTA_APROBACION) : (n.nota ?? 0) >= NOTA_APROBACION;
 
-/** Si se rinde de nuevo, el backend toma la instancia más reciente del tipo; no todas. */
-const ultimaPorFecha = (xs: InstanciaEvaluativaResponse[]) =>
-  xs.reduce<InstanciaEvaluativaResponse | null>((a, b) => (a == null || b.fecha > a.fecha ? b : a), null);
-
-/**
- * "Módulo aprobado" no lo expone la API: se calcula en cliente y se marca como
- * heurística. Las dos líneas cierran el módulo de forma distinta.
- */
-function evaluarModulo(instancias: InstanciaEvaluativaResponse[], estrategia?: EstrategiaEvaluacion) {
-  const gates = instancias.filter((n) => esGate(n.tipo));
-  const ultimoGate = ultimaPorFecha(gates);
-  const gatesOk = ultimoGate != null && gateAprobado(ultimoGate);
-  const finales = instancias.filter((n) => n.tipo === 'EVALUACION_FINAL');
-  const notas = instancias.filter((n) => n.tipo === 'NOTA');
-
-  if (estrategia === 'CENMA_SEDE') {
-    // La final es directamente la nota del módulo: no se promedia con el TP.
-    const ultima = finales.length ? finales[finales.length - 1].nota ?? null : null;
-    return {
-      labelNota: 'Nota del módulo',
-      valor: ultima,
-      aprobado: ultima != null && ultima >= NOTA_APROBACION && gatesOk,
-      fueraDeSecuencia: finales.length > 0 && gates.length > 0 && !gatesOk,
-      conteoBase: null as string | null,
-      conteoCumplido: false,
-    };
-  }
-
-  // Base: promedio de las notas que promedian. Una nota recuperada por otra queda fuera
-  // (el backend la marca con cuentaParaPromedio = false; acá también la descontamos por recuperaAId).
-  const recuperadas = new Set(instancias.map((n) => n.recuperaAId).filter(Boolean) as number[]);
-  const promedian = notas.filter((n) => n.cuentaParaPromedio && n.nota != null && !recuperadas.has(n.id));
-  const promedio = promedian.length
-    ? promedian.reduce((a, n) => a + (n.nota ?? 0), 0) / promedian.length
-    : null;
-  const cumplido = notas.length >= MIN_NOTAS_BASE;
-  return {
-    labelNota: 'Promedio',
-    valor: promedio,
-    aprobado: promedio != null && promedio >= NOTA_APROBACION && cumplido && gatesOk,
-    fueraDeSecuencia: false,
-    conteoBase: cumplido
-      ? `${notas.length} notas · mínimo cumplido`
-      : `${notas.length} de ${MIN_NOTAS_BASE} notas mínimas`,
-    conteoCumplido: cumplido,
-  };
-}
+/** Texto y colores del chip de estado. PENDIENTE se muestra "EN CURSO", que es el texto del diseño. */
+const CHIP_ESTADO: Record<EstadoModulo, { texto: string; bg: string; fg: string }> = {
+  APROBADO:  { texto: 'APROBADO', bg: 'var(--ga-ok-bg)',     fg: 'var(--ga-ok-fg)' },
+  PENDIENTE: { texto: 'EN CURSO', bg: 'var(--ga-warn-bg)',   fg: 'var(--ga-warn-fg)' },
+  EXIMIDO:   { texto: 'EXIMIDO',  bg: 'var(--ga-surface-2)', fg: 'var(--ga-muted)' },
+};
 
 const BAJADA: Record<string, string> = {
   CENMA_SEDE: 'Sede · el TP integrador habilita la final, y la final es la nota del módulo',
@@ -245,13 +206,16 @@ function Evaluaciones({ inscripcionId, programaId, estrategia }: {
 }) {
   const modulos = useModulos(programaId);
   const instancias = useInstancias(inscripcionId);
+  const estados = useEstadoModulos(inscripcionId);
   const [cargando, setCargando] = React.useState<ModuloResponse | null>(null);
 
-  if (modulos.isPending || instancias.isPending) return <Card title="Evaluaciones"><SkeletonList rows={3} /></Card>;
+  if (modulos.isPending || instancias.isPending || estados.isPending) return <Card title="Evaluaciones"><SkeletonList rows={3} /></Card>;
   if (modulos.error) return <ErrorScreen error={modulos.error} onRetry={modulos.refetch} entidad="programa" />;
   if (instancias.error) return <ErrorScreen error={instancias.error} onRetry={instancias.refetch} entidad="evaluaciones" />;
+  if (estados.error) return <ErrorScreen error={estados.error} onRetry={estados.refetch} entidad="evaluaciones" />;
 
   const todas = instancias.data ?? [];
+  const estadoPorModulo = new Map((estados.data ?? []).map((e) => [e.moduloId, e]));
   const ordenados = (modulos.data ?? []).slice().sort((a, b) => a.orden - b.orden);
   const conNotas = ordenados
     .map((m) => ({ modulo: m, instancias: todas.filter((n) => n.moduloId === m.id) }))
@@ -282,7 +246,7 @@ function Evaluaciones({ inscripcionId, programaId, estrategia }: {
             />
           </Card>
         : conNotas.map(({ modulo, instancias: ns }) => (
-            <Modulo key={modulo.id} modulo={modulo} instancias={ns} estrategia={estrategia} />
+            <Modulo key={modulo.id} modulo={modulo} estado={estadoPorModulo.get(modulo.id)} instancias={ns} estrategia={estrategia} />
           ))}
 
       {cargando && (
@@ -290,6 +254,7 @@ function Evaluaciones({ inscripcionId, programaId, estrategia }: {
           inscripcionId={inscripcionId}
           modulos={ordenados}
           instancias={todas}
+          estados={estadoPorModulo}
           estrategia={estrategia}
           onClose={() => setCargando(null)}
         />
@@ -298,10 +263,24 @@ function Evaluaciones({ inscripcionId, programaId, estrategia }: {
   );
 }
 
-function Modulo({ modulo, instancias, estrategia }: {
-  modulo: ModuloResponse; instancias: InstanciaEvaluativaResponse[]; estrategia?: EstrategiaEvaluacion;
+function Modulo({ modulo, estado, instancias, estrategia }: {
+  modulo: ModuloResponse; estado?: EstadoModuloResponse; instancias: InstanciaEvaluativaResponse[];
+  estrategia?: EstrategiaEvaluacion;
 }) {
-  const { labelNota, valor, aprobado, fueraDeSecuencia, conteoBase, conteoCumplido } = evaluarModulo(instancias, estrategia);
+  // Si el módulo se cargó después de la última consulta de estados, se muestra en curso hasta refrescar.
+  const chip = CHIP_ESTADO[estado?.estado ?? 'PENDIENTE'];
+  const sede = estrategia === 'CENMA_SEDE';
+  const labelNota = sede ? 'Nota del módulo' : 'Promedio';
+  const valor = estado?.nota ?? null;
+  // Aviso visual, no regla: hay una final cargada junto a un TP integrador que no quedó aprobado.
+  const fueraDeSecuencia = sede && estado != null && !estado.integradorAprobado
+    && instancias.some((n) => n.tipo === 'EVALUACION_FINAL') && instancias.some((n) => esGate(n.tipo));
+  const minimas = estado?.notasMinimas ?? null;
+  const vigentes = estado?.notasVigentes ?? null;
+  const conteoCumplido = minimas != null && vigentes != null && vigentes >= minimas;
+  const conteoBase = minimas != null && vigentes != null
+    ? (conteoCumplido ? `${vigentes} notas · mínimo cumplido` : `${vigentes} de ${minimas} notas mínimas`)
+    : null;
   const recuperadas = new Set(instancias.map((n) => n.recuperaAId).filter(Boolean) as number[]);
   return (
     <section style={{ background: 'var(--ga-surface)', border: '1px solid var(--ga-line)', borderRadius: 'var(--ga-radius-lg)', overflow: 'hidden' }}>
@@ -310,11 +289,11 @@ function Modulo({ modulo, instancias, estrategia }: {
         <span style={{
           fontFamily: 'var(--ga-font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '.04em',
           padding: '3px 8px', borderRadius: 'var(--ga-radius-xs)',
-          background: aprobado ? 'var(--ga-ok-bg)' : 'var(--ga-warn-bg)',
-          color: aprobado ? 'var(--ga-ok-fg)' : 'var(--ga-warn-fg)',
-        }}>{aprobado ? 'APROBADO' : 'EN CURSO'}</span>
+          background: chip.bg,
+          color: chip.fg,
+        }}>{chip.texto}</span>
         {!modulo.esSecuencial && <MonoChip>INDEPENDIENTE</MonoChip>}
-        {/* Solo Base tiene mínimo de notas: en Sede el conteo no significa nada. */}
+        {/* Solo Base tiene mínimo de notas: en Sede la API manda el conteo en null. */}
         {conteoBase && (
           <span style={{
             fontFamily: 'var(--ga-font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '.04em',
@@ -395,10 +374,11 @@ const TIPOS: Record<string, { v: TipoInstanciaEvaluativa; label: string }[]> = {
   ],
 };
 
-function NotaModal({ inscripcionId, modulos, instancias, estrategia, onClose }: {
+function NotaModal({ inscripcionId, modulos, instancias, estados, estrategia, onClose }: {
   inscripcionId: number;
   modulos: ModuloResponse[];
   instancias: InstanciaEvaluativaResponse[];
+  estados: Map<number, EstadoModuloResponse>;
   estrategia?: EstrategiaEvaluacion;
   onClose: () => void;
 }) {
@@ -424,6 +404,10 @@ function NotaModal({ inscripcionId, modulos, instancias, estrategia, onClose }: 
   const recuperadas = new Set(delModulo.map((n) => n.recuperaAId).filter(Boolean) as number[]);
   const recuperables = notasCargadas.filter((n) => n.cuentaParaPromedio && !recuperadas.has(n.id));
   const puedeRecuperar = !sede && tipo === 'NOTA' && recuperables.length > 0;
+  // El conteo del mínimo viene de la API (notas vigentes: sin originales recuperadas ni integrador).
+  const estadoDelModulo = estados.get(moduloId);
+  const vigentes = estadoDelModulo?.notasVigentes ?? null;
+  const minimas = estadoDelModulo?.notasMinimas ?? null;
 
   const aviso = sede
     ? (gate
@@ -497,9 +481,11 @@ function NotaModal({ inscripcionId, modulos, instancias, estrategia, onClose }: 
             error={fieldErrors.tipo}
             hint={sede
               ? 'Sede: el TP habilita la final, y la final no se promedia con el TP.'
-              : (notasCargadas.length >= MIN_NOTAS_BASE
-                  ? `Este módulo ya tiene ${notasCargadas.length} notas: el mínimo está cumplido.`
-                  : `Este módulo tiene ${notasCargadas.length} de las ${MIN_NOTAS_BASE} notas mínimas (el integrador no cuenta).`)}
+              : vigentes == null || minimas == null
+                ? undefined
+                : vigentes >= minimas
+                  ? `Este módulo ya tiene ${vigentes} notas: el mínimo está cumplido.`
+                  : `Este módulo tiene ${vigentes} de las ${minimas} notas mínimas (el integrador no cuenta).`}
           >
             <Select value={tipo} onChange={(e) => { setTipo(e.target.value as TipoInstanciaEvaluativa); setRecuperaAId(''); }}>
               {tipos.map((t) => <option key={t.v} value={t.v}>{t.label}</option>)}

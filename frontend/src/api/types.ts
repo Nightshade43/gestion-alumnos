@@ -7,6 +7,7 @@ export type EstadoInscripcion = 'ACTIVA' | 'PAUSADA' | 'FINALIZADA' | 'CANCELADA
 export type TipoFacturacion = 'POR_CLASE' | 'PAQUETE' | 'MENSUAL';
 export type EstadoContrato = 'ACTIVO' | 'FINALIZADO';
 export type TipoInstanciaEvaluativa = 'NOTA' | 'INTEGRADOR' | 'TP_INTEGRADOR' | 'EVALUACION_FINAL';
+export type EstadoModulo = 'APROBADO' | 'PENDIENTE' | 'EXIMIDO';
 
 /** ISO date, "2026-03-01" (LocalDate en el backend — nunca datetime). */
 export type IsoDate = string;
@@ -71,6 +72,21 @@ export interface InscripcionResponse {
   puedeFinalizar: boolean;
   /** Módulos requeridos sin aprobar (0 en particulares y en escolares sin módulos cargados). */
   modulosPendientes: number;
+}
+
+/**
+ * GET /api/inscripciones/{id}/modulos: un elemento por módulo del programa, en orden. Lista vacía en particulares.
+ * Lo calcula el backend con la misma regla que `puedeFinalizar`: PENDIENTE si y solo si suma en `modulosPendientes`.
+ */
+export interface EstadoModuloResponse {
+  moduloId: number; orden: number; estado: EstadoModulo;
+  /** Base: promedio vigente (HALF_UP, 2 decimales). Sede: la evaluación final más reciente. null si no hay con qué calcularla. */
+  nota: Decimal | null;
+  /** Último TP integrador (Sede) o integrador interdisciplinario (Base), por fecha. */
+  integradorAprobado: boolean;
+  /** Solo CENMA_BASE: notas que promedian y mínimo exigido. null en CENMA_SEDE. */
+  notasVigentes: number | null;
+  notasMinimas: number | null;
 }
 
 export interface EmpresaRequest { nombre: string; contacto?: string | null }

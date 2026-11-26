@@ -8,6 +8,7 @@ import ar.com.ramallo.gestionalumnos.exception.RegistroDuplicadoException;
 import ar.com.ramallo.gestionalumnos.exception.RequisitosAcademicosIncompletosException;
 import ar.com.ramallo.gestionalumnos.repository.*;
 import ar.com.ramallo.gestionalumnos.service.evaluacion.EstrategiaEvaluacionService;
+import ar.com.ramallo.gestionalumnos.service.evaluacion.EvaluacionModulo;
 import ar.com.ramallo.gestionalumnos.service.evaluacion.EvaluacionServiceFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -408,6 +409,68 @@ class InscripcionServiceTest {
 
         assertThat(inscripcionService.evaluarEstadosAcademicos(List.of(ana)))
                 .containsExactly(new InscripcionService.EstadoAcademico(false, 0));
+    }
+
+    // --- Estado por módulo (pantalla de una inscripción) ---
+
+    @Test
+    void evaluarModulosMarcaEximidosAprobadosYPendientesEnOrdenConUnaConsultaDeCadaCosa() {
+        Modulo modulo1 = Modulo.builder().id(70L).orden(1).esSecuencial(true).programa(programaEscolar).build();
+        Modulo modulo2 = Modulo.builder().id(71L).orden(2).esSecuencial(true).programa(programaEscolar).build();
+        Modulo modulo3 = Modulo.builder().id(72L).orden(3).esSecuencial(true).programa(programaEscolar).build();
+        Plan desdeModulo2 = Plan.builder().id(6L).codigo("B").moduloInicio(2).programa(programaEscolar).build();
+        Inscripcion ana = inscripcionEscolar(110L, desdeModulo2);
+        // Notas en el módulo 1 (eximido) y en el 2; ninguna en el 3.
+        InstanciaEvaluativa enModulo1 = instanciaDe(ana, modulo1);
+        InstanciaEvaluativa enModulo2 = instanciaDe(ana, modulo2);
+
+        when(moduloRepository.findByProgramaIdOrderByOrden(1L)).thenReturn(List.of(modulo1, modulo2, modulo3));
+        when(instanciaEvaluativaRepository.findByInscripcionId(110L)).thenReturn(List.of(enModulo2, enModulo1));
+        when(evaluacionServiceFactory.resolver(programaEscolar)).thenReturn(estrategiaEvaluacionService);
+        // Aprobado si llegó con instancias, igual que en el test del listado.
+        when(estrategiaEvaluacionService.evaluarModulo(ArgumentMatchers.<List<InstanciaEvaluativa>>any()))
+                .thenAnswer(invocacion -> {
+                    List<?> instancias = invocacion.getArgument(0);
+                    return new EvaluacionModulo(!instancias.isEmpty(), null, false, null, null);
+                });
+
+        List<InscripcionService.EstadoDeModulo> resultado = inscripcionService.evaluarModulos(ana);
+
+        assertThat(resultado).extracting(InscripcionService.EstadoDeModulo::modulo)
+                .containsExactly(modulo1, modulo2, modulo3);
+        // El módulo 1 tiene notas que lo aprobarían, pero el plan lo exime: manda el plan.
+        assertThat(resultado).extracting(InscripcionService.EstadoDeModulo::estado)
+                .containsExactly(EstadoModulo.EXIMIDO, EstadoModulo.APROBADO, EstadoModulo.PENDIENTE);
+        verify(estrategiaEvaluacionService).evaluarModulo(List.of(enModulo1));
+        verify(estrategiaEvaluacionService).evaluarModulo(List.of(enModulo2));
+        verify(estrategiaEvaluacionService).evaluarModulo(List.of());
+        verify(moduloRepository, times(1)).findByProgramaIdOrderByOrden(any());
+        verify(instanciaEvaluativaRepository, times(1)).findByInscripcionId(any());
+        verify(instanciaEvaluativaRepository, never()).findByInscripcionIdAndModuloId(any(), any());
+    }
+
+    @Test
+    void evaluarModulosSinPlanExigeTodosLosModulos() {
+        Modulo modulo1 = Modulo.builder().id(80L).orden(1).esSecuencial(false).programa(programaEscolar).build();
+        Inscripcion ana = inscripcionEscolar(120L, null);
+        when(moduloRepository.findByProgramaIdOrderByOrden(1L)).thenReturn(List.of(modulo1));
+        when(instanciaEvaluativaRepository.findByInscripcionId(120L)).thenReturn(List.of());
+        when(evaluacionServiceFactory.resolver(programaEscolar)).thenReturn(estrategiaEvaluacionService);
+        when(estrategiaEvaluacionService.evaluarModulo(List.of()))
+                .thenReturn(new EvaluacionModulo(false, null, false, 0, 3));
+
+        assertThat(inscripcionService.evaluarModulos(ana))
+                .extracting(InscripcionService.EstadoDeModulo::estado)
+                .containsExactly(EstadoModulo.PENDIENTE);
+    }
+
+    @Test
+    void evaluarModulosDevuelveListaVaciaParaParticularesSinConsultarNada() {
+        Inscripcion particular = Inscripcion.builder().id(130L).persona(persona).programa(programaParticular)
+                .fechaInicio(LocalDate.now()).estado(EstadoInscripcion.ACTIVA).build();
+
+        assertThat(inscripcionService.evaluarModulos(particular)).isEmpty();
+        verifyNoInteractions(moduloRepository, instanciaEvaluativaRepository, evaluacionServiceFactory);
     }
 
     private Inscripcion inscripcionConEstado(EstadoInscripcion estado) {

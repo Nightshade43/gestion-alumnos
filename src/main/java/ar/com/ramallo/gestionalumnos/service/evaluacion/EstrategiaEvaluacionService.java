@@ -20,4 +20,11 @@ public interface EstrategiaEvaluacionService {
     boolean moduloAprobado(List<InstanciaEvaluativa> instanciasDelModulo);
 
     Optional<BigDecimal> notaModulo(Inscripcion inscripcion, Modulo modulo);
+
+    /**
+     * Todo lo que la pantalla de una inscripción necesita de un módulo, sobre instancias ya cargadas (las de UNA
+     * inscripción en UN módulo). Existe para que el cliente no repita las reglas de evaluación: el frontend
+     * calculaba "módulo aprobado" por su cuenta y se apartaba de esta regla en recuperatorios, redondeo y orden.
+     */
+    EvaluacionModulo evaluarModulo(List<InstanciaEvaluativa> instanciasDelModulo);
 }

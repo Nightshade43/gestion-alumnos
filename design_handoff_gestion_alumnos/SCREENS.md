@@ -345,6 +345,10 @@ Sincronizado con §19–21:
   integrador aprobado. Header por línea ("Nota del módulo" / "Promedio" + chip de conteo),
   modal **Cargar nota** con tipos por estrategia y campo *Recupera a*, y confirmación
   destructiva en **Cancelar**.
+  > **Reemplazado:** `evaluarModulo` se borró. El chip (`APROBADO` / `EN CURSO` / `EXIMIDO`), la
+  > nota del header y el conteo de Base salen de `GET /api/inscripciones/{id}/modulos`
+  > (`useEstadoModulos`). El cálculo en cliente se apartaba del backend en tres casos:
+  > recuperatorios en el mínimo de Base, redondeo del promedio y orden de las finales de Sede.
 - `InscripcionesScreen.tsx` — columna Plan muestra "Sin plan" en Base, panel informativo de
   Base en el alta, y el pie del formulario cambia por estrategia.
 

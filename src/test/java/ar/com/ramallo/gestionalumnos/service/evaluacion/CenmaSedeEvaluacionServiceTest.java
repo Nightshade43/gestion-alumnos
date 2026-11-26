@@ -180,6 +180,64 @@ class CenmaSedeEvaluacionServiceTest {
         assertThat(service.moduloAprobado(inscripcion, modulo)).isEqualTo(service.moduloAprobado(List.of(tp, evaluacionFinal)));
     }
 
+    // --- evaluarModulo: lo que recibe la pantalla de la inscripción ---
+
+    @Test
+    void evaluarModuloTomaLaFinalMasRecientePorFechaNoLaUltimaDeLaLista() {
+        // El repositorio no ordena: la final más reciente (8) puede llegar antes que una anterior (4).
+        // El frontend tomaba la última de la lista y daba el módulo por desaprobado.
+        EvaluacionModulo resultado = service.evaluarModulo(List.of(
+                instancia(TipoInstanciaEvaluativa.TP_INTEGRADOR, "10.00", LocalDate.now().minusDays(40)),
+                instancia(TipoInstanciaEvaluativa.EVALUACION_FINAL, "8.00", LocalDate.now()),
+                instancia(TipoInstanciaEvaluativa.EVALUACION_FINAL, "4.00", LocalDate.now().minusDays(20))));
+
+        assertThat(resultado.nota()).isEqualByComparingTo("8.00");
+        assertThat(resultado.aprobado()).isTrue();
+        assertThat(resultado.integradorAprobado()).isTrue();
+    }
+
+    @Test
+    void evaluarModuloConFinalAprobadaPeroTpNoAprobadoNoApruebaYLoInforma() {
+        InstanciaEvaluativa tp = instancia(TipoInstanciaEvaluativa.TP_INTEGRADOR, "10.00", LocalDate.now());
+        tp.setAprobado(false);
+
+        EvaluacionModulo resultado = service.evaluarModulo(List.of(
+                tp, instancia(TipoInstanciaEvaluativa.EVALUACION_FINAL, "9.00", LocalDate.now())));
+
+        assertThat(resultado.aprobado()).isFalse();
+        assertThat(resultado.integradorAprobado()).isFalse();
+        assertThat(resultado.nota()).isEqualByComparingTo("9.00");
+    }
+
+    @Test
+    void evaluarModuloEnSedeNoInformaConteoDeNotas() {
+        EvaluacionModulo resultado = service.evaluarModulo(List.of());
+
+        assertThat(resultado.aprobado()).isFalse();
+        assertThat(resultado.nota()).isNull();
+        assertThat(resultado.integradorAprobado()).isFalse();
+        assertThat(resultado.notasVigentes()).isNull();
+        assertThat(resultado.notasMinimas()).isNull();
+    }
+
+    @Test
+    void evaluarModuloCoincideConModuloAprobadoPorLista() {
+        InstanciaEvaluativa tpRechazado = instancia(TipoInstanciaEvaluativa.TP_INTEGRADOR, "10.00", LocalDate.now());
+        tpRechazado.setAprobado(false);
+        List<List<InstanciaEvaluativa>> casos = List.of(
+                List.of(instancia(TipoInstanciaEvaluativa.TP_INTEGRADOR, "7.00", LocalDate.now()),
+                        instancia(TipoInstanciaEvaluativa.EVALUACION_FINAL, "6.00", LocalDate.now())),
+                List.of(instancia(TipoInstanciaEvaluativa.EVALUACION_FINAL, "9.00", LocalDate.now())),
+                List.of(tpRechazado, instancia(TipoInstanciaEvaluativa.EVALUACION_FINAL, "9.00", LocalDate.now())),
+                List.of(instancia(TipoInstanciaEvaluativa.TP_INTEGRADOR, "7.00", LocalDate.now()),
+                        instancia(TipoInstanciaEvaluativa.EVALUACION_FINAL, "5.00", LocalDate.now())),
+                List.of());
+
+        for (List<InstanciaEvaluativa> caso : casos) {
+            assertThat(service.evaluarModulo(caso).aprobado()).isEqualTo(service.moduloAprobado(caso));
+        }
+    }
+
     private InstanciaEvaluativa instancia(TipoInstanciaEvaluativa tipo, String nota, LocalDate fecha) {
         return InstanciaEvaluativa.builder()
                 .inscripcion(inscripcion).modulo(modulo).tipo(tipo)

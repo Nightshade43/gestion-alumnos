@@ -3,12 +3,14 @@ package ar.com.ramallo.gestionalumnos.service;
 import ar.com.ramallo.gestionalumnos.domain.*;
 import ar.com.ramallo.gestionalumnos.domain.enums.CategoriaPrograma;
 import ar.com.ramallo.gestionalumnos.domain.enums.EstadoInscripcion;
+import ar.com.ramallo.gestionalumnos.domain.enums.EstadoModulo;
 import ar.com.ramallo.gestionalumnos.exception.EstadoInvalidoException;
 import ar.com.ramallo.gestionalumnos.exception.RecursoNoEncontradoException;
 import ar.com.ramallo.gestionalumnos.exception.RegistroDuplicadoException;
 import ar.com.ramallo.gestionalumnos.exception.RequisitosAcademicosIncompletosException;
 import ar.com.ramallo.gestionalumnos.repository.*;
 import ar.com.ramallo.gestionalumnos.service.evaluacion.EstrategiaEvaluacionService;
+import ar.com.ramallo.gestionalumnos.service.evaluacion.EvaluacionModulo;
 import ar.com.ramallo.gestionalumnos.service.evaluacion.EvaluacionServiceFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +39,8 @@ public class InscripcionService {
     private final InstanciaEvaluativaRepository instanciaEvaluativaRepository;
 
     public record EstadoAcademico(boolean puedeFinalizar, int modulosPendientes) {}
+
+    public record EstadoDeModulo(Modulo modulo, EstadoModulo estado, EvaluacionModulo evaluacion) {}
 
     @Transactional
     public Inscripcion crearInscripcion(Persona persona, Programa programa, Plan plan, Grupo grupo, LocalDate fechaInicio) {
@@ -189,13 +194,40 @@ public class InscripcionService {
         return resultado;
     }
 
+    /**
+     * Estado de cada módulo del programa, en orden, para la pantalla de una inscripción. Usa las mismas reglas que
+     * {@link #evaluarEstadoAcademico(Inscripcion)}: un módulo figura PENDIENTE si y solo si suma en
+     * {@code modulosPendientes}. Costo fijo: los módulos y las instancias se cargan una vez para todo el programa.
+     * Una inscripción PARTICULAR no tiene módulos: lista vacía.
+     */
+    public List<EstadoDeModulo> evaluarModulos(Inscripcion inscripcion) {
+        if (inscripcion.getPrograma().getCategoria() != CategoriaPrograma.ESCOLAR) {
+            return List.of();
+        }
+
+        EstrategiaEvaluacionService estrategia = evaluacionServiceFactory.resolver(inscripcion.getPrograma());
+        List<Modulo> modulos = moduloRepository.findByProgramaIdOrderByOrden(inscripcion.getPrograma().getId());
+        Map<Long, List<InstanciaEvaluativa>> instanciasPorModulo = instanciaEvaluativaRepository
+                .findByInscripcionId(inscripcion.getId()).stream()
+                .collect(Collectors.groupingBy(instancia -> instancia.getModulo().getId()));
+
+        return modulos.stream()
+                .map(modulo -> {
+                    EvaluacionModulo evaluacion = estrategia.evaluarModulo(
+                            instanciasPorModulo.getOrDefault(modulo.getId(), List.of()));
+                    EstadoModulo estado = !esRequerido(inscripcion, modulo) ? EstadoModulo.EXIMIDO
+                            : evaluacion.aprobado() ? EstadoModulo.APROBADO
+                            : EstadoModulo.PENDIENTE;
+                    return new EstadoDeModulo(modulo, estado, evaluacion);
+                })
+                .toList();
+    }
+
     /** La regla común a ambos caminos: qué módulos se exigen según el plan y cuántos faltan aprobar. */
     private EstadoAcademico calcularEstadoAcademico(
             Inscripcion inscripcion, List<Modulo> modulos, Predicate<Modulo> moduloAprobado) {
-        Integer moduloInicio = inscripcion.getPlan() != null ? inscripcion.getPlan().getModuloInicio() : null;
-
         List<Modulo> modulosRequeridos = modulos.stream()
-                .filter(modulo -> moduloInicio == null || modulo.getOrden() >= moduloInicio)
+                .filter(modulo -> esRequerido(inscripcion, modulo))
                 .toList();
 
         long pendientes = modulosRequeridos.stream()
@@ -204,6 +236,12 @@ public class InscripcionService {
 
         boolean puedeFinalizar = !modulosRequeridos.isEmpty() && pendientes == 0;
         return new EstadoAcademico(puedeFinalizar, (int) pendientes);
+    }
+
+    /** El plan (Sede) exime los módulos anteriores al de inicio; sin plan se exigen todos. */
+    private static boolean esRequerido(Inscripcion inscripcion, Modulo modulo) {
+        Integer moduloInicio = inscripcion.getPlan() != null ? inscripcion.getPlan().getModuloInicio() : null;
+        return moduloInicio == null || modulo.getOrden() >= moduloInicio;
     }
 
     private Inscripcion cambiarEstado(Long inscripcionId, EstadoInscripcion destino) {

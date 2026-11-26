@@ -184,6 +184,61 @@ class CenmaBaseEvaluacionServiceTest {
         assertThat(service.moduloAprobado(inscripcion, modulo)).isEqualTo(service.moduloAprobado(instancias));
     }
 
+    // --- evaluarModulo: lo que recibe la pantalla de la inscripción ---
+
+    @Test
+    void evaluarModuloCuentaElMinimoSobreLasNotasVigentes() {
+        // Tres NOTA cargadas, pero una es la original reemplazada por un recuperatorio: vigentes, dos.
+        // El frontend contaba las tres y daba el módulo por aprobado.
+        InstanciaEvaluativa original = nota("4.00", 400L);
+        InstanciaEvaluativa recuperatorio = nota("7.00", 401L);
+        recuperatorio.setRecuperaA(original);
+
+        EvaluacionModulo resultado = service.evaluarModulo(List.of(
+                original, recuperatorio, nota("7.00", 402L), integrador("7.00", LocalDate.now())));
+
+        assertThat(resultado.aprobado()).isFalse();
+        assertThat(resultado.notasVigentes()).isEqualTo(2);
+        assertThat(resultado.notasMinimas()).isEqualTo(3);
+        assertThat(resultado.nota()).isEqualByComparingTo("7.00");
+        assertThat(resultado.integradorAprobado()).isTrue();
+    }
+
+    @Test
+    void evaluarModuloRedondeaElPromedioADosDecimalesAntesDeCompararConSeis() {
+        // (5,99 + 6 + 6) / 3 = 5,9966… → 6,00 con HALF_UP: aprueba. Sin redondear, el frontend lo daba desaprobado.
+        EvaluacionModulo resultado = service.evaluarModulo(List.of(
+                nota("5.99"), nota("6.00"), nota("6.00"), integrador("7.00", LocalDate.now())));
+
+        assertThat(resultado.nota()).isEqualTo(new BigDecimal("6.00"));
+        assertThat(resultado.aprobado()).isTrue();
+    }
+
+    @Test
+    void evaluarModuloSinInstanciasNoTieneNotaNiIntegrador() {
+        EvaluacionModulo resultado = service.evaluarModulo(List.of());
+
+        assertThat(resultado.aprobado()).isFalse();
+        assertThat(resultado.nota()).isNull();
+        assertThat(resultado.integradorAprobado()).isFalse();
+        assertThat(resultado.notasVigentes()).isZero();
+        assertThat(resultado.notasMinimas()).isEqualTo(3);
+    }
+
+    @Test
+    void evaluarModuloCoincideConModuloAprobadoPorLista() {
+        List<List<InstanciaEvaluativa>> casos = List.of(
+                List.of(nota("6.00"), nota("7.00"), nota("8.00"), integrador("6.00", LocalDate.now())),
+                List.of(nota("8.00"), nota("9.00"), nota("10.00")),
+                List.of(nota("9.00"), nota("9.00"), integrador("9.00", LocalDate.now())),
+                List.of(nota("4.00"), nota("5.00"), nota("5.00"), integrador("9.00", LocalDate.now())),
+                List.of());
+
+        for (List<InstanciaEvaluativa> caso : casos) {
+            assertThat(service.evaluarModulo(caso).aprobado()).isEqualTo(service.moduloAprobado(caso));
+        }
+    }
+
     private InstanciaEvaluativa integrador(String valor, LocalDate fecha) {
         return InstanciaEvaluativa.builder()
                 .inscripcion(inscripcion).modulo(modulo)

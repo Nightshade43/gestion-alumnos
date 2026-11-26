@@ -206,6 +206,7 @@ El vínculo Persona–Programa, con máquina de estados. El endpoint más grande
 |---|---|---|
 | `POST` | `/api/inscripciones` | Crear (queda en `ACTIVA`) |
 | `GET` | `/api/inscripciones/{id}` | Obtener por id |
+| `GET` | `/api/inscripciones/{id}/modulos` | Estado de cada módulo del programa para esta inscripción (ver abajo) |
 | `GET` | `/api/inscripciones?personaId=&categoria=&estado=` | Listar — filtros opcionales y combinables. `estado` admite varios valores (`?estado=ACTIVA&estado=PAUSADA`); un valor inexistente devuelve 400 |
 | `POST` | `/api/inscripciones/{id}/pausar` | `ACTIVA → PAUSADA` |
 | `POST` | `/api/inscripciones/{id}/reanudar` | `PAUSADA → ACTIVA` |
@@ -234,6 +235,27 @@ no tiene ninguno de los dos).
 distingue el cliente si es particular sin facturar todavía). `puedeFinalizar`/`modulosPendientes`: en
 particulares siempre `true`/`0`; en escolares, `false` si quedan módulos requeridos sin aprobar —
 **el mismo cálculo que usa el propio endpoint de finalizar antes de tirar 422**, no una regla aparte.
+
+### `GET /api/inscripciones/{id}/modulos`
+
+Un elemento por módulo del programa, ordenado por `orden`. Lista vacía si la inscripción es `PARTICULAR`;
+404 si no existe. Va aparte de `InscripcionResponse` para no sumar el detalle por módulo al listado.
+
+**`EstadoModuloResponse`** (ejemplo: Sede con Plan C, que inicia en el módulo 6)
+```json
+[
+  { "moduloId": 11, "orden": 1, "estado": "EXIMIDO",   "nota": null, "integradorAprobado": false, "notasVigentes": null, "notasMinimas": null },
+  { "moduloId": 16, "orden": 6, "estado": "APROBADO",  "nota": 8.00, "integradorAprobado": true,  "notasVigentes": null, "notasMinimas": null },
+  { "moduloId": 17, "orden": 7, "estado": "PENDIENTE", "nota": null, "integradorAprobado": false, "notasVigentes": null, "notasMinimas": null }
+]
+```
+- `estado`: `APROBADO` | `PENDIENTE` | `EXIMIDO`. `EXIMIDO` = anterior al `moduloInicio` del plan. Un módulo
+  es `PENDIENTE` si y solo si suma en `modulosPendientes`: es la misma regla, no un cálculo paralelo.
+- `nota`: en `CENMA_BASE`, el promedio de las notas vigentes (`HALF_UP`, 2 decimales); en `CENMA_SEDE`, la
+  `EVALUACION_FINAL` más reciente por fecha. `null` si todavía no hay con qué calcularla.
+- `integradorAprobado`: el `TP_INTEGRADOR` (Sede) o el `INTEGRADOR` (Base) más reciente por fecha.
+- `notasVigentes` / `notasMinimas`: solo `CENMA_BASE` (notas que entran al promedio, sin integrador ni
+  originales reemplazadas por recuperatorio, y el mínimo exigido). `null` en `CENMA_SEDE`.
 
 ### Máquina de estados
 

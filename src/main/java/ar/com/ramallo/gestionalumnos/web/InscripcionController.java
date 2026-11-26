@@ -8,6 +8,7 @@ import ar.com.ramallo.gestionalumnos.exception.RecursoNoEncontradoException;
 import ar.com.ramallo.gestionalumnos.repository.GrupoRepository;
 import ar.com.ramallo.gestionalumnos.repository.InscripcionRepository;
 import ar.com.ramallo.gestionalumnos.service.InscripcionService;
+import ar.com.ramallo.gestionalumnos.web.dto.EstadoModuloResponse;
 import ar.com.ramallo.gestionalumnos.web.dto.InscripcionRequest;
 import ar.com.ramallo.gestionalumnos.web.dto.InscripcionResponse;
 import jakarta.validation.Valid;
@@ -39,6 +40,17 @@ public class InscripcionController {
     @GetMapping("/{id}")
     public InscripcionResponse obtener(@PathVariable Long id) {
         return armarResponse(buscarOFallar(id));
+    }
+
+    /**
+     * Estado de cada módulo del programa para esta inscripción. Va aparte de {@link #obtener(Long)} para no sumar
+     * el detalle por módulo a cada respuesta de inscripción ni al listado, que solo necesitan los totales.
+     */
+    @GetMapping("/{id}/modulos")
+    public List<EstadoModuloResponse> modulos(@PathVariable Long id) {
+        return inscripcionService.evaluarModulos(buscarOFallar(id)).stream()
+                .map(EstadoModuloResponse::from)
+                .toList();
     }
 
     /**

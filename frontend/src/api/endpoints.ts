@@ -59,6 +59,7 @@ export const inscripciones = {
   },
   byPersona:  (personaId: number) => api.get<T.InscripcionResponse[]>(`/api/inscripciones?personaId=${personaId}`),
   get:        (id: number) => api.get<T.InscripcionResponse>(`/api/inscripciones/${id}`),
+  modulos:    (id: number) => api.get<T.EstadoModuloResponse[]>(`/api/inscripciones/${id}/modulos`),
   create:     (b: T.InscripcionRequest) => api.post<T.InscripcionResponse>('/api/inscripciones', b),
   pausar:     (id: number) => api.post<T.InscripcionResponse>(`/api/inscripciones/${id}/pausar`),
   reanudar:   (id: number) => api.post<T.InscripcionResponse>(`/api/inscripciones/${id}/reanudar`),

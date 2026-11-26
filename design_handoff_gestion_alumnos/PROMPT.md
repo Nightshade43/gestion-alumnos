@@ -55,7 +55,8 @@ escribirlas de nuevo. Si algo no coincide con `design/App.dc.html`, gana el mock
 Heurísticas de cliente marcadas en el código, por si el backend cambia (las tres están
 justificadas en `BACKEND.md`):
 - el tope del pool solo aplica con `PAQUETE`;
-- "módulo aprobado" lo calcula el front (`evaluarModulo` en `InscripcionScreen.tsx`);
+- ~~"módulo aprobado" lo calcula el front (`evaluarModulo` en `InscripcionScreen.tsx`)~~: desde
+  `GET /api/inscripciones/{id}/modulos` lo calcula el backend y `evaluarModulo` se borró;
 - el gate de Sede (`TP_INTEGRADOR`) usa `aprobado`; el `INTEGRADOR` de Base lleva nota (desde 6).
 
 Si el backend implementa alguno de los 8 puntos de `BACKEND.md`, borrá el workaround

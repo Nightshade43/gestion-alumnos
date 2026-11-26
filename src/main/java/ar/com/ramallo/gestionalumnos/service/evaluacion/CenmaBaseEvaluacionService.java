@@ -67,6 +67,18 @@ public class CenmaBaseEvaluacionService implements EstrategiaEvaluacionService {
         return promedio(notasVigentesParaPromedio(instanciasDe(inscripcion, modulo)));
     }
 
+    @Override
+    public EvaluacionModulo evaluarModulo(List<InstanciaEvaluativa> instancias) {
+        // El mínimo se cuenta sobre las vigentes, igual que en moduloAprobado: una nota recuperada no suma dos veces.
+        List<InstanciaEvaluativa> vigentes = notasVigentesParaPromedio(instancias);
+        return new EvaluacionModulo(
+                moduloAprobado(instancias),
+                promedio(vigentes).orElse(null),
+                integradorAprobado(instancias),
+                vigentes.size(),
+                MINIMO_NOTAS_POR_MODULO);
+    }
+
     public DetalleNotasModulo detalleNotas(Inscripcion inscripcion, Modulo modulo) {
         List<InstanciaEvaluativa> todasLasNotas = instanciasDe(inscripcion, modulo);
         return new DetalleNotasModulo(todasLasNotas, promedio(notasVigentesParaPromedio(todasLasNotas)));

@@ -19,6 +19,8 @@ export const qk = {
   contratosLista: (f: { empresaId?: number; estado?: T.EstadoContrato } = {}) =>
     ['contratos', 'list', f.empresaId ?? null, f.estado ?? null] as const,
   inscripcion: (id: number) => ['inscripciones', id] as const,
+  // Cuelga de qk.inscripcion: invalidar la inscripción (p. ej. al cargar una nota) invalida también esto.
+  estadoModulos: (id: number) => ['inscripciones', id, 'modulos'] as const,
   contrato: (id: number) => ['contratos', id] as const,
   instancias: (iid: number) => ['instancias', iid] as const,
   seguimientos: (iid: number) => ['seguimientos', iid] as const,
@@ -45,6 +47,9 @@ export const useGrupos = (programaId?: number) => useQuery({
 
 export const useInscripcion = (id?: number) => useQuery({
   queryKey: qk.inscripcion(id!), queryFn: () => ep.inscripciones.get(id!), enabled: !!id,
+});
+export const useEstadoModulos = (id?: number) => useQuery({
+  queryKey: qk.estadoModulos(id!), queryFn: () => ep.inscripciones.modulos(id!), enabled: !!id,
 });
 export const useSeguimientos = (iid?: number) => useQuery({
   queryKey: qk.seguimientos(iid!), queryFn: () => ep.seguimientos.byInscripcion(iid!), enabled: !!iid,

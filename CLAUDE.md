@@ -69,9 +69,10 @@ bloquea el frontend.** No implementarlos desde el cliente ni asumir campos que t
 existen. Si se implementa alguno en el backend, borrar el workaround correspondiente en el
 mismo commit.
 
-Workarounds vigentes marcados en el código:
-- `evaluarModulo` en `InscripcionScreen.tsx` (la API no expone "módulo aprobado"); tiene que
-  seguir la regla de los `*EvaluacionService` del backend, incluido el integrador de Base.
+No quedan workarounds de reglas de negocio en el cliente. El estado de cada módulo (aprobado,
+pendiente, eximido, nota, conteo de notas de Base) viene de `GET /api/inscripciones/{id}/modulos`:
+no recalcularlo en el frontend. Lo único que `InscripcionScreen.tsx` sigue derivando por su cuenta es
+el detalle de cada fila de la tabla de notas (color de la nota y columna "Promedia").
 
 ## Desarrollo
 
