@@ -166,20 +166,21 @@ ar.com.ramallo.gestionalumnos
 
 ---
 
-## 8. Estado actual
+## 8. Estado actual — v1.0.0
 
-**Completo y testeado (121 tests, `./mvnw test`):**
+**Completo y testeado (201 tests, `./mvnw test`):**
 - Las 13 entidades del modelo de dominio, persistidas contra PostgreSQL real (no H2), con tests de integración (`@DataJpaTest` + `@AutoConfigureTestDatabase(Replace.NONE)`) cubriendo: mapeo de relaciones, unique constraints compuestas, recuperatorio auto-referenciado, defaults de builder, y ambas ramas de negocio (escolar y particular) de punta a punta.
 - `repository/`: interfaces `JpaRepository` completas.
 - `service/`: `InscripcionService` (máquina de estados, validación de unicidad ESCOLAR), `ContratoService` (individuales y de Empresa con pool compartido), `SeguimientoService`, y `service/evaluacion/` (Strategy pattern por `estrategiaEvaluacion`).
 - `web/`: 12 controllers REST, autenticación JWT stateless (`AuthController` + filtro), manejo de errores centralizado con el shape único `{ timestamp, status, error, message }`.
 - `frontend/`: las 11 pantallas (Vite + React 19 + TypeScript + TanStack Query) consumiendo esta API, con tema visual propio (Dark CENMA) documentado en `design_handoff_gestion_alumnos/`.
+- Errores del cliente mapeados a 400/404/405/415 con el mismo shape (antes caían en 500).
+- `GET /api/inscripciones` evaluado por lotes: con 300 alumnos, de ≈2570 consultas y ≈960 ms a 3 consultas y ≈50 ms (benchmark en `scripts/benchmark/`).
+- CI en GitHub Actions (`ci.yml`: backend contra PostgreSQL 16 + build del frontend) y release automático del jar (`release.yml`, por tag `v*`, con control de versión del `pom.xml`).
+- Lanzador local de doble clic para Windows (`iniciar.bat` / `construir.bat`), probado en las dos PCs.
+- Dependencias del frontend sin vulnerabilidades conocidas (`npm audit`); las alertas eran de herramientas de desarrollo (Vite) y no llegaban al jar.
 
 **Pendiente** (detalle en la sección 6 de este documento y en `design_handoff_gestion_alumnos/BACKEND.md`):
-- 1 de los 8 puntos de `BACKEND.md` (métricas de Inicio, opcional); los otros 7 están resueltos.
-- CI (no hay `.github/workflows`), CORS, Dockerfile/deploy, Actuator, migraciones versionadas.
-
-### Próximo entregable
-
-Los 3 puntos de `BACKEND.md` resueltos en el backend (listado global de seguimientos, `puedeFinalizar`, `EmpleadoCubierto`) ya están adoptados en el frontend. El campo `aprobado` del gate de Sede (punto 7, solo `TP_INTEGRADOR`) también está resuelto. Los puntos 4, 5 y 6 también están resueltos (contadores de programa, filtros de contratos, `PUT` de Institución y Empresa); solo queda el 8 (métricas de Inicio, opcional). La UI de edición de Institución y Empresa ya está.
-
+- Los 7 puntos funcionales de `BACKEND.md` están resueltos; el 8 (métricas de Inicio) quedó fuera de alcance tras medir con datos sintéticos (`scripts/benchmark/`).
+- Tests automatizados del frontend.
+- CORS, Docker/deploy, Actuator, migraciones versionadas, logging estructurado.
