@@ -10,7 +10,7 @@
     </parent>
     <groupId>ar.com.ramallo</groupId>
     <artifactId>gestion-alumnos</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <name>gestion-alumnos</name>
     <description>gestion-alumnos</description>
     <url/>
