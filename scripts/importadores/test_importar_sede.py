@@ -133,5 +133,76 @@ class Planificar(unittest.TestCase):
         self.assertEqual(repetidos[0][0]["id_export"], "b")
 
 
+class ApiFalsa:
+    """Responde GET por ruta, como el backend; registra lo pedido para comprobar que no se escribe nada."""
+
+    def __init__(self, rutas):
+        self.rutas, self.pedidos = rutas, []
+
+    def enviar(self, metodo, ruta, cuerpo=None):
+        self.pedidos.append((metodo, ruta))
+        return self.rutas[ruta]
+
+
+def estructura_completa(**cambios):
+    rutas = {
+        "/api/programas": [{"id": 5, "nombre": "Inglés Sede", "estrategiaEvaluacion": "CENMA_SEDE"},
+                           {"id": 6, "nombre": "Inglés Base", "estrategiaEvaluacion": "CENMA_BASE"}],
+        "/api/modulos?programaId=5": [{"id": 50 + o, "orden": o} for o in range(1, 10)],
+        "/api/planes?programaId=5": [{"id": 70, "codigo": "A", "moduloInicio": 1},
+                                     {"id": 71, "codigo": "B", "moduloInicio": 4},
+                                     {"id": 72, "codigo": "C", "moduloInicio": 6}],
+        "/api/grupos?programaId=5": [{"id": 80, "dia": "miercoles"}, {"id": 81, "dia": "Jueves"}],
+        "/api/personas": [{"id": 1, "documento": "30111222"}, {"id": 2, "documento": None}],
+    }
+    rutas.update(cambios)
+    return ApiFalsa(rutas)
+
+
+class VerificarEstructura(unittest.TestCase):
+    def alumnos(self):
+        return [imp.planificar_alumno(alumno([], plan="B")), imp.planificar_alumno(alumno([], plan="A"))]
+
+    def test_estructura_completa_da_los_ids_y_solo_lee(self):
+        api = estructura_completa()
+        estructura, problemas = imp.verificar_estructura(api, self.alumnos())
+        self.assertEqual(problemas, [])
+        self.assertEqual(estructura["planes"], {"A": 70, "B": 71})
+        self.assertEqual(estructura["grupos"], {"Miércoles": 80})   # sin acentos ni mayúsculas
+        self.assertEqual(estructura["modulos"][7], 57)
+        self.assertTrue(all(metodo == "GET" for metodo, _ in api.pedidos))
+
+    def test_informa_lo_que_falta(self):
+        api = estructura_completa(**{
+            "/api/modulos?programaId=5": [{"id": 51, "orden": 1}],
+            "/api/planes?programaId=5": [{"id": 71, "codigo": "B", "moduloInicio": 3}],
+            "/api/grupos?programaId=5": [],
+        })
+        _, problemas = imp.verificar_estructura(api, self.alumnos())
+        texto = " | ".join(problemas)
+        self.assertIn("falta el módulo 7", texto)
+        self.assertIn("falta el plan A", texto)
+        self.assertIn("el plan B inicia en el módulo 3", texto)
+        self.assertIn("falta el grupo 'Miércoles'", texto)
+
+    def test_sin_programa_de_sede_o_con_varios(self):
+        _, problemas = imp.verificar_estructura(estructura_completa(**{"/api/programas": []}), self.alumnos())
+        self.assertIn("CENMA_SEDE", problemas[0])
+        dos = [{"id": 5, "nombre": "a", "estrategiaEvaluacion": "CENMA_SEDE"},
+               {"id": 9, "nombre": "b", "estrategiaEvaluacion": "CENMA_SEDE"}]
+        _, problemas = imp.verificar_estructura(estructura_completa(**{"/api/programas": dos}), self.alumnos())
+        self.assertIn("--programa-id", problemas[0])
+        estructura, problemas = imp.verificar_estructura(
+            estructura_completa(**{"/api/programas": dos}), self.alumnos(), programa_id=5)
+        self.assertEqual((problemas, estructura["programa"]["id"]), ([], 5))
+
+    def test_marca_los_dni_que_ya_existen(self):
+        alumnos = [imp.planificar_alumno(alumno([], dni="30111222", id_="a")),
+                   imp.planificar_alumno(alumno([], dni="30999888", id_="b"))]
+        self.assertEqual(imp.marcar_existentes(estructura_completa(), alumnos), 1)
+        self.assertEqual([a["ya_existe"] for a in alumnos], [True, False])
+        self.assertEqual(imp.resumen(alumnos, [])["ya existen en gestion-alumnos (se saltean)"], 1)
+
+
 if __name__ == "__main__":
     unittest.main()

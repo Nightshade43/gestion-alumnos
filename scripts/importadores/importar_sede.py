@@ -3,13 +3,17 @@
 """
 Importador de CENMA Sede desde el export JSON de la app CENMA (solo librería estándar).
 
-Capa 1 (esta versión): lee el export, normaliza los datos sucios y arma, para cada alumno, lo que
-se cargaría en gestion-alumnos (persona, inscripción e instancias evaluativas). No usa la API: escribe
-un reporte en Datos/ y muestra solo cantidades por consola. La pasada en seco contra la API y la carga
-real (--confirmar) son las capas siguientes.
+Capa 1: lee el export, normaliza los datos sucios y arma, para cada alumno, lo que se cargaría en
+gestion-alumnos (persona, inscripción e instancias evaluativas).
+Capa 2: pasada en seco contra la API (solo GET). Verifica que exista la estructura de CENMA Sede
+(programa, módulos 1-7, planes y grupos que el export usa) y marca los alumnos cuyo DNI ya existe, que
+se saltearían. No crea nada. Con --sin-api se queda en la capa 1.
+La carga real (--confirmar) es la capa siguiente.
 
-Uso, desde la raíz del repo:
+Uso, desde la raíz del repo y con el backend levantado:
   python scripts/importadores/importar_sede.py Datos/cenma_ingles_AAAA-MM-DD.json
+Credenciales: --usuario/--clave, las variables GA_USUARIO/GA_CLAVE o un login.json con
+{"username": ..., "password": ...} en la carpeta actual o en la raíz del repo (está en .gitignore).
 
 El reporte (con nombres y DNI) queda en Datos/, que está en .gitignore. La consola no muestra datos
 personales para que la salida se pueda copiar sin cuidado.
@@ -18,10 +22,13 @@ Mapeo y decisiones: claude/importador-sede-mapeo.md (proyecto) y scripts/importa
 """
 
 import argparse
+import http.client
 import json
 import os
 import re
 import sys
+import unicodedata
+import urllib.parse
 from collections import Counter
 from datetime import date, datetime, timedelta, timezone
 
@@ -225,12 +232,144 @@ def planificar(export):
 
 
 # ---------------------------------------------------------------------------------------------
+# API (capa 2: solo lectura)
+# ---------------------------------------------------------------------------------------------
+
+RAIZ_REPO = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+
+
+class ErrorApi(Exception):
+    pass
+
+
+class Api:
+    """Cliente HTTP mínimo, como el del benchmark: una conexión, JSON de ida y vuelta, token JWT."""
+
+    def __init__(self, base):
+        u = urllib.parse.urlparse(base)
+        self.host, self.port = u.hostname or "localhost", u.port or 80
+        self.token = None
+
+    def enviar(self, metodo, ruta, cuerpo=None):
+        cabeceras = {"Accept": "application/json"}
+        datos = None
+        if cuerpo is not None:
+            datos = json.dumps(cuerpo).encode("utf-8")
+            cabeceras["Content-Type"] = "application/json"
+        if self.token:
+            cabeceras["Authorization"] = "Bearer " + self.token
+        conn = http.client.HTTPConnection(self.host, self.port, timeout=60)
+        try:
+            conn.request(metodo, ruta, body=datos, headers=cabeceras)
+            resp = conn.getresponse()
+            crudo = resp.read()
+        except OSError as e:
+            raise ErrorApi("No se pudo conectar con el backend en %s:%s (%s). ¿Está levantado? "
+                           "Para analizar el export sin API: --sin-api." % (self.host, self.port, e))
+        finally:
+            conn.close()
+        if not 200 <= resp.status < 300:
+            raise ErrorApi("%s %s -> %s: %s" % (metodo, ruta, resp.status, crudo[:300].decode("utf-8", "replace")))
+        return json.loads(crudo) if crudo else None
+
+
+def ubicar(nombre):
+    for carpeta in (os.getcwd(), RAIZ_REPO):
+        candidato = os.path.join(carpeta, nombre)
+        if os.path.exists(candidato):
+            return candidato
+    return None
+
+
+def autenticar(api, args):
+    usuario = args.usuario or os.environ.get("GA_USUARIO")
+    clave = args.clave or os.environ.get("GA_CLAVE")
+    archivo = args.credenciales or ubicar("login.json")
+    if (not usuario or not clave) and archivo:
+        with open(archivo, encoding="utf-8-sig") as f:
+            cred = json.load(f)
+        usuario, clave = usuario or cred.get("username"), clave or cred.get("password")
+    if not usuario or not clave:
+        raise ErrorApi("Faltan credenciales: --usuario/--clave, GA_USUARIO/GA_CLAVE o un login.json "
+                       "con {\"username\": ..., \"password\": ...}.")
+    api.token = api.enviar("POST", "/api/auth/login", {"username": usuario, "password": clave})["token"]
+
+
+def sin_acentos(texto):
+    """'Miércoles' y 'miercoles' tienen que encontrar el mismo grupo."""
+    return "".join(c for c in unicodedata.normalize("NFD", texto) if unicodedata.category(c) != "Mn").strip().lower()
+
+
+def verificar_estructura(api, alumnos, programa_id=None):
+    """Busca en gestion-alumnos lo que la importación necesita, sin crear nada.
+
+    Devuelve (estructura, problemas). `estructura` tiene los ids a usar en la carga; `problemas` lo que
+    falta o no coincide. Solo exige los planes y grupos que el export realmente usa."""
+    problemas = []
+    estructura = {"programa": None, "modulos": {}, "planes": {}, "grupos": {}}
+
+    sede = [p for p in api.enviar("GET", "/api/programas") if p["estrategiaEvaluacion"] == "CENMA_SEDE"]
+    if programa_id is not None:
+        sede = [p for p in sede if p["id"] == programa_id]
+        if not sede:
+            return estructura, ["no hay un programa CENMA_SEDE con id %d" % programa_id]
+    elif not sede:
+        return estructura, ["no hay ningún programa con estrategia CENMA_SEDE: crealo desde Programas"]
+    elif len(sede) > 1:
+        return estructura, ["hay %d programas CENMA_SEDE (ids %s): elegí uno con --programa-id"
+                            % (len(sede), ", ".join(str(p["id"]) for p in sede))]
+    programa = sede[0]
+    estructura["programa"] = programa
+    pid = programa["id"]
+
+    ordenes = {m["orden"]: m for m in api.enviar("GET", "/api/modulos?programaId=%d" % pid)}
+    necesarios = sorted({i["modulo"] for a in alumnos for i in a["instancias"]} | set(range(1, 8)))
+    for orden in necesarios:
+        if orden in ordenes:
+            estructura["modulos"][orden] = ordenes[orden]["id"]
+        else:
+            problemas.append("falta el módulo %d en el programa '%s'" % (orden, programa["nombre"]))
+
+    planes = {p["codigo"].strip().upper(): p for p in api.enviar("GET", "/api/planes?programaId=%d" % pid)}
+    for codigo in sorted({a["plan"] for a in alumnos if a["plan"]}):
+        plan = planes.get(codigo)
+        if plan is None:
+            problemas.append("falta el plan %s (inicia en el módulo %d)" % (codigo, INICIO_PLAN[codigo]))
+        elif plan["moduloInicio"] != INICIO_PLAN[codigo]:
+            problemas.append("el plan %s inicia en el módulo %d y debería iniciar en el %d"
+                             % (codigo, plan["moduloInicio"], INICIO_PLAN[codigo]))
+        else:
+            estructura["planes"][codigo] = plan["id"]
+
+    grupos = {sin_acentos(g["dia"]): g for g in api.enviar("GET", "/api/grupos?programaId=%d" % pid)}
+    for dia in sorted({a["grupo"] for a in alumnos}):
+        grupo = grupos.get(sin_acentos(dia))
+        if grupo is None:
+            problemas.append("falta el grupo '%s'" % dia)
+        else:
+            estructura["grupos"][dia] = grupo["id"]
+
+    return estructura, problemas
+
+
+def marcar_existentes(api, alumnos):
+    """Marca los alumnos cuyo DNI ya está en gestion-alumnos: se saltean (así una segunda corrida no duplica)."""
+    existentes = {(p.get("documento") or "").strip() for p in api.enviar("GET", "/api/personas")}
+    for a in alumnos:
+        a["ya_existe"] = a["dni"] in existentes
+    return sum(a["ya_existe"] for a in alumnos)
+
+
+# ---------------------------------------------------------------------------------------------
 # Salida
 # ---------------------------------------------------------------------------------------------
 
 def resumen(alumnos, repetidos):
     c = Counter()
     for a in alumnos:
+        if a.get("ya_existe"):
+            c["ya existen en gestion-alumnos (se saltean)"] += 1
+            continue
         c["alumnos"] += 1
         c["inscripción " + a["estado_inscripcion"]] += 1
         c["plan %s (%s)" % (a["plan"] or "-", a["origen_plan"])] += 1
@@ -242,10 +381,21 @@ def resumen(alumnos, repetidos):
     return c
 
 
-def escribir_reporte(ruta, origen, alumnos, repetidos):
+def escribir_reporte(ruta, origen, alumnos, repetidos, verificacion=None):
     with open(ruta, "w", encoding="utf-8") as f:
-        f.write("Importador CENMA Sede, capa 1 (sin API)\nExport: %s\nGenerado: %s\n\n"
-                % (origen, datetime.now().isoformat(timespec="seconds")))
+        f.write("Importador CENMA Sede, %s\nExport: %s\nGenerado: %s\n\n"
+                % ("pasada en seco contra la API (no se creó nada)" if verificacion else "análisis sin API",
+                   origen, datetime.now().isoformat(timespec="seconds")))
+        if verificacion:
+            estructura, problemas = verificacion
+            f.write("== Estructura en gestion-alumnos ==\n")
+            if estructura["programa"]:
+                f.write("Programa: %s (id %d)\nMódulos: %s\nPlanes: %s\nGrupos: %s\n"
+                        % (estructura["programa"]["nombre"], estructura["programa"]["id"],
+                           estructura["modulos"], estructura["planes"], estructura["grupos"]))
+            for problema in problemas:
+                f.write("FALTA: %s\n" % problema)
+            f.write("\n")
         f.write("== Resumen ==\n")
         for k, v in sorted(resumen(alumnos, repetidos).items()):
             f.write("%5d  %s\n" % (v, k))
@@ -255,6 +405,10 @@ def escribir_reporte(ruta, origen, alumnos, repetidos):
                     % (p["dni"], p["nombre"], p["id_export"], original["nombre"], original["id_export"]))
         f.write("\n== Alumnos ==\n")
         for a in alumnos:
+            if a.get("ya_existe"):
+                f.write("\n%s | DNI %s | YA EXISTE en gestion-alumnos: se saltea | id %s\n"
+                        % (a["nombre"], a["dni"], a["id_export"]))
+                continue
             f.write("\n%s | DNI %s | %s | plan %s (%s) | inicio %s | %s | id %s\n"
                     % (a["nombre"], a["dni"], a["grupo"], a["plan"] or "-", a["origen_plan"],
                        a["fecha_inicio"].isoformat(), a["estado_inscripcion"], a["id_export"]))
@@ -268,9 +422,15 @@ def escribir_reporte(ruta, origen, alumnos, repetidos):
 
 
 def parsear(argv=None):
-    p = argparse.ArgumentParser(description="Importador de CENMA Sede (capa 1: lectura y reporte, sin API).")
+    p = argparse.ArgumentParser(description="Importador de CENMA Sede (pasada en seco: no crea nada).")
     p.add_argument("export", help="JSON exportado de la app CENMA (va en Datos/, que no se versiona)")
     p.add_argument("--reporte", help="ruta del reporte (def. junto al export: reporte-sede-AAAAMMDD-HHMMSS.txt)")
+    p.add_argument("--sin-api", action="store_true", help="solo analizar el export, sin conectarse al backend")
+    p.add_argument("--base", default="http://localhost:8080", help="URL del backend (def. http://localhost:8080)")
+    p.add_argument("--programa-id", type=int, help="id del programa CENMA_SEDE si hay más de uno")
+    p.add_argument("--usuario")
+    p.add_argument("--clave")
+    p.add_argument("--credenciales", help="JSON {username, password} (def. login.json en la carpeta actual o la raíz del repo)")
     return p.parse_args(argv)
 
 
@@ -279,13 +439,31 @@ def main(argv=None):
     with open(a.export, encoding="utf-8-sig") as f:
         export = json.load(f)
     alumnos, repetidos = planificar(export)
+
+    verificacion = None
+    if not a.sin_api:
+        api = Api(a.base)
+        try:
+            autenticar(api, a)
+            verificacion = verificar_estructura(api, alumnos, a.programa_id)
+            marcar_existentes(api, alumnos)
+        except ErrorApi as e:
+            print("ERROR: %s" % e)
+            return 1
+
     ruta = a.reporte or os.path.join(os.path.dirname(os.path.abspath(a.export)),
                                      "reporte-sede-%s.txt" % datetime.now().strftime("%Y%m%d-%H%M%S"))
-    escribir_reporte(ruta, a.export, alumnos, repetidos)
+    escribir_reporte(ruta, a.export, alumnos, repetidos, verificacion)
     for k, v in sorted(resumen(alumnos, repetidos).items()):
         print("%5d  %s" % (v, k))
+    if verificacion:
+        estructura, problemas = verificacion
+        print("\nEstructura en gestion-alumnos: %s" % ("OK" if not problemas else "%d problema(s)" % len(problemas)))
+        for problema in problemas:
+            print("  FALTA: %s" % problema)
+        print("Pasada en seco: no se creó nada.")
     print("\nReporte con el detalle por alumno: %s" % ruta)
-    return 0
+    return 2 if verificacion and verificacion[1] else 0
 
 
 if __name__ == "__main__":
